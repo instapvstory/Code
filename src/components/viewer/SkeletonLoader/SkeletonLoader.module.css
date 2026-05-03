@@ -1,0 +1,131 @@
+@keyframes shimmer {
+  0% { background-position: -600px 0; }
+  100% { background-position: 600px 0; }
+}
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.04) 25%,
+    rgba(255, 255, 255, 0.09) 50%,
+    rgba(255, 255, 255, 0.04) 75%
+  );
+  background-size: 600px 100%;
+  animation: shimmer 1.6s infinite linear;
+  border-radius: 8px;
+}
+
+.wrapper {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 32px 24px;
+}
+
+.profileRow {
+  display: flex;
+  align-items: center;
+  gap: 60px;
+  margin-bottom: 24px;
+}
+
+.avatarSkeleton {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.statsRow {
+  display: flex;
+  gap: 40px;
+  flex: 1;
+}
+
+.statBox {
+  width: 80px;
+  height: 48px;
+  border-radius: 8px;
+}
+
+.bioSection {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 28px;
+  padding-left: 4px;
+}
+
+.line {
+  height: 14px;
+  border-radius: 6px;
+}
+
+.tabsSkeleton {
+  display: flex;
+  gap: 40px;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  padding-bottom: 0;
+  margin-bottom: 24px;
+}
+
+.tabItem {
+  width: 100px;
+  height: 36px;
+  border-radius: 6px;
+  margin-bottom: 0;
+}
+
+.gridSkeleton {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+}
+
+.gridCell {
+  aspect-ratio: 1;
+  border-radius: 4px;
+  min-height: 160px;
+}
+
+@media (max-width: 640px) {
+  .wrapper {
+    padding: 20px 12px;
+  }
+  .profileRow {
+    gap: 20px;
+  }
+  .avatarSkeleton {
+    width: 80px;
+    height: 80px;
+  }
+  .statsRow {
+    gap: 12px;
+  }
+  .statBox {
+    width: 100%;
+    max-width: 70px;
+  }
+}
+
+@media (max-width: 480px) {
+  .profileRow {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  .avatarSkeleton {
+    width: 72px;
+    height: 72px;
+  }
+  .statsRow {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .tabsSkeleton {
+    gap: 16px;
+    overflow-x: hidden;
+  }
+  .tabItem {
+    width: 80px;
+  }
+}

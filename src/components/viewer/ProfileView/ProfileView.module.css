@@ -1,0 +1,399 @@
+.wrapper {
+  max-width: 1024px;
+  margin: 0 auto;
+  padding: 40px 24px;
+}
+
+/* Profile Header Row */
+.profileHeader {
+  display: flex;
+  align-items: center;
+  gap: 100px;
+  margin-bottom: 32px;
+}
+
+.avatarWrap {
+  flex-shrink: 0;
+}
+
+.avatar {
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: none;
+}
+
+.statsSection {
+  display: flex;
+  gap: 80px;
+}
+
+.statItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.statNumber {
+  font-size: 2rem;
+  font-weight: 400;
+  color: #f8fafc;
+  letter-spacing: -0.02em;
+}
+
+.statLabel {
+  font-size: 1rem;
+  color: #9ca3af;
+  font-weight: 400;
+}
+
+/* Bio */
+.bioSection {
+  margin-bottom: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.usernameRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.username {
+  font-size: 0.95rem;
+  color: #d1d5db;
+}
+
+.copyBtn {
+  background: transparent;
+  border: none;
+  color: #6b7280;
+  cursor: pointer;
+  padding: 2px;
+  display: flex;
+  align-items: center;
+  transition: color 0.2s;
+}
+
+.copyBtn:hover {
+  color: #a855f7;
+}
+
+.fullName {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.verified {
+  flex-shrink: 0;
+}
+
+.category {
+  font-size: 0.8rem;
+  color: #9ca3af;
+}
+
+.bio {
+  font-size: 0.875rem;
+  color: #d1d5db;
+  line-height: 1.5;
+  margin: 0;
+  white-space: pre-line;
+}
+
+.website {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.875rem;
+  color: #60a5fa;
+  text-decoration: none;
+}
+
+.website:hover {
+  text-decoration: underline;
+}
+
+.businessBadge {
+  font-size: 0.8rem;
+  color: #9ca3af;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.businessBadge span {
+  color: #4ade80;
+}
+
+/* Avatar Ring */
+.avatarRing {
+  position: relative;
+  padding: 0;
+  border-radius: 50%;
+  background: none;
+}
+
+.avatarRing .avatar {
+  border: none;
+}
+
+/* Action Buttons */
+.actionButtons {
+  display: flex;
+  gap: 8px;
+  margin: 12px 0 16px;
+}
+
+.followBtn {
+  background: #0095f6;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  padding: 7px 24px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.followBtn:hover {
+  background: #1877f2;
+}
+
+.secondaryBtn {
+  background: #363636;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  padding: 7px 16px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.secondaryBtn:hover {
+  background: #262626;
+}
+
+/* Story / Highlights Tabs */
+.contentTabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  margin-bottom: 20px;
+}
+
+.contentTab {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: #6b7280;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: inherit;
+  transition: color 0.2s;
+  margin-bottom: -1px;
+}
+
+.contentTab:hover {
+  color: #d1d5db;
+}
+
+.contentTabActive {
+  color: #ffffff;
+  border-bottom-color: #7c3aed;
+}
+
+/* No Content */
+.noContent {
+  text-align: center;
+  padding: 60px 24px;
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+
+/* Highlights Grid */
+.highlightsGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  padding: 12px 0;
+}
+
+.highlightItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  width: 100px;
+}
+
+.highlightCover {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(168, 85, 247, 0.5);
+  padding: 2px;
+}
+
+.highlightInfo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  width: 100%;
+}
+
+.highlightTitle {
+  font-size: 0.75rem;
+  color: #d1d5db;
+  text-align: center;
+  max-width: 100px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 600;
+}
+
+.highlightCaption {
+  font-size: 0.65rem;
+  color: #9ca3af;
+  text-align: center;
+  max-width: 100px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  line-height: 1.2;
+}
+
+.highlightCount {
+  font-size: 0.6rem;
+  color: #7c3aed;
+  background: rgba(124, 58, 237, 0.1);
+  padding: 1px 4px;
+  border-radius: 4px;
+  margin-top: 2px;
+}
+
+@media (max-width: 768px) {
+  .wrapper {
+    padding: 24px 16px;
+  }
+  .profileHeader {
+    gap: 40px;
+  }
+  .statsSection {
+    gap: 36px;
+  }
+  .avatar {
+    width: 120px;
+    height: 120px;
+  }
+  .statNumber {
+    font-size: 1.4rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .wrapper {
+    padding: 20px 12px;
+  }
+  .profileHeader {
+    gap: 24px;
+    margin-bottom: 16px;
+  }
+  .avatar {
+    width: 90px;
+    height: 90px;
+  }
+  .statsSection {
+    gap: 24px;
+    flex: 1;
+    justify-content: flex-start;
+  }
+  .statNumber {
+    font-size: 1.2rem;
+  }
+  .statLabel {
+    font-size: 0.78rem;
+  }
+  .fullName {
+    font-size: 0.95rem;
+  }
+  .bio {
+    font-size: 0.82rem;
+  }
+  .contentTab {
+    padding: 10px 12px;
+    font-size: 0.8rem;
+    gap: 4px;
+  }
+  .highlightsGrid {
+    gap: 14px;
+  }
+  .highlightItem {
+    width: 80px;
+  }
+}
+
+@media (max-width: 480px) {
+  .profileHeader {
+    flex-direction: row;
+    align-items: center;
+    gap: 16px;
+  }
+  .statsSection {
+    flex: 1;
+    justify-content: space-around;
+    gap: 8px;
+  }
+  .avatar {
+    width: 72px;
+    height: 72px;
+  }
+  .statNumber {
+    font-size: 1rem;
+  }
+  .statLabel {
+    font-size: 0.72rem;
+  }
+  .highlightCover {
+    width: 60px;
+    height: 60px;
+  }
+  .highlightItem {
+    width: 72px;
+  }
+  .contentTabs {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .contentTabs::-webkit-scrollbar {
+    display: none;
+  }
+  .contentTab {
+    white-space: nowrap;
+    flex-shrink: 0;
+    padding: 10px 10px;
+    font-size: 0.75rem;
+  }
+}
+

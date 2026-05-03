@@ -1,0 +1,42 @@
+/* Admin Layout Styles */
+.container {
+  display: flex;
+  min-height: 100vh;
+  background: #f1f5f9;
+}
+
+.mainContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.main {
+  flex: 1;
+  padding: 24px;
+  overflow: auto;
+  color: #1f2937;
+}
+
+/* Override global heading colors for admin area */
+.adminArea h1,
+.adminArea h2,
+.adminArea h3,
+.adminArea h4,
+.adminArea h5,
+.adminArea h6 {
+  color: #1f2937 !important;
+}
+
+/* Ensure all text in admin area is dark */
+.adminArea {
+  color: #1f2937;
+}
+
+/* Specific overrides for common heading classes */
+.adminArea .dashboardTitle,
+.adminArea .pageTitle,
+.adminArea .sectionTitle {
+  color: #1f2937 !important;
+}

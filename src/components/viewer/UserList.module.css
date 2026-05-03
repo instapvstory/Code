@@ -1,0 +1,150 @@
+.container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+.title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 24px;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+  flex: 1;
+}
+
+.avatar {
+  border-radius: 50%;
+  object-fit: cover;
+  background: var(--bg-tertiary);
+  flex-shrink: 0;
+}
+
+.info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.usernameRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.username {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #e5e7eb;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.verified {
+  flex-shrink: 0;
+}
+
+.copyBtn {
+  background: transparent;
+  border: none;
+  color: #6b7280;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  transition: color 0.2s;
+  flex-shrink: 0;
+}
+
+.copyBtn:hover {
+  color: #a855f7;
+}
+
+.fullName {
+  font-size: 0.8rem;
+  color: #9ca3af;
+  text-transform: uppercase;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.privateBadge {
+  font-size: 0.7rem;
+  border: 1px solid #f472b6;
+  color: #f472b6;
+  border-radius: 12px;
+  padding: 2px 8px;
+  white-space: nowrap;
+}
+
+.indexNum {
+  font-size: 0.85rem;
+  color: #6b7280;
+  min-width: 20px;
+  text-align: right;
+}
+
+@media (max-width: 600px) {
+  .container {
+    padding: 0 8px;
+  }
+  .left {
+    gap: 10px;
+  }
+  .username {
+    font-size: 0.9rem;
+  }
+  .fullName {
+    font-size: 0.72rem;
+  }
+  .privateBadge {
+    font-size: 0.65rem;
+    padding: 2px 6px;
+  }
+  .indexNum {
+    font-size: 0.75rem;
+    min-width: 16px;
+  }
+}
+
+@media (max-width: 400px) {
+  .username {
+    font-size: 0.82rem;
+  }
+  .right {
+    gap: 6px;
+  }
+  .privateBadge {
+    display: none;
+  }
+}

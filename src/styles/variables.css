@@ -1,0 +1,41 @@
+:root {
+  /* Colors */
+  --bg-primary: #0d1117;
+  --bg-secondary: #161b22;
+  --bg-tertiary: #1e2430;
+  
+  --text-primary: #ffffff;
+  --text-secondary: #a0a0a0;
+  --text-muted: #666666;
+  
+  --primary-gradient: linear-gradient(135deg, #7c3aed 0%, #db2777 100%);
+  --primary-glow: rgba(124, 58, 237, 0.3);
+  
+  --accent-purple: #7c3aed;
+  --accent-pink: #db2777;
+  
+  --border-color: rgba(255, 255, 255, 0.1);
+  --border-hover: rgba(255, 255, 255, 0.2);
+  
+  /* Glassmorphism */
+  --glass-bg: rgba(20, 20, 20, 0.7);
+  --glass-blur: blur(12px);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  
+  /* Spacing */
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 1rem;
+  --space-lg: 2rem;
+  --space-xl: 4rem;
+  
+  /* Transitions */
+  --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  /* Radius */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --radius-full: 9999px;
+}
