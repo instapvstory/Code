@@ -3,6 +3,7 @@ import { cacheService } from '@/lib/cache';
 import { getInstagramProfile } from '@/lib/instagram';
 import { rateLimiter } from '@/lib/rate-limit';
 import { securityMiddleware, logSecurityEvent } from '@/lib/security-middleware';
+import { fetchProfileData } from '@/lib/profile-service';
 import type { Profile as InstagramProfile } from '@/components/viewer/ProfileView/ProfileView';
 
 // Helper function to get cache headers
@@ -51,59 +52,7 @@ function needsRefresh(lastFetched?: string, cacheType: 'profile' | 'media' = 'pr
   return diffInMinutes > refreshThreshold;
 }
 
-// Helper function to convert snake_case to camelCase
-function snakeToCamel(obj: any): any {
-  if (obj === null || typeof obj !== 'object') {
-    return obj;
-  }
-  
-  if (Array.isArray(obj)) {
-    return obj.map(item => snakeToCamel(item));
-  }
-  
-  const result: any = {};
-  for (const key in obj) {
-    if (Object.prototype.hasOwnProperty.call(obj, key)) {
-      // Convert snake_case to camelCase
-      const camelKey = key.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
-      result[camelKey] = snakeToCamel(obj[key]);
-    }
-  }
-  return result;
-}
-
-// Helper function to create frontend-compatible profile data
-function createFrontendProfile(profileData: any, instagramProfile: any): any {
-  // Handle both snake_case and camelCase property names from profileData
-  // Also check instagramProfile as fallback
-  const postsCount = profileData.posts_count || profileData.postsCount || profileData.posts || instagramProfile.posts || 0;
-  const followersCount = profileData.followers_count || profileData.followersCount || profileData.followers || instagramProfile.followers || 0;
-  const followingCount = profileData.following_count || profileData.followingCount || profileData.following || instagramProfile.following || 0;
-  const fullName = profileData.full_name || profileData.fullName || instagramProfile.fullName || '';
-  const bio = profileData.bio || instagramProfile.bio || '';
-  const profilePicUrl = profileData.profile_pic_url || profileData.profilePicUrl || instagramProfile.profilePicUrl || '';
-  const isVerified = profileData.is_verified || profileData.isVerified || instagramProfile.isVerified || false;
-  const isBusinessAccount = profileData.is_business_account || profileData.isBusinessAccount || instagramProfile.isBusinessAccount || false;
-  const hasStory = profileData.has_story || profileData.hasStory || instagramProfile.hasStory || false;
-  const lastFetched = profileData.last_fetched || profileData.lastFetched;
-
-  return {
-    username: profileData.username || instagramProfile.username,
-    fullName,
-    bio,
-    profilePicUrl,
-    posts: postsCount,
-    followers: followersCount,
-    following: followingCount,
-    isVerified,
-    isBusinessAccount,
-    hasStory,
-    lastFetched,
-    postsList: instagramProfile.postsList || [],
-    highlights: instagramProfile.highlights || [],
-    storiesList: instagramProfile.storiesList || [],
-  };
-}
+// Helper functions removed as they are now in profile-service.ts
 
 
 
@@ -183,86 +132,20 @@ export async function GET(
     const searchParams = request.nextUrl.searchParams;
     const bypassCache = searchParams.has('nocache') || searchParams.has('force') || searchParams.has('fresh');
     
-    // Check multi-layer cache first (unless bypassing)
-    const cachedProfile = !bypassCache ? await cacheService.getProfile(normalizedUsername) : null;
+    // Check multi-layer cache first (unless bypassing) or fetch from API
+    const { profile, source } = await fetchProfileData(normalizedUsername, bypassCache);
     
-    if (cachedProfile) {
-      // Cache hit - return cached data with CDN headers
-      const responseTime = Date.now() - startTime;
-      
-      // Convert snake_case to camelCase for frontend compatibility
-      const frontendProfile = createFrontendProfile(cachedProfile, {
-        postsList: cachedProfile.posts_list || cachedProfile.posts || [],
-        highlights: cachedProfile.highlights || [],
-        storiesList: cachedProfile.stories || [],
-      });
-      
-      return NextResponse.json({
-        data: frontendProfile,
-        source: 'cache',
-        cached: true,
-        responseTime,
-        lastFetched: cachedProfile.last_fetched || cachedProfile.lastSyncedAt,
-      }, {
-        headers
-      });
-    }
-
-    // Cache miss - fetch from Instagram API
-    console.log(`Cache miss for ${normalizedUsername}, fetching from Instagram API`);
-    const instagramProfile = await getInstagramProfile(normalizedUsername);
-
-    // Validate that we have valid profile data before caching
-    if (!instagramProfile || !instagramProfile.username || !instagramProfile.profilePicUrl) {
-      console.error('Invalid profile data received from Instagram API:', instagramProfile);
-      throw new Error('Invalid profile data received from Instagram API');
-    }
-
-    // Transform Instagram API response to our format
-    const profileData = {
-      username: instagramProfile.username,
-      full_name: instagramProfile.fullName,
-      bio: instagramProfile.bio,
-      profile_pic_url: instagramProfile.profilePicUrl,
-      followers_count: instagramProfile.followers || 0,
-      following_count: instagramProfile.following || 0,
-      posts_count: instagramProfile.posts || 0,
-      is_verified: instagramProfile.isVerified,
-      is_business_account: instagramProfile.isBusinessAccount || false,
-      has_story: instagramProfile.hasStory || false,
-      last_fetched: new Date().toISOString(),
-      // Store stories, highlights, and posts as JSON
-      stories: instagramProfile.storiesList || [],
-      highlights: instagramProfile.highlights || [],
-      posts_list: instagramProfile.postsList || [],
-    };
-
-    // Store in cache (both memory and database) - only if we have valid data
-    await cacheService.storeProfile(normalizedUsername, profileData);
-
-    // Store media in cache if available (legacy, now stored in posts_list JSON)
-    if (instagramProfile.postsList && instagramProfile.postsList.length > 0) {
-      // We need a profile ID, but we don't have it yet
-      // For now, we'll store media with a placeholder profile ID
-      // In a real implementation, we'd get the profile ID from the database
-      const profileId = `ig_${normalizedUsername}`;
-      await cacheService.storeMedia(profileId, instagramProfile.postsList);
-    }
-
     const responseTime = Date.now() - startTime;
     
-    // Create frontend-compatible profile data
-    const frontendProfile = createFrontendProfile(profileData, instagramProfile);
-    
-    // Return fresh data with CDN headers (cache for 24 hours)
     return NextResponse.json({
-      data: frontendProfile,
-      source: 'api',
-      cached: false,
+      data: profile,
+      source: source,
+      cached: source === 'cache',
       responseTime,
-      lastFetched: profileData.last_fetched,
+      // @ts-ignore
+      lastFetched: profile.lastFetched || new Date().toISOString(),
     }, {
-      headers: getCacheHeaders(true, 'profile') // Cache fresh profile data
+      headers: getCacheHeaders(source === 'api', 'profile')
     });
 
   } catch (error: any) {

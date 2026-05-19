@@ -1,0 +1,130 @@
+'use client';
+
+import { useState, useRef, useEffect } from 'react';
+import styles from './page.module.css';
+import ProfileView from '@/components/viewer/ProfileView/ProfileView';
+import type { Profile, MainTab } from '@/components/viewer/ProfileView/ProfileView';
+import MiniProfile from '@/components/viewer/MiniProfile/MiniProfile';
+import PostsGrid from '@/components/viewer/PostsGrid/PostsGrid';
+import UserList, { UserItem } from '@/components/viewer/UserList';
+import AdSlot from '@/components/ads/AdSlot';
+
+const generateMockUsers = (count: number): UserItem[] => {
+  const firstNames = ['alex', 'sarah', 'mike', 'emma', 'david', 'lisa', 'tom', 'anna', 'john', 'maria'];
+  const lastNames = ['smith', 'jones', 'brown', 'davis', 'wilson', 'taylor', 'clark', 'white', 'moore', 'king'];
+  
+  return Array.from({ length: count }, (_, i) => {
+    const fn = firstNames[Math.floor(Math.random() * firstNames.length)];
+    const ln = lastNames[Math.floor(Math.random() * lastNames.length)];
+    const num = Math.floor(Math.random() * 9999);
+    const username = `${fn}${ln}${num}`;
+    const fullName = `${fn.charAt(0).toUpperCase()}${fn.slice(1)} ${ln.charAt(0).toUpperCase()}${ln.slice(1)}`;
+    
+    return {
+      id: `u-${i}-${Math.random()}`,
+      username,
+      fullName,
+      profilePicUrl: `https://ui-avatars.com/api/?name=${fn}+${ln}&size=60&background=random&rounded=true`,
+      isPrivate: Math.random() > 0.5,
+      isVerified: Math.random() > 0.8,
+    };
+  });
+};
+
+interface Props {
+  profile: Profile;
+}
+
+export default function ProfileClientWrapper({ profile }: Props) {
+  const [activeTab, setActiveTab] = useState<MainTab>('profile');
+  const sectionRef = useRef<HTMLDivElement>(null);
+
+  // Focus effect for when route changes
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (sectionRef.current) {
+        const y = sectionRef.current.getBoundingClientRect().top + window.scrollY - 80;
+        window.scrollTo({ top: y, behavior: 'smooth' });
+      }
+    }, 50);
+    return () => clearTimeout(timer);
+  }, [profile.username]);
+
+  const renderTabContent = () => {
+    if (activeTab === 'profile') {
+      return (
+        <ProfileView
+          profile={profile}
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+        />
+      );
+    }
+    
+    const statMap: Record<string, { label: string; val: number }> = {
+      posts: { label: 'Posts', val: profile.posts },
+      followers: { label: 'Followers', val: profile.followers },
+      follows: { label: 'Follows', val: profile.following }
+    };
+
+    return (
+      <div className={styles.tabContentWrap}>
+        <MiniProfile 
+          profile={profile} 
+          statLabel={statMap[activeTab].label} 
+          statValue={statMap[activeTab].val} 
+        />
+        
+        {activeTab === 'posts' && <PostsGrid posts={profile.postsList} username={profile.username} />}
+        {activeTab === 'followers' && (
+          <UserList title={`Last 49 Followers (most recent order) :`} users={generateMockUsers(49)} />
+        )}
+        {activeTab === 'follows' && (
+          <UserList title={`Last 49 Follows (most recent order) :`} users={generateMockUsers(49)} />
+        )}
+      </div>
+    );
+  };
+
+  return (
+    <>
+      {/* ── Tab Bar ── */}
+      <div className={styles.mainTabBar} ref={sectionRef}>
+        <div className={styles.mainTabsInner}>
+          {(['profile', 'posts', 'followers', 'follows'] as MainTab[]).map(tab => (
+            <button
+              key={tab}
+              className={`${styles.mainTab} ${activeTab === tab ? styles.mainTabActive : ''}`}
+              onClick={() => setActiveTab(tab)}
+            >
+              {tab.charAt(0).toUpperCase() + tab.slice(1)}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* ── 3-column layout: Left Ad | Content | Right Ad ── */}
+      <div className={styles.threeCol}>
+        {/* Left Ad */}
+        <div className={styles.sideAdCol}>
+          <AdSlot placement="result_left" style={{ width: 160 }} />
+        </div>
+
+        {/* Main Content */}
+        <div className={styles.contentContainer}>
+          {!profile.isBusinessAccount && (
+            <div className={styles.personalNote}>
+              <strong>Note:</strong> This is a Personal account. Due to Instagram API restrictions, some data like stories and the full posts list may not be available.
+            </div>
+          )}
+          {renderTabContent()}
+        </div>
+
+        {/* Right Ad */}
+        <div className={styles.sideAdCol}>
+          <AdSlot placement="result_right" style={{ width: 160 }} />
+        </div>
+      </div>
+    </>
+  );
+}

@@ -42,30 +42,62 @@ export default function Hero() {
       <div className={styles.heroBg} />
 
       <div className={styles.heroContent}>
+        {/* Main Heading */}
+        <h1 className={styles.heroTitle}>
+          <span className={styles.highlight}>Story</span> and <span className={styles.highlight}>followers</span> viewer
+        </h1>
+
         {/* Welcome Banner */}
         <div className={styles.welcomeBanner}>
           <p className={styles.welcomeText}>👋 Welcome to InstaPvStory!</p>
           <p className={styles.welcomeSub}>View public stories, posts and followers anonymously.</p>
         </div>
 
-        {/* Search Container */}
-        <div className={styles.searchContainer}>
-          <div className={styles.searchBox} onClick={() => inputRef.current?.focus()}>
-            <input
-              ref={inputRef}
-              type="text"
-              className={styles.searchInput}
-              placeholder="username or profile link"
-              value={query}
-              onChange={e => setQuery(e.target.value)}
-              onKeyDown={handleKey}
-              onFocus={() => setShowHistory(true)}
-              onBlur={() => setTimeout(() => setShowHistory(false), 150)}
-              autoComplete="off"
-            />
-            <button className={styles.submitBtn} onClick={() => handleSubmit()}>
-              Submit
-            </button>
+        {/* Search & History Section */}
+        <div className={styles.searchSection}>
+          <div className={styles.searchContainer}>
+            <div className={styles.searchBox} onClick={() => inputRef.current?.focus()}>
+              <input
+                ref={inputRef}
+                type="text"
+                className={styles.searchInput}
+                placeholder="username or profile link"
+                value={query}
+                onChange={e => setQuery(e.target.value)}
+                onKeyDown={handleKey}
+                onFocus={() => setShowHistory(true)}
+                onBlur={() => setTimeout(() => setShowHistory(false), 150)}
+                autoComplete="off"
+              />
+            </div>
+            <div className={styles.submitSection}>
+              <button className={styles.submitBtn} onClick={() => handleSubmit()}>
+                Submit
+              </button>
+              <div className={styles.enterBadge}>Enter ↵</div>
+            </div>
+          </div>
+
+          {/* History Bar */}
+          <div className={`${styles.historyBar} ${showHistory && history.length > 0 ? styles.historyVisible : ''}`}>
+            <div className={styles.historyLabel}>History</div>
+            <div className={styles.historyChevron}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </div>
+            
+            {/* Hidden History List (Desktop only / Hover based) */}
+            {showHistory && history.length > 0 && (
+              <div className={styles.historyList}>
+                {history.map(item => (
+                  <button key={item} className={styles.historyItem} onMouseDown={() => handleSubmit(item)}>
+                    @{item}
+                  </button>
+                ))}
+                <button className={styles.clearHistoryBtn} onMouseDown={clearHistory}>Clear History</button>
+              </div>
+            )}
           </div>
         </div>
 
@@ -74,30 +106,7 @@ export default function Hero() {
           placement="below_search"
           style={{ width: '100%', maxWidth: 728, margin: '12px auto 0' }}
         />
-
-        {/* History Bar */}
-        <div className={`${styles.historyBar} ${showHistory && history.length > 0 ? styles.historyVisible : ''}`}>
-          <div className={styles.historyLabel}>History</div>
-          <div className={styles.historyChevron}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="6 9 12 15 18 9"></polyline>
-            </svg>
-          </div>
-          
-          {/* Hidden History List (Desktop only / Hover based) */}
-          {showHistory && history.length > 0 && (
-            <div className={styles.historyList}>
-              {history.map(item => (
-                <button key={item} className={styles.historyItem} onMouseDown={() => handleSubmit(item)}>
-                  @{item}
-                </button>
-              ))}
-              <button className={styles.clearHistoryBtn} onMouseDown={clearHistory}>Clear History</button>
-            </div>
-          )}
-        </div>
       </div>
     </div>
-
   );
 }

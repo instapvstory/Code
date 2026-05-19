@@ -125,39 +125,6 @@ const PostsGrid = ({ posts, username, isStoryView = false }: { posts: Post[]; us
                   </svg>
                 </div>
               )}
-              {/* Hover overlay */}
-              <div className={styles.overlay}>
-                <span className={styles.stat}>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="white">
-                    <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
-                  </svg>
-                  {formatCount(post.likes)}
-                </span>
-                <span className={styles.stat}>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
-                    <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
-                  </svg>
-                  {formatCount(post.comments)}
-                </span>
-              </div>
-            </div>
-
-            {/* Stats bar below the image */}
-            <div className={styles.statsBar}>
-              <span className={styles.statItem}>
-                {/* Filled heart — same style as reference image */}
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="#f43f5e">
-                  <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
-                </svg>
-                {formatCount(post.likes)}
-              </span>
-              <span className={styles.statItem}>
-                {/* Outlined speech bubble — same style as reference image */}
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
-                </svg>
-                {formatCount(post.comments)}
-              </span>
             </div>
           </div>
         ))}

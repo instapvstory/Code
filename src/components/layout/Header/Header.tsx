@@ -34,14 +34,14 @@ const Header = ({ searchQuery }: HeaderProps) => {
 
   return (
     <>
-      <header className={styles.header}>
+      <header className={`${styles.header} ${isHome ? styles.headerHome : ''}`}>
         <div className={styles.inner}>
           {/* Logo */}
           <Link href="/" className={styles.logo}>
             <div className={styles.logoIcon}>
               <img src="/logo.png" alt="InstaPvStory Logo" width="36" height="36" />
             </div>
-            <span className={styles.logoText}>InstaPvStory</span>
+            <span className={styles.logoText}>Insta<span className={styles.logoHighlight}>Pv</span>Story</span>
           </Link>
 
           {/* Center search (profile pages) */}
