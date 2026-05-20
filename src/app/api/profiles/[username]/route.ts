@@ -94,18 +94,15 @@ export async function GET(
     // Apply enhanced rate limiting based on IP address
     const ip = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'anonymous';
     const rateLimitKey = `security:${ip}:${request.nextUrl.pathname}`;
-    
-    const rateLimitResult = rateLimiter.isAllowed(rateLimitKey);
-    const rateLimitHeaders = rateLimiter.getHeaders(rateLimitKey);
-    
-    // Add rate limit headers to response
-    const headers = getCacheHeaders(false, 'profile');
-    Object.entries(rateLimitHeaders).forEach(([key, value]) => {
-      headers.set(key, value);
-    });
+    const rateLimitResult = rateLimiter.getStatus(rateLimitKey);
+    const rateLimitHeaders = rateLimitResult.headers;
     
     if (!rateLimitResult.allowed) {
-      headers.set('Retry-After', Math.ceil(rateLimitResult.resetAfter / 1000).toString());
+      const errorHeaders = getCacheHeaders(false, 'profile');
+      Object.entries(rateLimitHeaders).forEach(([key, value]) => {
+        errorHeaders.set(key, value);
+      });
+      errorHeaders.set('Retry-After', Math.ceil(rateLimitResult.resetAfter / 1000).toString());
       
       logSecurityEvent({
         type: 'RATE_LIMITED',
@@ -123,7 +120,7 @@ export async function GET(
         },
         {
           status: 429,
-          headers
+          headers: errorHeaders
         }
       );
     }
@@ -137,6 +134,12 @@ export async function GET(
     
     const responseTime = Date.now() - startTime;
     
+    // Construct final headers combining cache headers and rate limit headers
+    const successHeaders = getCacheHeaders(source === 'api', 'profile');
+    Object.entries(rateLimitHeaders).forEach(([key, value]) => {
+      successHeaders.set(key, value);
+    });
+    
     return NextResponse.json({
       data: profile,
       source: source,
@@ -145,7 +148,7 @@ export async function GET(
       // @ts-ignore
       lastFetched: profile.lastFetched || new Date().toISOString(),
     }, {
-      headers: getCacheHeaders(source === 'api', 'profile')
+      headers: successHeaders
     });
 
   } catch (error: any) {

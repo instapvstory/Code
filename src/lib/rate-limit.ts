@@ -20,8 +20,13 @@ class RateLimiter {
     this.defaultWindowMs = defaultWindowMs;
   }
 
-  // Check if a request is allowed
-  isAllowed(key: string, limit?: number, windowMs?: number): { allowed: boolean; remaining: number; resetAfter: number } {
+  // Core check method, with optional incrementing
+  private check(key: string, limit?: number, windowMs?: number, increment: boolean = true): { 
+    allowed: boolean; 
+    remaining: number; 
+    resetAfter: number;
+    headers: Record<string, string>;
+  } {
     const now = Date.now();
     const windowKey = `${key}:${limit || this.defaultLimit}:${windowMs || this.defaultWindowMs}`;
     
@@ -40,7 +45,7 @@ class RateLimiter {
     const maxRequests = limit || this.defaultLimit;
     const allowed = window.count < maxRequests;
     
-    if (allowed) {
+    if (allowed && increment) {
       window.count++;
     }
     
@@ -49,13 +54,46 @@ class RateLimiter {
       this.cleanup();
     }
     
+    const remaining = Math.max(0, maxRequests - window.count);
+    const resetAfter = Math.max(0, window.resetTime - now);
+    
     return {
       allowed,
-      remaining: Math.max(0, maxRequests - window.count),
-      resetAfter: Math.max(0, window.resetTime - now)
+      remaining,
+      resetAfter,
+      headers: {
+        'X-RateLimit-Limit': maxRequests.toString(),
+        'X-RateLimit-Remaining': remaining.toString(),
+        'X-RateLimit-Reset': Math.ceil(resetAfter / 1000).toString(),
+      }
+    };
+  }
+
+  // Check if a request is allowed (increments the counter)
+  isAllowed(key: string, limit?: number, windowMs?: number): { allowed: boolean; remaining: number; resetAfter: number } {
+    const result = this.check(key, limit, windowMs, true);
+    return {
+      allowed: result.allowed,
+      remaining: result.remaining,
+      resetAfter: result.resetAfter
     };
   }
   
+  // Get current status without incrementing
+  getStatus(key: string, limit?: number, windowMs?: number): { 
+    allowed: boolean; 
+    remaining: number; 
+    resetAfter: number; 
+    headers: Record<string, string>;
+  } {
+    return this.check(key, limit, windowMs, false);
+  }
+  
+  // Get rate limit headers (uses current state, does NOT increment)
+  getHeaders(key: string, limit?: number, windowMs?: number): Record<string, string> {
+    return this.check(key, limit, windowMs, false).headers;
+  }
+
   // Clean up expired windows
   private cleanup(): void {
     const now = Date.now();
@@ -64,17 +102,6 @@ class RateLimiter {
         this.windows.delete(key);
       }
     }
-  }
-  
-  // Get rate limit headers
-  getHeaders(key: string, limit?: number, windowMs?: number): Record<string, string> {
-    const result = this.isAllowed(key, limit, windowMs);
-    
-    return {
-      'X-RateLimit-Limit': (limit || this.defaultLimit).toString(),
-      'X-RateLimit-Remaining': result.remaining.toString(),
-      'X-RateLimit-Reset': Math.ceil(result.resetAfter / 1000).toString(),
-    };
   }
 }
 
