@@ -2,7 +2,7 @@ import { Profile, Post, Highlight } from '@/components/viewer/ProfileView/Profil
 import { scrapeInstagramProfile } from './instagram-scraper-fixed';
 import { getInstagramProfileGraphAPI } from './instagram-graph-api';
 
-const ACCESS_TOKEN = process.env.INSTAGRAM_ACCESS_TOKEN;
+
 const API_VERSION = 'v22.0';
 const BASE_URL = `https://graph.facebook.com/${API_VERSION}`;
 
@@ -103,7 +103,7 @@ function generatePlaceholdersFromPosts(
  */
 async function getMyBusinessId(): Promise<string> {
   // First attempt: Check via Pages (/me/accounts)
-  let response = await fetch(`${BASE_URL}/me/accounts?fields=instagram_business_account&access_token=${ACCESS_TOKEN}`);
+  let response = await fetch(`${BASE_URL}/me/accounts?fields=instagram_business_account&access_token=${(process.env.INSTAGRAM_ACCESS_TOKEN)}`);
   let data = await response.json();
   
   if (data.data && data.data.length > 0) {
@@ -114,7 +114,7 @@ async function getMyBusinessId(): Promise<string> {
   }
 
   // Second attempt: Check direct context (/me)
-  response = await fetch(`${BASE_URL}/me?fields=instagram_business_account&access_token=${ACCESS_TOKEN}`);
+  response = await fetch(`${BASE_URL}/me?fields=instagram_business_account&access_token=${(process.env.INSTAGRAM_ACCESS_TOKEN)}`);
   data = await response.json();
   
   if (data.instagram_business_account) {
@@ -122,7 +122,7 @@ async function getMyBusinessId(): Promise<string> {
   }
 
   // Third attempt: Extract target ID directly from token debugging (fixes OAuthException #100 on /me)
-  response = await fetch(`${BASE_URL}/debug_token?input_token=${ACCESS_TOKEN}&access_token=${ACCESS_TOKEN}`);
+  response = await fetch(`${BASE_URL}/debug_token?input_token=${(process.env.INSTAGRAM_ACCESS_TOKEN)}&access_token=${(process.env.INSTAGRAM_ACCESS_TOKEN)}`);
   data = await response.json();
   
   const scopes = data.data?.granular_scopes;
@@ -452,8 +452,8 @@ async function getPublicProfileFallback(username: string): Promise<Profile> {
  * Fetches a profile's information using Business Discovery and Graph API for stories/highlights.
  */
 export async function getInstagramProfile(username: string): Promise<Profile> {
-  if (!ACCESS_TOKEN) {
-    throw new Error('INSTAGRAM_ACCESS_TOKEN is not configured.');
+  if (!(process.env.INSTAGRAM_ACCESS_TOKEN)) {
+    throw new Error('INSTAGRAM_(process.env.INSTAGRAM_ACCESS_TOKEN) is not configured.');
   }
 
   let callerId: string;
@@ -475,7 +475,7 @@ export async function getInstagramProfile(username: string): Promise<Profile> {
   
   const fields = `business_discovery.username(${username}){id,username,name,biography,website,profile_picture_url,followers_count,follows_count,media_count,media.limit(50){id,media_url,like_count,comments_count,media_type,thumbnail_url,caption,timestamp}}`;
   
-  const url = `${BASE_URL}/${callerId}?fields=${fields}&access_token=${ACCESS_TOKEN}`;
+  const url = `${BASE_URL}/${callerId}?fields=${fields}&access_token=${(process.env.INSTAGRAM_ACCESS_TOKEN)}`;
   const response = await fetch(url);
   const data = await response.json();
 

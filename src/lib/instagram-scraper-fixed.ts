@@ -4,7 +4,7 @@ import { Profile, Post, Highlight } from '@/components/viewer/ProfileView/Profil
  * Enhanced Instagram Scraper with multiple fallback strategies
  */
 
-const ACCESS_TOKEN = process.env.INSTAGRAM_ACCESS_TOKEN;
+
 const API_VERSION = 'v22.0';
 const BASE_URL = `https://graph.facebook.com/${API_VERSION}`;
 
@@ -67,10 +67,10 @@ function extractJsonFromHtml(html: string, patterns: RegExp[]): any[] {
  * Extract data using Graph API (official Instagram API)
  */
 async function fetchWithGraphApi(username: string): Promise<Profile | null> {
-  if (!ACCESS_TOKEN) return null;
+  if (!(process.env.INSTAGRAM_ACCESS_TOKEN)) return null;
   
   try {
-    const searchUrl = `${BASE_URL}/ig_hashtag_search?user_id=17841406338772941&q=${username}&access_token=${ACCESS_TOKEN}`;
+    const searchUrl = `${BASE_URL}/ig_hashtag_search?user_id=17841406338772941&q=${username}&access_token=${(process.env.INSTAGRAM_ACCESS_TOKEN)}`;
     const searchResponse = await fetch(searchUrl);
     if (!searchResponse.ok) return null;
     
@@ -78,12 +78,12 @@ async function fetchWithGraphApi(username: string): Promise<Profile | null> {
     if (!searchData.data || searchData.data.length === 0) return null;
     
     const accountId = searchData.data[0].id;
-    const accountUrl = `${BASE_URL}/${accountId}?fields=id,username,profile_picture_url,biography,followers_count,follows_count,media_count,website&access_token=${ACCESS_TOKEN}`;
+    const accountUrl = `${BASE_URL}/${accountId}?fields=id,username,profile_picture_url,biography,followers_count,follows_count,media_count,website&access_token=${(process.env.INSTAGRAM_ACCESS_TOKEN)}`;
     const accountResponse = await fetch(accountUrl);
     if (!accountResponse.ok) return null;
     
     const accountData = await accountResponse.json();
-    const mediaUrl = `${BASE_URL}/${accountId}/media?fields=id,caption,media_type,media_url,permalink,thumbnail_url,timestamp,like_count,comments_count&limit=12&access_token=${ACCESS_TOKEN}`;
+    const mediaUrl = `${BASE_URL}/${accountId}/media?fields=id,caption,media_type,media_url,permalink,thumbnail_url,timestamp,like_count,comments_count&limit=12&access_token=${(process.env.INSTAGRAM_ACCESS_TOKEN)}`;
     const mediaResponse = await fetch(mediaUrl);
     
     let postsList: Post[] = [];

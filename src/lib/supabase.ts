@@ -1,16 +1,16 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = process.env.SUPABASE_URL || 'https://placeholder.supabase.co';
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || 'placeholder';
+
+
 
 // Supabase client for server-side operations
-export const supabase = createClient(supabaseUrl, supabaseServiceKey);
+let _supabase: any; export const supabase = new Proxy({}, { get(target, prop) { if (!_supabase) { _supabase = createClient(process.env.SUPABASE_URL || 'https://placeholder.supabase.co', process.env.SUPABASE_SERVICE_ROLE_KEY || 'placeholder'); } return _supabase[prop]; } }) as any;
 
-const supabasePublicUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || 'https://placeholder.supabase.co';
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || 'placeholder';
+
+
 
 // Supabase client for client-side operations (public)
-export const supabasePublic = createClient(supabasePublicUrl, supabaseAnonKey);
+let _supabasePublic: any; export const supabasePublic = new Proxy({}, { get(target, prop) { if (!_supabasePublic) { _supabasePublic = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || 'https://placeholder.supabase.co', process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || 'placeholder'); } return _supabasePublic[prop]; } }) as any;
 
 // Database types
 export interface Profile {

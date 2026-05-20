@@ -1,6 +1,6 @@
 import { Profile, Post } from '@/components/viewer/ProfileView/ProfileView';
 
-const ACCESS_TOKEN = process.env.INSTAGRAM_ACCESS_TOKEN;
+
 const API_VERSION = 'v22.0';
 const BASE_URL = `https://graph.facebook.com/${API_VERSION}`;
 
@@ -19,14 +19,14 @@ const BASE_URL = `https://graph.facebook.com/${API_VERSION}`;
  * Get Instagram Business Account ID from the access token
  */
 async function getInstagramBusinessId(): Promise<string> {
-  if (!ACCESS_TOKEN) {
-    throw new Error('INSTAGRAM_ACCESS_TOKEN is not configured');
+  if (!(process.env.INSTAGRAM_ACCESS_TOKEN)) {
+    throw new Error('INSTAGRAM_(process.env.INSTAGRAM_ACCESS_TOKEN) is not configured');
   }
 
   try {
     // Method 1: Try to get from /me/accounts
     const accountsResponse = await fetch(
-      `${BASE_URL}/me/accounts?fields=instagram_business_account&access_token=${ACCESS_TOKEN}`
+      `${BASE_URL}/me/accounts?fields=instagram_business_account&access_token=${(process.env.INSTAGRAM_ACCESS_TOKEN)}`
     );
     const accountsData = await accountsResponse.json();
     
@@ -39,7 +39,7 @@ async function getInstagramBusinessId(): Promise<string> {
 
     // Method 2: Try to get from /me directly
     const meResponse = await fetch(
-      `${BASE_URL}/me?fields=instagram_business_account&access_token=${ACCESS_TOKEN}`
+      `${BASE_URL}/me?fields=instagram_business_account&access_token=${(process.env.INSTAGRAM_ACCESS_TOKEN)}`
     );
     const meData = await meResponse.json();
     
@@ -49,7 +49,7 @@ async function getInstagramBusinessId(): Promise<string> {
 
     // Method 3: Try debug_token to get target IDs
     const debugResponse = await fetch(
-      `${BASE_URL}/debug_token?input_token=${ACCESS_TOKEN}&access_token=${ACCESS_TOKEN}`
+      `${BASE_URL}/debug_token?input_token=${(process.env.INSTAGRAM_ACCESS_TOKEN)}&access_token=${(process.env.INSTAGRAM_ACCESS_TOKEN)}`
     );
     const debugData = await debugResponse.json();
     
@@ -76,7 +76,7 @@ async function getInstagramBusinessId(): Promise<string> {
 async function fetchStories(instagramUserId: string): Promise<any[]> {
   try {
     const response = await fetch(
-      `${BASE_URL}/${instagramUserId}/stories?fields=id,media_type,media_url,permalink,timestamp,caption&access_token=${ACCESS_TOKEN}`
+      `${BASE_URL}/${instagramUserId}/stories?fields=id,media_type,media_url,permalink,timestamp,caption&access_token=${(process.env.INSTAGRAM_ACCESS_TOKEN)}`
     );
     
     const data = await response.json();
@@ -100,7 +100,7 @@ async function fetchStories(instagramUserId: string): Promise<any[]> {
 async function fetchMedia(instagramUserId: string, limit: number = 50): Promise<any[]> {
   try {
     const response = await fetch(
-      `${BASE_URL}/${instagramUserId}/media?fields=id,caption,media_type,media_url,permalink,thumbnail_url,timestamp,children{media_type,media_url},like_count,comments_count&limit=${limit}&access_token=${ACCESS_TOKEN}`
+      `${BASE_URL}/${instagramUserId}/media?fields=id,caption,media_type,media_url,permalink,thumbnail_url,timestamp,children{media_type,media_url},like_count,comments_count&limit=${limit}&access_token=${(process.env.INSTAGRAM_ACCESS_TOKEN)}`
     );
     
     const data = await response.json();
@@ -123,7 +123,7 @@ async function fetchMedia(instagramUserId: string, limit: number = 50): Promise<
 async function fetchProfileInfo(instagramUserId: string): Promise<any> {
   try {
     const response = await fetch(
-      `${BASE_URL}/${instagramUserId}?fields=id,username,profile_picture_url,followers_count,follows_count,media_count,name,biography,website&access_token=${ACCESS_TOKEN}`
+      `${BASE_URL}/${instagramUserId}?fields=id,username,profile_picture_url,followers_count,follows_count,media_count,name,biography,website&access_token=${(process.env.INSTAGRAM_ACCESS_TOKEN)}`
     );
     
     const data = await response.json();
