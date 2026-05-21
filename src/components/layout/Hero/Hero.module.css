@@ -6,6 +6,7 @@
   min-height: 700px;
   padding: 160px 0 100px;
   background: radial-gradient(circle at 15% 50%, rgba(124, 58, 237, 0.15), transparent 40%), #0d0b1f;
+  contain: layout;
 }
 
 .heroBg {

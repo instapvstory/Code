@@ -2,19 +2,26 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import dynamic from 'next/dynamic';
 import styles from './Hero.module.css';
-import AdSlot from '@/components/ads/AdSlot';
+
+// Lazy-load AdSlot after page is interactive — never blocks FCP/TTI
+const AdSlot = dynamic(() => import('@/components/ads/AdSlot'), { ssr: false });
 
 export default function Hero() {
   const [query, setQuery] = useState('');
   const [history, setHistory] = useState<string[]>([]);
   const [showHistory, setShowHistory] = useState(false);
+  const [adReady, setAdReady] = useState(false);
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const stored = localStorage.getItem('pvstory_history');
     if (stored) setHistory(JSON.parse(stored));
+    // Delay ad mount until after page is interactive (2s idle window)
+    const id = setTimeout(() => setAdReady(true), 2000);
+    return () => clearTimeout(id);
   }, []);
 
   const handleSubmit = (value?: string) => {
@@ -101,11 +108,13 @@ export default function Hero() {
           </div>
         </div>
 
-        {/* Ad below search */}
-        <AdSlot
-          placement="below_search"
-          style={{ width: '100%', maxWidth: 728, margin: '12px auto 0' }}
-        />
+        {/* Ad below search - deferred until after page is interactive */}
+        {adReady && (
+          <AdSlot
+            placement="below_search"
+            style={{ width: '100%', maxWidth: 728, margin: '12px auto 0' }}
+          />
+        )}
       </div>
     </div>
   );

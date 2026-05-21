@@ -6,7 +6,8 @@ import ClientLayout from "@/components/layout/ClientLayout";
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
-  display: "swap", // Prevent invisible text during font load
+  display: "optional", // Use cached font only — avoids text-swap CLS on mobile
+  preload: true,
 });
 
 export const metadata: Metadata = {
@@ -53,6 +54,8 @@ export default function RootLayout({
           as="image"
           href="/colorful-waves.webp"
           type="image/webp"
+          // @ts-ignore
+          fetchPriority="high"
         />
       </head>
       <body suppressHydrationWarning>
