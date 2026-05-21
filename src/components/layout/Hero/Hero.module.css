@@ -11,18 +11,36 @@
 .heroBg {
   position: absolute;
   inset: 0;
-  background-image: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('/colorful-waves.png');
+  /* WebP first (full res desktop), PNG fallback */
+  background-image:
+    linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)),
+    image-set(
+      url('/colorful-waves.webp') type('image/webp'),
+      url('/colorful-waves.png') type('image/png')
+    );
   background-size: cover;
   background-position: center bottom;
   background-repeat: no-repeat;
   z-index: 0;
 }
 
+/* Serve smaller image on mobile to save bandwidth */
+@media (max-width: 768px) {
+  .heroBg {
+    background-image:
+      linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)),
+      image-set(
+        url('/colorful-waves-mobile.webp') type('image/webp'),
+        url('/colorful-waves.png') type('image/png')
+      );
+  }
+}
+
 .heroBg::after {
   content: '';
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.4); /* Black overlay */
+  background: rgba(0, 0, 0, 0.4);
   pointer-events: none;
 }
 
@@ -54,10 +72,9 @@
 
 /* Welcome Banner (Top Glass Card) */
 .welcomeBanner {
-  background: rgba(30, 27, 75, 0.2);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  /* Solid bg instead of backdrop-filter:blur — avoids expensive GPU compositing */
+  background: rgba(20, 17, 60, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.07);
   border-radius: 12px;
   padding: 14px 24px;
   text-align: center;

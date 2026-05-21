@@ -41,6 +41,20 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={inter.variable}>
+      <head>
+        {/* Preconnect to Instagram CDN for fast image loading */}
+        <link rel="preconnect" href="https://scontent.cdninstagram.com" />
+        <link rel="dns-prefetch" href="https://scontent.cdninstagram.com" />
+        <link rel="preconnect" href="https://instagram.fkhi3-1.fna.fbcdn.net" />
+        <link rel="dns-prefetch" href="https://graph.instagram.com" />
+        {/* Preload hero background WebP so it loads before paint */}
+        <link
+          rel="preload"
+          as="image"
+          href="/colorful-waves.webp"
+          type="image/webp"
+        />
+      </head>
       <body suppressHydrationWarning>
         <ClientLayout>
           {children}

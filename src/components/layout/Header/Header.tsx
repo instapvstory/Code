@@ -39,7 +39,10 @@ const Header = ({ searchQuery }: HeaderProps) => {
           {/* Logo */}
           <Link href="/" className={styles.logo}>
             <div className={styles.logoIcon}>
-              <img src="/logo.png" alt="InstaPvStory Logo" width="36" height="36" />
+              <picture>
+                <source srcSet="/logo.webp" type="image/webp" />
+                <img src="/logo.png" alt="InstaPvStory Logo" width="36" height="36" />
+              </picture>
             </div>
             <span className={styles.logoText}>Insta<span className={styles.logoHighlight}>Pv</span>Story</span>
           </Link>
