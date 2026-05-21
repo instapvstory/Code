@@ -2,9 +2,12 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import { blogPosts } from '@/lib/blogData';
 import styles from './MarketingSections.module.css';
-import AdSlot from '@/components/ads/AdSlot';
+
+// Lazy-load AdSlot — never block initial render with ad API calls
+const AdSlot = dynamic(() => import('@/components/ads/AdSlot'), { ssr: false });
 
 /* ─────── Features Data ─────── */
 const features = [
@@ -417,7 +420,7 @@ export default function MarketingSections({ initialPosts = [] }: MarketingSectio
             {(initialPosts.length > 0 ? initialPosts : blogPosts.slice(0, 3)).map((post) => (
               <div key={post.slug} className={styles.blogCard}>
                 <div className={styles.blogCardImage}>
-                  <img src={post.image} alt={post.title} />
+                  <img src={post.image} alt={post.title} loading="lazy" decoding="async" />
                   <span className={styles.blogCardDate}>{post.date}</span>
                 </div>
                 <div className={styles.blogCardContent}>

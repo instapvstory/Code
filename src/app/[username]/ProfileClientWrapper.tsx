@@ -1,13 +1,16 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import dynamic from 'next/dynamic';
 import styles from './page.module.css';
 import ProfileView from '@/components/viewer/ProfileView/ProfileView';
 import type { Profile, MainTab } from '@/components/viewer/ProfileView/ProfileView';
 import MiniProfile from '@/components/viewer/MiniProfile/MiniProfile';
 import PostsGrid from '@/components/viewer/PostsGrid/PostsGrid';
 import UserList, { UserItem } from '@/components/viewer/UserList';
-import AdSlot from '@/components/ads/AdSlot';
+
+// Lazy-load AdSlot — side ads should never block profile content
+const AdSlot = dynamic(() => import('@/components/ads/AdSlot'), { ssr: false });
 
 const generateMockUsers = (count: number): UserItem[] => {
   const firstNames = ['alex', 'sarah', 'mike', 'emma', 'david', 'lisa', 'tom', 'anna', 'john', 'maria'];
