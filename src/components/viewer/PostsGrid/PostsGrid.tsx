@@ -2,8 +2,11 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
+import dynamic from 'next/dynamic';
 import styles from './PostsGrid.module.css';
-import MediaModal from '../MediaModal/MediaModal';
+
+// Lazy-load the modal — not needed on initial paint
+const MediaModal = dynamic(() => import('../MediaModal/MediaModal'), { ssr: false });
 
 interface Post {
   id: string;
@@ -106,8 +109,8 @@ const PostsGrid = ({ posts, username, isStoryView = false }: { posts: Post[]; us
                   src={post.thumbUrl}
                   alt="post"
                   fill
+                  sizes="(max-width: 640px) 33vw, (max-width: 1200px) 25vw, 300px"
                   className={styles.postImage}
-                  unoptimized
                 />
               )}
               {/* Type badge */}

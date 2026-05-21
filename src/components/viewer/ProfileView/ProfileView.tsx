@@ -2,9 +2,12 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
+import dynamic from 'next/dynamic';
 import styles from './ProfileView.module.css';
 import PostsGrid from '../PostsGrid/PostsGrid';
-import MediaModal from '../MediaModal/MediaModal';
+
+// Lazy-load the modal — it is never needed on initial paint
+const MediaModal = dynamic(() => import('../MediaModal/MediaModal'), { ssr: false });
 
 interface Profile {
   username: string;
@@ -96,7 +99,7 @@ const ProfileView = ({ profile, activeTab, onTabChange }: ProfileViewProps) => {
               width={180}
               height={180}
               className={styles.avatar}
-              unoptimized
+              priority
             />
           </div>
         </div>
@@ -204,7 +207,7 @@ const ProfileView = ({ profile, activeTab, onTabChange }: ProfileViewProps) => {
                 tabIndex={0}
                 onKeyDown={(e) => e.key === 'Enter' && handleHighlightClick(h)}
               >
-                <Image src={h.coverUrl} alt={h.title} width={70} height={70} className={styles.highlightCover} unoptimized />
+                <Image src={h.coverUrl} alt={h.title} width={70} height={70} className={styles.highlightCover} />
                 <div className={styles.highlightInfo}>
                   <span className={styles.highlightTitle}>{h.title}</span>
                   {h.mediaCount && h.mediaCount > 1 && (
