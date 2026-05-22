@@ -1,10 +1,9 @@
 .gate {
   position: relative;
   width: 100%;
-  min-height: 400px; /* enough space for the overlay */
+  min-height: 400px;
 }
 
-/* Blurred background of the actual profile content */
 .blurred {
   filter: blur(8px) grayscale(40%);
   opacity: 0.5;
@@ -13,7 +12,6 @@
   transition: all 0.3s ease;
 }
 
-/* The security box container centered over the blur */
 .overlay {
   position: absolute;
   top: 150px;
@@ -69,4 +67,55 @@
     opacity: 1;
     transform: translate(-50%, 0);
   }
+}
+
+/* Modal Styles */
+.modalBackdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  animation: fadeIn 0.2s ease;
+}
+
+.modalContent {
+  background: var(--bg-secondary);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 32px 24px;
+  border-radius: 12px;
+  position: relative;
+  min-width: 340px;
+  text-align: center;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+  animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.closeModalBtn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: none;
+  border: none;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 50%;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.closeModalBtn:hover {
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
