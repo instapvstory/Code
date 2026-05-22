@@ -35,12 +35,21 @@ export default function TurnstileGate({ siteKey, children }: TurnstileGateProps)
 
     const render = () => {
       if (!containerRef.current || widgetRef.current || !window.turnstile) return;
-      widgetRef.current = window.turnstile.render(containerRef.current, {
-        sitekey: siteKey,
-        theme: 'light', // explicitly light to match the screenshot
-        size: 'normal',
-        callback: async (token: string) => {
-          setVerifying(true);
+      
+      // Prevent crash if environment variable is missing
+      if (!siteKey) {
+        console.error("Turnstile Site Key is missing. Check your environment variables.");
+        setErr(true);
+        return;
+      }
+
+      try {
+        widgetRef.current = window.turnstile.render(containerRef.current, {
+          sitekey: siteKey,
+          theme: 'light', // explicitly light to match the screenshot
+          size: 'normal',
+          callback: async (token: string) => {
+            setVerifying(true);
           try {
             const res = await fetch('/api/turnstile/verify', {
               method: 'POST',
@@ -59,18 +68,22 @@ export default function TurnstileGate({ siteKey, children }: TurnstileGateProps)
             setVerifying(false);
           }
         },
-        'error-callback': () => {
-          setErr(true);
-          setVerifying(false);
-        },
-        'expired-callback': () => {
-          if (widgetRef.current && window.turnstile) {
-            window.turnstile.remove(widgetRef.current);
-            widgetRef.current = null;
-          }
-          render();
-        },
-      });
+          'error-callback': () => {
+            setErr(true);
+            setVerifying(false);
+          },
+          'expired-callback': () => {
+            if (widgetRef.current && window.turnstile) {
+              window.turnstile.remove(widgetRef.current);
+              widgetRef.current = null;
+            }
+            render();
+          },
+        });
+      } catch (err) {
+        console.error("Turnstile failed to render:", err);
+        setErr(true);
+      }
     };
 
     const scriptId = 'cf-turnstile-script';

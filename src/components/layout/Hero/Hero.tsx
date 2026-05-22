@@ -4,7 +4,6 @@ import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import styles from './Hero.module.css';
-import TurnstileModal from '@/components/TurnstileGate/TurnstileModal';
 
 // Lazy-load AdSlot after page is interactive — never blocks FCP/TTI
 const AdSlot = dynamic(() => import('@/components/ads/AdSlot'), { ssr: false });
@@ -14,9 +13,6 @@ export default function Hero() {
   const [history, setHistory] = useState<string[]>([]);
   const [showHistory, setShowHistory] = useState(false);
   const [adReady, setAdReady] = useState(false);
-  const [showCaptcha, setShowCaptcha] = useState(false);
-  const [pendingUsername, setPendingUsername] = useState<string | null>(null);
-  
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -31,16 +27,6 @@ export default function Hero() {
   const handleSubmit = (value?: string) => {
     const username = (value ?? query).trim().replace(/^@/, '').replace(/^https?:\/\/(www\.)?instagram\.com\//, '').replace(/\/$/, '');
     if (!username) return;
-
-    if (sessionStorage.getItem('pvstory_cf_ok') === '1') {
-      doRoute(username);
-    } else {
-      setPendingUsername(username);
-      setShowCaptcha(true);
-    }
-  };
-
-  const doRoute = (username: string) => {
     const updated = [username, ...history.filter(h => h !== username)].slice(0, 6);
     localStorage.setItem('pvstory_history', JSON.stringify(updated));
     setHistory(updated);
@@ -130,16 +116,6 @@ export default function Hero() {
           />
         )}
       </div>
-
-      <TurnstileModal
-        isOpen={showCaptcha}
-        siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!}
-        onClose={() => setShowCaptcha(false)}
-        onSuccess={() => {
-          setShowCaptcha(false);
-          if (pendingUsername) doRoute(pendingUsername);
-        }}
-      />
     </div>
   );
 }
