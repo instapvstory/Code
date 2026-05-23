@@ -42,16 +42,40 @@ export default function ProfileClientWrapper({ profile }: Props) {
   const [activeTab, setActiveTab] = useState<MainTab>('profile');
   const sectionRef = useRef<HTMLDivElement>(null);
 
-  // Focus effect for when route changes
+  // Focus effect for when route changes and history update
   useEffect(() => {
+    // 1. Scroll into view
     const timer = setTimeout(() => {
       if (sectionRef.current) {
         const y = sectionRef.current.getBoundingClientRect().top + window.scrollY - 80;
         window.scrollTo({ top: y, behavior: 'smooth' });
       }
     }, 50);
+
+    // 2. Update search history with rich profile data
+    try {
+      const stored = localStorage.getItem('pvstory_history');
+      let history = stored ? JSON.parse(stored) : [];
+      
+      const newItem = {
+        username: profile.username,
+        name: profile.fullName || profile.username,
+        pic: profile.profilePicUrl
+      };
+      
+      const filtered = history.filter((h: any) => {
+        const hName = typeof h === 'object' ? h.username : h;
+        return hName !== profile.username;
+      });
+      
+      const updated = [newItem, ...filtered].slice(0, 6);
+      localStorage.setItem('pvstory_history', JSON.stringify(updated));
+    } catch (e) {
+      console.error('Failed to save history', e);
+    }
+
     return () => clearTimeout(timer);
-  }, [profile.username]);
+  }, [profile.username, profile.fullName, profile.profilePicUrl]);
 
   const renderTabContent = () => {
     if (activeTab === 'profile') {
