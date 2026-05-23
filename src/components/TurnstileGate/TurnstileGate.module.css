@@ -1,121 +1,57 @@
-.gate {
+.wrap {
   position: relative;
   width: 100%;
-  min-height: 400px;
+  min-height: 500px;
 }
 
+/* Skeleton-style blur on the profile content */
 .blurred {
-  filter: blur(8px) grayscale(40%);
-  opacity: 0.5;
+  filter: blur(10px) brightness(0.6);
   pointer-events: none;
   user-select: none;
-  transition: all 0.3s ease;
+  transform: scale(1.01);
+  transition: filter 0.4s ease;
 }
 
+/* Center the widget absolutely over the blurred content */
 .overlay {
   position: absolute;
-  top: 150px;
+  top: 50%;
   left: 50%;
-  transform: translateX(-50%);
-  z-index: 50;
+  transform: translate(-50%, -50%);
+  z-index: 100;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 16px;
-  animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.widgetContainer {
-  min-height: 65px;
-  min-width: 300px;
-  display: flex;
   justify-content: center;
+  gap: 12px;
 }
 
-.errorBox {
-  background: rgba(239, 68, 68, 0.1);
-  border: 1px solid rgba(239, 68, 68, 0.2);
+/* The actual turnstile iframe container */
+.widget {
+  box-shadow: 0 4px 32px rgba(0, 0, 0, 0.4);
+  border-radius: 4px;
+  overflow: hidden;
+  animation: pop 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.noKey {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 8px;
-  padding: 12px 16px;
-  color: #fca5a5;
-  font-size: 0.9rem;
+  padding: 20px 24px;
+  color: #fff;
   text-align: center;
+  font-size: 0.95rem;
 }
 
-.retryBtn {
-  margin-top: 8px;
-  background: #ef4444;
-  color: white;
-  border: none;
-  padding: 6px 12px;
-  border-radius: 6px;
-  font-size: 0.85rem;
-  font-weight: 500;
-  cursor: pointer;
-}
-
-.retryBtn:hover {
-  background: #dc2626;
-}
-
-@keyframes slideUp {
+@keyframes pop {
   from {
     opacity: 0;
-    transform: translate(-50%, 20px);
+    transform: scale(0.92);
   }
   to {
     opacity: 1;
-    transform: translate(-50%, 0);
+    transform: scale(1);
   }
-}
-
-/* Modal Styles */
-.modalBackdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.7);
-  backdrop-filter: blur(4px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 9999;
-  animation: fadeIn 0.2s ease;
-}
-
-.modalContent {
-  background: var(--bg-secondary);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 32px 24px;
-  border-radius: 12px;
-  position: relative;
-  min-width: 340px;
-  text-align: center;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.5);
-  animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.closeModalBtn {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  background: none;
-  border: none;
-  color: var(--text-tertiary);
-  cursor: pointer;
-  padding: 4px;
-  border-radius: 50%;
-  transition: all 0.2s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.closeModalBtn:hover {
-  color: var(--text-primary);
-  background: rgba(255, 255, 255, 0.1);
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
 }

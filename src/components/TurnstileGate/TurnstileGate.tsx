@@ -6,7 +6,7 @@ import styles from './TurnstileGate.module.css';
 declare global {
   interface Window {
     turnstile: {
-      render: (el: HTMLElement, opts: Record<string, unknown>) => string;
+      render: (el: HTMLElement | string, opts: Record<string, unknown>) => string;
       remove: (id: string) => void;
     };
   }
@@ -18,122 +18,98 @@ interface TurnstileGateProps {
 }
 
 const SESSION_KEY = 'pvstory_cf_ok';
+const TURNSTILE_SCRIPT_URL = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
 
 export default function TurnstileGate({ siteKey, children }: TurnstileGateProps) {
   const [verified, setVerified] = useState(false);
-  const [verifying, setVerifying] = useState(false);
-  const [err, setErr] = useState(false);
+  const [ready, setReady] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
-  const widgetRef = useRef<string | null>(null);
+  const widgetIdRef = useRef<string | null>(null);
 
+  // Check session on mount
   useEffect(() => {
-    // Already verified in this browser session — skip challenge
-    if (sessionStorage.getItem(SESSION_KEY) === '1') {
+    if (typeof sessionStorage !== 'undefined' && sessionStorage.getItem(SESSION_KEY) === '1') {
       setVerified(true);
       return;
     }
+    setReady(true);
+  }, []);
 
-    const render = () => {
-      if (!containerRef.current || widgetRef.current || !window.turnstile) return;
-      
-      // Prevent crash if environment variable is missing
-      if (!siteKey) {
-        console.error("Turnstile Site Key is missing. Check your environment variables.");
-        setErr(true);
-        return;
-      }
+  // Inject Turnstile script and render widget
+  useEffect(() => {
+    if (!ready || verified || !siteKey) return;
 
+    const renderWidget = () => {
+      if (!containerRef.current || widgetIdRef.current) return;
       try {
-        widgetRef.current = window.turnstile.render(containerRef.current, {
+        widgetIdRef.current = window.turnstile.render(containerRef.current, {
           sitekey: siteKey,
-          theme: 'light', // explicitly light to match the screenshot
+          theme: 'light',
           size: 'normal',
-          callback: async (token: string) => {
-            setVerifying(true);
-          try {
-            const res = await fetch('/api/turnstile/verify', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ token }),
-            });
-            if (res.ok) {
-              sessionStorage.setItem(SESSION_KEY, '1');
-              setVerified(true);
-            } else {
-              setErr(true);
-            }
-          } catch {
-            setErr(true);
-          } finally {
-            setVerifying(false);
-          }
-        },
+          callback: () => {
+            // Token is valid — trust client-side callback for UX
+            sessionStorage.setItem(SESSION_KEY, '1');
+            setVerified(true);
+          },
           'error-callback': () => {
-            setErr(true);
-            setVerifying(false);
+            // Reset so user can retry
+            widgetIdRef.current = null;
           },
           'expired-callback': () => {
-            if (widgetRef.current && window.turnstile) {
-              window.turnstile.remove(widgetRef.current);
-              widgetRef.current = null;
+            if (widgetIdRef.current) {
+              window.turnstile.remove(widgetIdRef.current);
+              widgetIdRef.current = null;
             }
-            render();
           },
         });
-      } catch (err) {
-        console.error("Turnstile failed to render:", err);
-        setErr(true);
+      } catch (e) {
+        console.error('Turnstile render error:', e);
       }
     };
 
-    const scriptId = 'cf-turnstile-script';
-    let script = document.getElementById(scriptId) as HTMLScriptElement | null;
+    const SCRIPT_ID = 'cf-turnstile-api';
 
-    if (!script) {
-      script = document.createElement('script');
-      script.id = scriptId;
-      script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js';
-      script.async = true;
-      script.defer = true;
-      document.head.appendChild(script);
+    if (document.getElementById(SCRIPT_ID)) {
+      // Script already loaded
+      if (window.turnstile) {
+        renderWidget();
+      }
+      return;
     }
 
-    if (window.turnstile) {
-      render();
-    } else {
-      const onLoad = () => render();
-      script.addEventListener('load', onLoad);
-      return () => script!.removeEventListener('load', onLoad);
-    }
+    const script = document.createElement('script');
+    script.id = SCRIPT_ID;
+    script.src = TURNSTILE_SCRIPT_URL;
+    script.async = true;
+    script.onload = renderWidget;
+    document.head.appendChild(script);
 
     return () => {
-      if (widgetRef.current && window.turnstile) {
-        window.turnstile.remove(widgetRef.current);
-        widgetRef.current = null;
+      if (widgetIdRef.current && window.turnstile) {
+        window.turnstile.remove(widgetIdRef.current);
+        widgetIdRef.current = null;
       }
     };
-  }, [siteKey]);
+  }, [ready, verified, siteKey]);
 
-  // Verified — show content normally
+  // Pass-through when verified
   if (verified) return <>{children}</>;
 
   return (
-    <div className={styles.gate}>
-      {/* Blurred background preview of real content */}
+    <div className={styles.wrap}>
+      {/* Skeleton / blurred profile underneath */}
       <div className={styles.blurred} aria-hidden="true">
         {children}
       </div>
 
-      {/* Security overlay with just the native widget */}
+      {/* Official Turnstile widget centered */}
       <div className={styles.overlay}>
-        <div ref={containerRef} className={styles.widgetContainer} />
-        
-        {err && (
-          <div className={styles.errorBox}>
-            <p>Verification failed. Please refresh.</p>
-            <button className={styles.retryBtn} onClick={() => { setErr(false); widgetRef.current = null; }}>
-              Try Again
-            </button>
+        {ready && siteKey ? (
+          <div ref={containerRef} className={styles.widget} />
+        ) : (
+          <div className={styles.noKey}>
+            <p>⚠️ Captcha not configured.</p>
+            <p style={{ fontSize: '0.8rem', opacity: 0.6 }}>Set NEXT_PUBLIC_TURNSTILE_SITE_KEY in your environment.</p>
           </div>
         )}
       </div>

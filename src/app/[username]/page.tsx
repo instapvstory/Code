@@ -4,6 +4,7 @@ import Hero from '@/components/layout/Hero/Hero';
 import MarketingSections from '@/components/layout/MarketingSections/MarketingSections';
 import { fetchProfileData } from '@/lib/profile-service';
 import ProfileClientWrapper from './ProfileClientWrapper';
+import TurnstileGate from '@/components/TurnstileGate/TurnstileGate';
 
 type Props = {
   params: Promise<{ username: string }>;
@@ -55,7 +56,9 @@ export default async function UsernamePage({ params }: Props) {
           profile not found
         </div>
       ) : profile ? (
-        <ProfileClientWrapper profile={profile} />
+        <TurnstileGate siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? ''}>
+          <ProfileClientWrapper profile={profile} />
+        </TurnstileGate>
       ) : null}
 
       <MarketingSections />
