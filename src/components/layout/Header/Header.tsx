@@ -44,7 +44,7 @@ const Header = ({ searchQuery }: HeaderProps) => {
                 <img src="/logo.png" alt="PvStoryViewer Logo" width="36" height="36" decoding="async" />
               </picture>
             </div>
-            <span className={styles.logoText}>Insta<span className={styles.logoHighlight}>Pv</span>Story</span>
+            <span className={styles.logoText}>Pv<span className={styles.logoHighlight}>Story</span>Viewer</span>
           </Link>
 
           {/* Center search (profile pages) */}

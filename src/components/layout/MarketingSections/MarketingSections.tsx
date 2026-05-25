@@ -352,7 +352,7 @@ export default function MarketingSections({ initialPosts = [] }: MarketingSectio
                   <div className={styles.competitorCol}>Other Viewer Sites</div>
                   <div className={`${styles.competitorCol} ${styles.ourCol}`}>
                     <div className={styles.ourBadge}>Best Choice</div>
-                    InstaPSV
+                    PvStoryViewer
                   </div>
                 </div>
 
