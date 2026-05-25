@@ -29,6 +29,23 @@ const RESERVED_PATHS = [
 ];
 
 export default function middleware(request: NextRequest) {
+  // Enforce HTTPS in production
+  const hostname = request.headers.get('host') || request.nextUrl.hostname;
+  const forwardedProto = request.headers.get('x-forwarded-proto');
+  
+  if (
+    process.env.NODE_ENV === 'production' &&
+    forwardedProto === 'http' &&
+    !hostname.includes('localhost')
+  ) {
+    const url = request.nextUrl.clone();
+    url.protocol = 'https:';
+    url.port = ''; // Clear port just in case
+    // Ensure we preserve the full host (including subdomain)
+    url.host = hostname;
+    return NextResponse.redirect(url, 301);
+  }
+
   const { pathname } = request.nextUrl;
   
   // Skip middleware for API routes and static files

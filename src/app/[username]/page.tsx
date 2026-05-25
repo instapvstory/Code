@@ -17,7 +17,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   try {
     const { profile } = await fetchProfileData(username);
     return {
-      title: `${profile.fullName || profile.username} (@${profile.username}) - InstaPvStory`,
+      title: `${profile.fullName || profile.username} (@${profile.username}) - PvStoryViewer`,
       description: profile.bio ? profile.bio.slice(0, 150) + '...' : `View ${profile.username}'s Instagram stories, posts, and followers anonymously.`,
       openGraph: {
         title: `${profile.fullName || profile.username} (@${profile.username})`,
@@ -27,7 +27,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     };
   } catch (error) {
     return {
-      title: 'Profile Not Found - InstaPvStory',
+      title: 'Profile Not Found - PvStoryViewer',
       description: 'The requested Instagram profile could not be found.',
     };
   }

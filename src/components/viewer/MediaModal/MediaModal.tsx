@@ -55,7 +55,7 @@ export default function MediaModal({ post, onClose }: MediaModalProps) {
       
       const link = document.createElement('a');
       link.href = blobUrl;
-      link.download = `instapvstory-${post.id}.${post.isVideo ? 'mp4' : 'jpg'}`;
+      link.download = `pvstoryviewer-${post.id}.${post.isVideo ? 'mp4' : 'jpg'}`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);

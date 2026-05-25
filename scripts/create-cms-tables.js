@@ -136,7 +136,7 @@ async function createSampleData() {
           author_id: null, // Will be set to admin user
           featured_image: null,
           is_featured: true,
-          meta_title: 'Welcome to Our Blog - Instapvstory',
+          meta_title: 'Welcome to Our Blog - PvStoryViewer',
           meta_description: 'Welcome to our new blog platform built with Next.js and Supabase',
           published_at: new Date().toISOString()
         }

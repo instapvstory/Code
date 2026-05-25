@@ -39,7 +39,7 @@ export async function generateMetadata({ params }: PostPageProps) {
   const post = await getPost(slug);
   if (!post) return { title: 'Post Not Found' };
   return {
-    title: `${post.title} - InstaPvStory`,
+    title: `${post.title} - PvStoryViewer`,
     description: post.excerpt,
   };
 }

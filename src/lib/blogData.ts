@@ -28,9 +28,9 @@ export const blogPosts: BlogPost[] = [
       <p>This classic method still works but is unreliable. You load the stories, turn on airplane mode, watch, and then close the app. However, if the app syncs before you fully exit, your view might still be logged.</p>
       
       <h3>2. Professional Viewing Technology (Recommended)</h3>
-      <p>Tools like <strong>InstaPvStory</strong> use advanced retrieval systems to fetch data through their own secure servers. This means your personal account is never involved in the transaction.</p>
+      <p>Tools like <strong>PvStoryViewer</strong> use advanced retrieval systems to fetch data through their own secure servers. This means your personal account is never involved in the transaction.</p>
       
-      <h2>Why Use InstaPvStory?</h2>
+      <h2>Why Use PvStoryViewer?</h2>
       <ul>
         <li><strong>No Login Required:</strong> You never have to connect your personal account.</li>
         <li><strong>Full Quality:</strong> View reels and stories in their original HD resolution.</li>
@@ -57,7 +57,7 @@ export const blogPosts: BlogPost[] = [
       <h2>Use a Professional Viewer for Research</h2>
       <p>If you're a business owner or researcher, avoid using your main handle to "lurk" on competitors. High-profile accounts often use tracking software that can flag repeated visits from specific IPs or accounts.</p>
       
-      <p>Using a tool like InstaPvStory ensures that your research process remains strictly confidential and professional.</p>
+      <p>Using a tool like PvStoryViewer ensures that your research process remains strictly confidential and professional.</p>
     `,
     date: 'April 10, 2026',
     image: 'https://images.unsplash.com/photo-1563986768609-322da13575f3?q=80&w=800&auto=format&fit=crop',

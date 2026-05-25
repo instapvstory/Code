@@ -2,7 +2,7 @@ import { MetadataRoute } from 'next';
 import { getPublishedPosts } from '@/lib/cms';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = 'https://instapsv.com';
+  const baseUrl = 'https://pvstoryviewer.com';
   
   // Static Routes
   const staticRoutes = [

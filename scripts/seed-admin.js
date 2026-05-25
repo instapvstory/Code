@@ -24,7 +24,7 @@ async function seedDatabase() {
     const { data: existingAdmin, error: checkError } = await supabase
       .from('admin_users')
       .select('id')
-      .eq('email', 'admin@instapvstory.com')
+      .eq('email', 'admin@pvstoryviewer.com')
       .single();
 
     if (checkError && checkError.code !== 'PGRST116') {
@@ -44,7 +44,7 @@ async function seedDatabase() {
           is_active: true,
           role: 'super_admin'
         })
-        .eq('email', 'admin@instapvstory.com');
+        .eq('email', 'admin@pvstoryviewer.com');
 
       if (updateError) {
         console.error('Error updating admin user:', updateError);
@@ -57,7 +57,7 @@ async function seedDatabase() {
       const { error: createError } = await supabase
         .from('admin_users')
         .insert({
-          email: 'admin@instapvstory.com',
+          email: 'admin@pvstoryviewer.com',
           password_hash: passwordHash,
           name: 'System Administrator',
           role: 'super_admin',
@@ -75,7 +75,7 @@ async function seedDatabase() {
     const defaultConfigs = [
       {
         key: 'site_name',
-        value: 'InstaPVStory',
+        value: 'PvStoryViewer',
         description: 'Website name',
         category: 'general'
       },
@@ -164,7 +164,7 @@ async function seedDatabase() {
 
     console.log('\n✅ Database seeding completed successfully!');
     console.log('\nAdmin credentials:');
-    console.log('Email: admin@instapvstory.com');
+    console.log('Email: admin@pvstoryviewer.com');
     console.log('Password: admin123');
     console.log('\nYou can now login at: http://localhost:3000/admin/login');
 

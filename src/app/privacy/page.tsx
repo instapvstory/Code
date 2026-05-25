@@ -4,8 +4,8 @@ import Header from '@/components/layout/Header/Header';
 import Breadcrumb from '@/components/layout/Breadcrumb/Breadcrumb';
 
 export const metadata = {
-  title: 'Privacy Policy - InstaPvStory',
-  description: 'Privacy policy for InstaPvStory. Learn how we handle data and protect your anonymity.',
+  title: 'Privacy Policy - PvStoryViewer',
+  description: 'Privacy policy for PvStoryViewer. Learn how we handle data and protect your anonymity.',
 };
 
 export default function PrivacyPage() {
@@ -19,7 +19,7 @@ export default function PrivacyPage() {
         </div>
 
         <div className={styles.content}>
-          <p>At InstaPvStory, your privacy is our primary concern. This policy outlines how we handle data and the measures we take to ensure your anonymity while using our service.</p>
+          <p>At PvStoryViewer, your privacy is our primary concern. This policy outlines how we handle data and the measures we take to ensure your anonymity while using our service.</p>
 
           <h2>1. No Personal Data Collection</h2>
           <p>We do not require you to create an account or provide any personal information (such as name, email, or credentials) to use our service. Our "Zero-Login" philosophy means we do not collect or store any identifying information about our users, such as names, IP addresses (which are masked by our servers), or geographic locations.</p>
@@ -39,7 +39,7 @@ export default function PrivacyPage() {
           <p>We collect non-personal, aggregated information about site performance, including browser types, anonymized device categories, and page visit duration. This data is used exclusively for internal optimization and to ensure the reliability of our discovery engine.</p>
 
           <h2>5. Compliance with Digital Privacy Standards</h2>
-          <p>InstaPvStory is designed with "Privacy by Design" principles. We strictly adhere to the standards of global privacy frameworks, including the spirit of GDPR and CCPA, by ensuring that we do not process, sell, or share personal user data. We exclusively interface with publicly available information that is intentionally made visible by content creators.</p>
+          <p>PvStoryViewer is designed with "Privacy by Design" principles. We strictly adhere to the standards of global privacy frameworks, including the spirit of GDPR and CCPA, by ensuring that we do not process, sell, or share personal user data. We exclusively interface with publicly available information that is intentionally made visible by content creators.</p>
 
           <h2>6. Third-Party Data Disclosures</h2>
           <p>We do not sell user data to advertisers, researchers, or any third-party entities. Since we do not collect personal identifiers, we have no identifiable data to share, even upon official request.</p>

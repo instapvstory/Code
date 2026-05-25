@@ -158,7 +158,7 @@ const testimonials = [
     role: 'Digital Marketing Manager',
     avatar: 'SK',
     rating: 5,
-    text: "InstaPVStory is the cleanest Instagram viewer I've found. No shady ads, no login prompts — just works perfectly. Our team uses it daily for competitor analysis.",
+    text: "PvStoryViewer is the cleanest Instagram viewer I've found. No shady ads, no login prompts — just works perfectly. Our team uses it daily for competitor analysis.",
     color: '#7c3aed',
   },
   {
@@ -207,10 +207,10 @@ const testimonials = [
 const faqs = [
   {
     q: 'Can I view private Instagram profiles?',
-    a: "No — and that's by design. InstaPVStory strictly accesses public profiles using official data protocols. We do not support, promote, or enable any attempt to view private accounts. Any tool claiming to do so is a scam.",
+    a: "No — and that's by design. PvStoryViewer strictly accesses public profiles using official data protocols. We do not support, promote, or enable any attempt to view private accounts. Any tool claiming to do so is a scam.",
   },
   {
-    q: 'Is InstaPVStory really 100% anonymous?',
+    q: 'Is PvStoryViewer really 100% anonymous?',
     a: "Yes. Since we access data through our own secure environment, you never log in with your personal account. The target profile has absolutely no way of knowing you viewed their content.",
   },
   {
@@ -219,7 +219,7 @@ const faqs = [
   },
   {
     q: 'How is this different from just visiting Instagram yourself?',
-    a: "When you visit a profile on Instagram while logged in, your account is added to their visitor data. With InstaPVStory, you browse without an account, leaving no trace. It's the difference between being invisible and being seen.",
+    a: "When you visit a profile on Instagram while logged in, your account is added to their visitor data. With PvStoryViewer, you browse without an account, leaving no trace. It's the difference between being invisible and being seen.",
   },
   {
     q: 'Can I watch Stories and Reels for free?',
@@ -230,7 +230,7 @@ const faqs = [
     a: "This is a limitation of the current discovery protocols. The systems are designed to access public-facing Business and Creator accounts, which is a large majority of public profiles on the platform.",
   },
   {
-    q: 'Is it legal to use InstaPVStory?',
+    q: 'Is it legal to use PvStoryViewer?',
     a: "Yes. We exclusively access publicly available content through official data infrastructure. This is the same mechanism used by millions of third-party social media apps. We operate well within the bounds of standard data privacy terms for public information.",
   },
   {
@@ -311,7 +311,7 @@ export default function MarketingSections({ initialPosts = [] }: MarketingSectio
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginRight: '6px', verticalAlign: 'middle' }}><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
               Process
             </span>
-            <h2 className={styles.sectionTitle}>How InstaPVStory<br /><span className={styles.grad}>Works</span></h2>
+            <h2 className={styles.sectionTitle}>How PvStoryViewer<br /><span className={styles.grad}>Works</span></h2>
             <p className={styles.sectionSub}>Three steps to completely anonymous Instagram browsing.</p>
           </div>
 
@@ -388,7 +388,7 @@ export default function MarketingSections({ initialPosts = [] }: MarketingSectio
               Use Cases
             </span>
             <h2 className={styles.sectionTitle}>Popular Ways to View<br /><span className={styles.grad}>Instagram Anonymously</span></h2>
-            <p className={styles.sectionSub}>Whether you're a marketer, creator, or simply privacy-conscious — here's how people use InstaPVStory.</p>
+            <p className={styles.sectionSub}>Whether you're a marketer, creator, or simply privacy-conscious — here's how people use PvStoryViewer.</p>
           </div>
 
           <div className={styles.useCasesGrid}>
@@ -492,7 +492,7 @@ export default function MarketingSections({ initialPosts = [] }: MarketingSectio
               FAQ
             </span>
             <h2 className={styles.sectionTitle}>Frequently Asked<br /><span className={styles.grad}>Questions</span></h2>
-            <p className={styles.sectionSub}>Everything you need to know about how InstaPVStory works and how we protect your privacy.</p>
+            <p className={styles.sectionSub}>Everything you need to know about how PvStoryViewer works and how we protect your privacy.</p>
           </div>
 
           <div className={styles.faqList}>

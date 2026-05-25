@@ -1,7 +1,7 @@
 # Deployment and Monitoring Guide - CDN-First Architecture
 
 ## Overview
-This guide provides instructions for deploying the Instapvstory.com application with the CDN-first architecture (Vercel + Supabase + Cloudflare). This architecture is optimized for 100k monthly traffic with zero media storage costs.
+This guide provides instructions for deploying the PvStoryViewer.com application with the CDN-first architecture (Vercel + Supabase + Cloudflare). This architecture is optimized for 100k monthly traffic with zero media storage costs.
 
 ## Architecture Overview
 - **Frontend/API**: Vercel (Next.js 15)

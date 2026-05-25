@@ -11,7 +11,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "InstaPvStory - Anonymous Instagram Story & Profile Viewer",
+  title: "PvStoryViewer - Anonymous Instagram Story & Profile Viewer",
   description: "View Instagram stories, posts, followers and highlights anonymously. No login required.",
   keywords: ["instagram viewer", "anonymous instagram", "instagram story viewer", "instagram profile viewer"],
   icons: {
@@ -28,7 +28,7 @@ export const metadata: Metadata = {
     ],
   },
   openGraph: {
-    title: "InstaPvStory - Anonymous Instagram Story & Profile Viewer",
+    title: "PvStoryViewer - Anonymous Instagram Story & Profile Viewer",
     description: "View Instagram stories, posts, followers and highlights anonymously. No login required.",
     type: "website",
     images: [{ url: "/android-chrome-512x512.png" }],

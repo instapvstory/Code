@@ -4,8 +4,8 @@ import Breadcrumb from '@/components/layout/Breadcrumb/Breadcrumb';
 import styles from './features.module.css';
 
 export const metadata = {
-  title: 'Core Features - InstaPvStory',
-  description: 'Explore the powerful features of InstaPvStory, from anonymous story viewing to high-quality content discovery.',
+  title: 'Core Features - PvStoryViewer',
+  description: 'Explore the powerful features of PvStoryViewer, from anonymous story viewing to high-quality content discovery.',
 };
 
 const features = [
@@ -54,7 +54,7 @@ export default function FeaturesPage() {
         <Breadcrumb items={[{ label: 'Features' }]} />
         <header className={styles.header}>
           <span className={styles.badge}>Capabilities</span>
-          <h1 className={styles.title}>The Power of <span className={styles.grad}>InstaPvStory</span></h1>
+          <h1 className={styles.title}>The Power of <span className={styles.grad}>PvStoryViewer</span></h1>
         </header>
 
         <div className={styles.grid}>

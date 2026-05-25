@@ -16,9 +16,9 @@ const Footer = () => {
           <div className={styles.brand}>
             <div className={styles.brandTitle}>
               <div className={styles.logoIcon}>
-                <img src="/logo.png" alt="InstaPvStory Logo" width="28" height="28" />
+                <img src="/logo.png" alt="PvStoryViewer Logo" width="28" height="28" />
               </div>
-              <h3 style={{ color: '#ffffff', margin: 0 }}>InstaPvStory</h3>
+              <h3 style={{ color: '#ffffff', margin: 0 }}>PvStoryViewer</h3>
             </div>
             <p className="text-small">Anonymous Instagram story and highlight viewer.</p>
           </div>
@@ -43,7 +43,7 @@ const Footer = () => {
           </div>
         </div>
         <div className={styles.bottom}>
-          <p className="text-small">&copy; {year} InstaPvStory. All rights reserved.</p>
+          <p className="text-small">&copy; {year} PvStoryViewer. All rights reserved.</p>
         </div>
       </div>
     </footer>

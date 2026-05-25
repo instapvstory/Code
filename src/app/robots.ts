@@ -7,6 +7,6 @@ export default function robots(): MetadataRoute.Robots {
       allow: '/',
       disallow: ['/admin', '/api/', '/login', '/ads-demo'],
     },
-    sitemap: 'https://instapsv.com/sitemap.xml',
+    sitemap: 'https://pvstoryviewer.com/sitemap.xml',
   };
 }

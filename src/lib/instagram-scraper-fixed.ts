@@ -235,7 +235,7 @@ function generateFallbackProfile(username: string): Profile {
   return {
     username,
     fullName: username.charAt(0).toUpperCase() + username.slice(1),
-    bio: `Explore ${username}'s latest stories and highlights on InstaPVStory.`,
+    bio: `Explore ${username}'s latest stories and highlights on PvStoryViewer.`,
     website: '',
     isVerified: false,
     isBusinessAccount: false,

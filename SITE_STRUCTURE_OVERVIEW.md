@@ -1,7 +1,7 @@
-# InstaPvStory - Site Structure Overview
+# PvStoryViewer - Site Structure Overview
 
 ## Project Information
-- **Project Name**: InstaPvStory (Instagram Private Story Viewer)
+- **Project Name**: PvStoryViewer (Instagram Private Story Viewer)
 - **Version**: 0.1.0
 - **Framework**: Next.js 16.2.3 with App Router
 - **Language**: TypeScript

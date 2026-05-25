@@ -83,7 +83,7 @@ export default function AdminLoginPage() {
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="admin@instapvstory.com"
+                    placeholder="admin@pvstoryviewer.com"
                     required
                     disabled={loading}
                     style={{
@@ -158,7 +158,7 @@ export default function AdminLoginPage() {
                 Demo Credentials
               </h3>
               <p style={{ fontSize: 13, color: '#64748b', margin: '0 0 4px' }}>
-                <strong>Email:</strong> admin@instapvstory.com
+                <strong>Email:</strong> admin@pvstoryviewer.com
               </p>
               <p style={{ fontSize: 13, color: '#64748b', margin: 0 }}>
                 <strong>Password:</strong> admin123
@@ -168,7 +168,7 @@ export default function AdminLoginPage() {
         </div>
 
         <p style={{ textAlign: 'center', fontSize: 12, color: 'rgba(255,255,255,0.4)', marginTop: 24 }}>
-          © {new Date().getFullYear()} InstaPvStory CMS
+          © {new Date().getFullYear()} PvStoryViewer CMS
         </p>
       </div>
     </div>

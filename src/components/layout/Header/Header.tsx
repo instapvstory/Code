@@ -41,7 +41,7 @@ const Header = ({ searchQuery }: HeaderProps) => {
             <div className={styles.logoIcon}>
               <picture>
                 <source srcSet="/logo.webp" type="image/webp" />
-                <img src="/logo.png" alt="InstaPvStory Logo" width="36" height="36" decoding="async" />
+                <img src="/logo.png" alt="PvStoryViewer Logo" width="36" height="36" decoding="async" />
               </picture>
             </div>
             <span className={styles.logoText}>Insta<span className={styles.logoHighlight}>Pv</span>Story</span>

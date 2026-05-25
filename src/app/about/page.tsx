@@ -4,8 +4,8 @@ import Breadcrumb from '@/components/layout/Breadcrumb/Breadcrumb';
 import styles from './About.module.css';
 
 export const metadata = {
-  title: 'About Us - InstaPvStory',
-  description: 'Learn about the mission and values behind InstaPvStory, the premier anonymous social media discovery tool.',
+  title: 'About Us - PvStoryViewer',
+  description: 'Learn about the mission and values behind PvStoryViewer, the premier anonymous social media discovery tool.',
 };
 
 export default function AboutPage() {
@@ -19,13 +19,13 @@ export default function AboutPage() {
         </header>
 
         <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>The Genesis of InstaPvStory</h2>
+          <h2 className={styles.sectionTitle}>The Genesis of PvStoryViewer</h2>
           <div className={styles.content}>
             <p>
-              InstaPvStory was established by a collective of digital privacy advocates and social media researchers who identified a critical gap in the market: the lack of a secure, high-performance platform for anonymous profile discovery. In an era where digital footprints are increasingly tracked and monetized, we believed that professionals—from market analysts to investigative researchers—deserved a tool that respected their privacy without compromising on data quality.
+              PvStoryViewer was established by a collective of digital privacy advocates and social media researchers who identified a critical gap in the market: the lack of a secure, high-performance platform for anonymous profile discovery. In an era where digital footprints are increasingly tracked and monetized, we believed that professionals—from market analysts to investigative researchers—deserved a tool that respected their privacy without compromising on data quality.
             </p>
             <p>
-              Our journey began with a focus on solving the technical hurdles of real-time content retrieval while ensuring total user anonymity. Today, InstaPvStory stands as a leader in the field, serving millions of users who require secure access to public social information for competitive analysis, creative inspiration, and personal privacy.
+              Our journey began with a focus on solving the technical hurdles of real-time content retrieval while ensuring total user anonymity. Today, PvStoryViewer stands as a leader in the field, serving millions of users who require secure access to public social information for competitive analysis, creative inspiration, and personal privacy.
             </p>
           </div>
         </section>
@@ -34,7 +34,7 @@ export default function AboutPage() {
           <h2 className={styles.sectionTitle}>Technical Excellence & Expertise</h2>
           <div className={styles.content}>
             <p>
-              At the heart of our platform is a proprietary discovery engine designed for speed and reliability. Unlike standard web scrapers that are often unstable and inaccurate, InstaPvStory utilizes optimized cloud architecture to interface with official social data protocols. This ensures:
+              At the heart of our platform is a proprietary discovery engine designed for speed and reliability. Unlike standard web scrapers that are often unstable and inaccurate, PvStoryViewer utilizes optimized cloud architecture to interface with official social data protocols. This ensures:
             </p>
             <ul>
               <li><strong>Real-Time Synchronization:</strong> Content is fetched at the moment of request, ensuring you see the most current stories and posts.</li>
@@ -75,7 +75,7 @@ export default function AboutPage() {
           <h2 className={styles.sectionTitle}>Our Commitment to Ethics</h2>
           <div className={styles.content}>
             <p>
-              Ethics and transparency are the pillars of InstaPvStory. We exclusively process publicly available data, strictly adhering to the standards set by global social media platforms. We do not support, enable, or encourage the viewing of private accounts or the misuse of social data for harassment.
+              Ethics and transparency are the pillars of PvStoryViewer. We exclusively process publicly available data, strictly adhering to the standards set by global social media platforms. We do not support, enable, or encourage the viewing of private accounts or the misuse of social data for harassment.
             </p>
             <p>
               We are committed to remaining a free-to-use resource for the global community of social media researchers, creative directors, and privacy-conscious users.
