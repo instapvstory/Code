@@ -180,6 +180,24 @@ class BotDetector {
     
     const ua = userAgent.toLowerCase();
     
+    // Whitelist search engine crawlers and social share scrapers
+    const searchEngines = [
+      'googlebot',
+      'google-coop',
+      'bingbot',
+      'yandexbot',
+      'baiduspider',
+      'duckduckbot',
+      'slurp', // Yahoo
+      'pinterestbot',
+      'linkedinbot',
+      'facebookexternalhit',
+      'twitterbot'
+    ];
+    if (searchEngines.some(engine => ua.includes(engine))) {
+      return false;
+    }
+    
     // Check against blacklisted user agents
     for (const botKeyword of SECURITY_CONFIG.BOT_DETECTION.USER_AGENT_BLACKLIST) {
       if (ua.includes(botKeyword)) {
