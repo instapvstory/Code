@@ -6,7 +6,6 @@
   min-height: 700px;
   padding: 160px 0 100px;
   background: radial-gradient(circle at 15% 50%, rgba(124, 58, 237, 0.15), transparent 40%), #0d0b1f;
-  contain: layout;
 }
 
 .heroBg {
@@ -46,11 +45,9 @@
 }
 
 .heroContent {
-  position: relative;
-  z-index: 1;
-  width: 100%;
+  flex: 1;
   max-width: 1000px;
-  padding: 0 20px;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -310,7 +307,7 @@
   }
 
   .heroContent {
-    padding: 0 20px;
+    padding: 0;
     gap: 20px;
   }
 
@@ -390,4 +387,52 @@
     font-size: 0.95rem;
   }
 }
+
+.heroContainer {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 1420px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 30px;
+  margin: 0 auto;
+  padding: 0 20px;
+  box-sizing: border-box;
+}
+
+.heroAdLeft,
+.heroAdRight {
+  display: flex;
+  flex-shrink: 0;
+  width: 160px;
+  min-height: 600px;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Hide sidebars when viewport is too narrow to prevent overlapping content */
+@media (max-width: 1200px) {
+  .heroAdLeft,
+  .heroAdRight {
+    display: none;
+  }
+}
+
+.belowSearchAd {
+  width: 100%;
+  max-width: 728px;
+  margin: 12px auto 0;
+}
+
+@media (max-width: 768px) {
+  .belowSearchAd {
+    width: calc(100% - 64px) !important;
+    max-width: 728px !important;
+    margin: 12px auto 0 !important;
+  }
+}
+
+
 

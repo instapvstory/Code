@@ -54,13 +54,13 @@ export async function GET(request: NextRequest) {
     const { data: stats, error: statsError } = await supabase
       .from('ad_stats')
       .select('*')
-      .in('ad_id', ads.map(ad => ad.id));
+      .in('ad_id', ads.map((ad: any) => ad.id));
 
     // Combine ads with their stats
-    const adsWithStats = ads.map(ad => {
-      const adStats = stats?.filter(stat => stat.ad_id === ad.id) || [];
-      const totalClicks = adStats.reduce((sum, stat) => sum + (stat.clicks || 0), 0);
-      const totalImpressions = adStats.reduce((sum, stat) => sum + (stat.impressions || 0), 0);
+    const adsWithStats = ads.map((ad: any) => {
+      const adStats = stats?.filter((stat: any) => stat.ad_id === ad.id) || [];
+      const totalClicks = adStats.reduce((sum: number, stat: any) => sum + (stat.clicks || 0), 0);
+      const totalImpressions = adStats.reduce((sum: number, stat: any) => sum + (stat.impressions || 0), 0);
       
       // Map database fields to frontend fields
       return {

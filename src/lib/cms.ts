@@ -438,7 +438,7 @@ export async function getCategories() {
     countMap[r.category_id] = (countMap[r.category_id] || 0) + 1;
   });
 
-  return (data || []).map(c => ({ ...c, post_count: countMap[c.id] || 0 }));
+  return (data || []).map((c: any) => ({ ...c, post_count: countMap[c.id] || 0 }));
 }
 
 export async function createCategory(data: { name: string; description?: string; parent_id?: string }) {
@@ -482,7 +482,7 @@ export async function getTags() {
     countMap[r.tag_id] = (countMap[r.tag_id] || 0) + 1;
   });
 
-  return (data || []).map(t => ({ ...t, post_count: countMap[t.id] || 0 }));
+  return (data || []).map((t: any) => ({ ...t, post_count: countMap[t.id] || 0 }));
 }
 
 export async function createTag(name: string) {
@@ -559,9 +559,9 @@ export async function getDashboardStats() {
 
   const posts = postsRes.data || [];
   const totalPosts = posts.length;
-  const published = posts.filter(p => p.status === 'published').length;
-  const drafts = posts.filter(p => p.status === 'draft').length;
-  const totalViews = posts.reduce((sum, p) => sum + (p.view_count || 0), 0);
+  const published = posts.filter((p: any) => p.status === 'published').length;
+  const drafts = posts.filter((p: any) => p.status === 'draft').length;
+  const totalViews = posts.reduce((sum: number, p: any) => sum + (p.view_count || 0), 0);
 
   return {
     totalPosts,

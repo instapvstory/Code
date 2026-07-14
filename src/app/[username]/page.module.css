@@ -103,14 +103,18 @@
   padding: 24px 8px 0;
 }
 
-/* Hide side ads and go single-column on tablets/mobile */
+/* Show side ads inline and stack them on tablets/mobile */
 @media (max-width: 900px) {
   .threeCol {
     grid-template-columns: 1fr;
   }
 
   .sideAdCol {
-    display: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 16px 0;
+    position: static;
   }
 }
 

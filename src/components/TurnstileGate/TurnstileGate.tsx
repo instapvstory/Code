@@ -28,6 +28,10 @@ export default function TurnstileGate({ siteKey, children }: TurnstileGateProps)
 
   // Check session on mount
   useEffect(() => {
+    if (process.env.NODE_ENV === 'development') {
+      setVerified(true);
+      return;
+    }
     if (typeof sessionStorage !== 'undefined' && sessionStorage.getItem(SESSION_KEY) === '1') {
       setVerified(true);
       return;

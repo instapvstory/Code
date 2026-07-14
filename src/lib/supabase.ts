@@ -77,7 +77,7 @@ export async function createOrUpdateProfile(profileData: Partial<Profile>): Prom
       ...profileData,
       updated_at: new Date().toISOString(),
       last_fetched: new Date().toISOString(),
-    })
+    }, { onConflict: 'username' })
     .select()
     .single();
 

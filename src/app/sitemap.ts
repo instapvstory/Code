@@ -24,7 +24,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Dynamic Blog Posts
   const { posts } = await getPublishedPosts(1, 1000);
   
-  const blogRoutes = posts.map((post) => ({
+  const blogRoutes = posts.map((post: any) => ({
     url: `${baseUrl}/blog/${post.slug}`,
     lastModified: post.published_at ? new Date(post.published_at) : new Date(),
     changeFrequency: 'monthly' as const,

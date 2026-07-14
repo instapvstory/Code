@@ -42,7 +42,7 @@ export async function GET(request: NextRequest) {
 
     // Group configurations by category
     const groupedConfigs: Record<string, any[]> = {};
-    configs?.forEach(config => {
+    configs?.forEach((config: any) => {
       const category = config.category || 'general';
       if (!groupedConfigs[category]) {
         groupedConfigs[category] = [];

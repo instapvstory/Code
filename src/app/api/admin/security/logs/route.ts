@@ -82,7 +82,7 @@ export async function GET(request: NextRequest) {
     const summaryMap = new Map<string, number>();
     const ipMap = new Map<string, number>();
     
-    allLogs?.forEach(log => {
+    allLogs?.forEach((log: any) => {
       // Count by type
       summaryMap.set(log.type, (summaryMap.get(log.type) || 0) + 1);
       

@@ -41,8 +41,8 @@ export async function GET(
       .select('*')
       .eq('ad_id', id);
 
-    const totalClicks = stats?.reduce((sum, stat) => sum + (stat.clicks || 0), 0) || 0;
-    const totalImpressions = stats?.reduce((sum, stat) => sum + (stat.impressions || 0), 0) || 0;
+    const totalClicks = stats?.reduce((sum: number, stat: any) => sum + (stat.clicks || 0), 0) || 0;
+    const totalImpressions = stats?.reduce((sum: number, stat: any) => sum + (stat.impressions || 0), 0) || 0;
 
     return NextResponse.json({
       success: true,

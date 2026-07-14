@@ -49,6 +49,8 @@ interface Post {
   isSidecar: boolean;
   mediaUrl?: string;
   caption?: string;
+  isReel?: boolean;
+  timestamp?: string;
 }
 
 const formatCount = (n: number): string => {
@@ -100,6 +102,7 @@ const ProfileView = ({ profile, activeTab, onTabChange }: ProfileViewProps) => {
               height={180}
               className={styles.avatar}
               priority
+              unoptimized={profile.profilePicUrl.startsWith('/api/proxy-image')}
             />
           </div>
         </div>
@@ -207,7 +210,7 @@ const ProfileView = ({ profile, activeTab, onTabChange }: ProfileViewProps) => {
                 tabIndex={0}
                 onKeyDown={(e) => e.key === 'Enter' && handleHighlightClick(h)}
               >
-                <Image src={h.coverUrl} alt={h.title} width={70} height={70} className={styles.highlightCover} />
+                <Image src={h.coverUrl} alt={h.title} width={70} height={70} className={styles.highlightCover} unoptimized={h.coverUrl.startsWith('/api/proxy-image')} />
                 <div className={styles.highlightInfo}>
                   <span className={styles.highlightTitle}>{h.title}</span>
                   {h.mediaCount && h.mediaCount > 1 && (

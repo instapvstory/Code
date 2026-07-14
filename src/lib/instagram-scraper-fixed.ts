@@ -251,7 +251,9 @@ function generateFallbackProfile(username: string): Profile {
 }
 
 /**
- * Main function to scrape Instagram profile with multiple fallback strategies
+ * Main function to scrape Instagram profile with multiple fallback strategies.
+ * NOTE: generateFallbackProfile is intentionally NOT called here — fake data
+ * causes confusion. Instead we throw so the caller can try getPublicProfileFallback.
  */
 export async function scrapeInstagramProfile(username: string): Promise<Profile> {
   const graphProfile = await fetchWithGraphApi(username);
@@ -260,5 +262,5 @@ export async function scrapeInstagramProfile(username: string): Promise<Profile>
   const htmlProfile = await extractFromHtml(username);
   if (htmlProfile) return htmlProfile;
   
-  return generateFallbackProfile(username);
+  throw new Error(`Could not scrape profile data for ${username} — no structured data found in page HTML.`);
 }

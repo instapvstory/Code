@@ -28,7 +28,7 @@ export class CacheService {
     // Layer 1: Check memory cache
     const memoryCached = this.memoryCache.get(cacheKey);
     if (memoryCached) {
-      await trackCacheHit('profile', true, Date.now() - startTime, username);
+      trackCacheHit('profile', true, Date.now() - startTime, username);
       console.log(`Memory cache HIT for ${username}`);
       return memoryCached;
     }
@@ -39,13 +39,13 @@ export class CacheService {
       // Store in memory cache for faster access
       this.memoryCache.set(cacheKey, dbProfile);
       
-      await trackCacheHit('profile', true, Date.now() - startTime, username);
+      trackCacheHit('profile', true, Date.now() - startTime, username);
       console.log(`Database cache HIT for ${username}`);
       return dbProfile;
     }
 
     // Layer 3: Cache miss - will be fetched by API
-    await trackCacheHit('profile', false, Date.now() - startTime, username);
+    trackCacheHit('profile', false, Date.now() - startTime, username);
     console.log(`Cache MISS for ${username}`);
     return null;
   }
@@ -74,7 +74,7 @@ export class CacheService {
     // Layer 1: Check memory cache
     const memoryCached = this.memoryCache.get(cacheKey);
     if (memoryCached) {
-      await trackCacheHit('media', true, Date.now() - startTime, username);
+      trackCacheHit('media', true, Date.now() - startTime, username);
       return memoryCached;
     }
 
@@ -84,12 +84,12 @@ export class CacheService {
       // Store in memory cache
       this.memoryCache.set(cacheKey, dbMedia);
       
-      await trackCacheHit('media', true, Date.now() - startTime, username);
+      trackCacheHit('media', true, Date.now() - startTime, username);
       return dbMedia;
     }
 
     // Layer 3: Cache miss
-    await trackCacheHit('media', false, Date.now() - startTime, username);
+    trackCacheHit('media', false, Date.now() - startTime, username);
     return [];
   }
 

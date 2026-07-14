@@ -48,6 +48,11 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: 'https',
+        hostname: '**.imginn.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
         hostname: 'images.unsplash.com',
         pathname: '/**',
       },

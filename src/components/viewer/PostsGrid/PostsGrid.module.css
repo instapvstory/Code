@@ -165,6 +165,49 @@
   opacity: 1;
 }
 
+/* Instagram-style likes/comments overlay */
+.postOverlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  opacity: 0;
+  transition: opacity 0.22s ease;
+  pointer-events: none;
+}
+
+.postCard:hover .postOverlay {
+  opacity: 1;
+}
+
+.overlayStat {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: #ffffff;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.overlayStatComments {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: #ffffff;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.overlayStatSep {
+  color: rgba(255,255,255,0.5);
+  font-size: 0.85rem;
+}
+
+
 .stat {
   display: flex;
   align-items: center;

@@ -298,11 +298,6 @@ export default function MarketingSections({ initialPosts = [] }: MarketingSectio
         </div>
       </section>
 
-      {/* ── HOMEPAGE AD SLOT 1: After Features ── */}
-      <div style={{ textAlign: 'center', padding: '8px 24px 0' }}>
-        <AdSlot placement="homepage_after_features" style={{ maxWidth: 728, margin: '0 auto' }} />
-      </div>
-
       {/* ── HOW IT WORKS ── */}
       <section className={styles.section} id="how-it-works">
         <div className={styles.container}>
