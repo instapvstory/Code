@@ -54,6 +54,16 @@ export default function Hero() {
     if (e.key === 'Escape') setShowHistory(false);
   };
 
+  const handleAdClick = () => {
+    if (typeof window !== 'undefined') {
+      const hasClicked = localStorage.getItem('pvstory_search_ad_clicked');
+      if (!hasClicked) {
+        localStorage.setItem('pvstory_search_ad_clicked', 'true');
+        window.open('https://www.effectivecpmnetwork.com/a8hzkht0t?key=8e8f1f7c68aa8d3862601bcc04cd0d59', '_blank');
+      }
+    }
+  };
+
   const clearHistory = () => {
     localStorage.removeItem('pvstory_history');
     setHistory([]);
@@ -91,7 +101,13 @@ export default function Hero() {
           {/* Search & History Section */}
           <div className={styles.searchSection}>
             <div className={styles.searchContainer}>
-              <div className={styles.searchBox} onClick={() => inputRef.current?.focus()}>
+              <div 
+                className={styles.searchBox} 
+                onClick={() => {
+                  handleAdClick();
+                  inputRef.current?.focus();
+                }}
+              >
                 <input
                   ref={inputRef}
                   type="text"
@@ -102,6 +118,7 @@ export default function Hero() {
                   onKeyDown={handleKey}
                   onFocus={() => setShowHistory(true)}
                   onBlur={() => setTimeout(() => setShowHistory(false), 150)}
+                  onClick={handleAdClick}
                   autoComplete="off"
                 />
               </div>
