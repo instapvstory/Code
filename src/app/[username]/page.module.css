@@ -103,6 +103,11 @@
   padding: 24px 8px 0;
 }
 
+.sideAd {
+  width: 160px;
+  min-height: 250px;
+}
+
 /* Show side ads inline and stack them on tablets/mobile */
 @media (max-width: 900px) {
   .threeCol {
@@ -115,6 +120,12 @@
     align-items: center;
     padding: 16px 0;
     position: static;
+  }
+
+  .sideAd {
+    width: 100%;
+    max-width: 728px;
+    min-height: auto;
   }
 }
 

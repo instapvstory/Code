@@ -134,7 +134,7 @@ export default function ProfileClientWrapper({ profile }: Props) {
       <div className={styles.threeCol}>
         {/* Left Ad */}
         <div className={styles.sideAdCol}>
-          <AdSlot placement="hero_left" style={{ width: 160 }} />
+          <AdSlot placement="hero_left" className={styles.sideAd} />
         </div>
 
         {/* Main Content */}
@@ -149,7 +149,7 @@ export default function ProfileClientWrapper({ profile }: Props) {
 
         {/* Right Ad */}
         <div className={styles.sideAdCol}>
-          <AdSlot placement="hero_right" style={{ width: 160 }} />
+          <AdSlot placement="hero_right" className={styles.sideAd} />
         </div>
       </div>
     </>
