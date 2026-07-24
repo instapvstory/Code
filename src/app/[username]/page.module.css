@@ -104,7 +104,8 @@
 }
 
 .sideAd {
-  width: 160px;
+  width: 100% !important;
+  max-width: 160px !important;
   min-height: 250px;
 }
 
@@ -123,8 +124,8 @@
   }
 
   .sideAd {
-    width: 100%;
-    max-width: 728px;
+    width: 100% !important;
+    max-width: 728px !important;
     min-height: auto;
   }
 }
