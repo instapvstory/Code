@@ -36,13 +36,12 @@ export default function Hero() {
     const username = (value ?? query).trim().replace(/^@/, '').replace(/^https?:\/\/(www\.)?instagram\.com\//, '').replace(/\/$/, '');
     if (!username) return;
 
-    // Trigger ad redirect on first submit
+    // Trigger ad redirect on first submit of the session
     if (typeof window !== 'undefined') {
-      const hasClicked = localStorage.getItem('pvstory_search_ad_clicked');
+      const hasClicked = sessionStorage.getItem('pvstory_search_ad_clicked');
       if (!hasClicked) {
-        localStorage.setItem('pvstory_search_ad_clicked', 'true');
+        sessionStorage.setItem('pvstory_search_ad_clicked', 'true');
         window.open('https://www.effectivecpmnetwork.com/a8hzkht0t?key=8e8f1f7c68aa8d3862601bcc04cd0d59', '_blank');
-        return; // Return early on the first submit
       }
     }
     
