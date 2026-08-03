@@ -114,9 +114,7 @@ const PostsGrid = ({ posts, username, isStoryView = false }: { posts: Post[]; us
                   unoptimized={post.thumbUrl.startsWith('/api/proxy-image') || post.thumbUrl.startsWith('http')}
                   onError={(e) => {
                     const img = e.currentTarget as HTMLImageElement;
-                    if (profile.profilePicUrl && img.src !== profile.profilePicUrl) {
-                      img.src = profile.profilePicUrl;
-                    }
+                    img.style.opacity = '0.5';
                   }}
                 />
               ) : (
