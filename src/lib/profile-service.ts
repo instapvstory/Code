@@ -42,60 +42,64 @@ function proxyImageUrl(url: string | undefined | null): string {
 
 // Helper function to create frontend-compatible profile data
 function createFrontendProfile(profileData: any, instagramProfile: any): Profile {
-  const postsCount = profileData.posts_count ?? profileData.postsCount ?? profileData.posts ?? instagramProfile.posts ?? 0;
-  const followersCount = profileData.followers_count ?? profileData.followersCount ?? profileData.followers ?? instagramProfile.followers ?? 0;
-  const followingCount = profileData.following_count ?? profileData.followingCount ?? profileData.following ?? instagramProfile.following ?? 0;
-  const fullName = profileData.full_name ?? profileData.fullName ?? instagramProfile.fullName ?? '';
-  const bio = profileData.bio ?? instagramProfile.bio ?? '';
-  const profilePicUrl = profileData.profile_pic_url ?? profileData.profilePicUrl ?? instagramProfile.profilePicUrl ?? '';
-  const isVerified = profileData.is_verified ?? profileData.isVerified ?? instagramProfile.isVerified ?? false;
-  const isBusinessAccount = profileData.is_business_account ?? profileData.isBusinessAccount ?? instagramProfile.isBusinessAccount ?? false;
-  const hasStory = profileData.has_story ?? profileData.hasStory ?? instagramProfile.hasStory ?? false;
+  const postsCount = profileData.posts_count ?? profileData.postsCount ?? profileData.posts ?? instagramProfile?.posts ?? 0;
+  const followersCount = profileData.followers_count ?? profileData.followersCount ?? profileData.followers ?? instagramProfile?.followers ?? 0;
+  const followingCount = profileData.following_count ?? profileData.followingCount ?? profileData.following ?? instagramProfile?.following ?? 0;
+  const fullName = profileData.full_name ?? profileData.fullName ?? instagramProfile?.fullName ?? '';
+  const bio = profileData.bio ?? instagramProfile?.bio ?? '';
+  const profilePicUrl = profileData.profile_pic_url ?? profileData.profilePicUrl ?? instagramProfile?.profilePicUrl ?? '';
+  const isVerified = profileData.is_verified ?? profileData.isVerified ?? instagramProfile?.isVerified ?? false;
+  const isBusinessAccount = profileData.is_business_account ?? profileData.isBusinessAccount ?? instagramProfile?.isBusinessAccount ?? false;
+  const hasStory = profileData.has_story ?? profileData.hasStory ?? instagramProfile?.hasStory ?? false;
+
+  const rawPosts = instagramProfile?.postsList || instagramProfile?.posts_list || profileData.posts_list || profileData.postsList || [];
+  const rawHighlights = instagramProfile?.highlights || profileData.highlights || [];
+  const rawStories = instagramProfile?.storiesList || instagramProfile?.stories_list || instagramProfile?.stories || profileData.stories || profileData.stories_list || [];
 
   return {
-    username: profileData.username || instagramProfile.username,
+    username: profileData.username || instagramProfile?.username,
     fullName,
     bio,
     profilePicUrl: proxyImageUrl(profilePicUrl),
-    category: profileData.category || instagramProfile.category,
-    website: profileData.website || instagramProfile.website,
+    category: profileData.category || instagramProfile?.category,
+    website: profileData.website || instagramProfile?.website,
     posts: postsCount,
     followers: followersCount,
     following: followingCount,
     isVerified,
     isBusinessAccount,
     hasStory,
-    postsList: instagramProfile.postsList?.map((p: any) => ({
-      id: p.id || p.instagramId,
-      thumbUrl: proxyImageUrl(p.thumbUrl || p.mediaUrl || ''),
-      mediaUrl: p.isVideo ? unproxyImageUrl(p.mediaUrl || '') : proxyImageUrl(p.mediaUrl || ''),
+    postsList: rawPosts.map((p: any) => ({
+      id: p.id || p.instagramId || p.instagram_id,
+      thumbUrl: proxyImageUrl(p.thumbUrl || p.thumb_url || p.mediaUrl || p.media_url || ''),
+      mediaUrl: proxyImageUrl(p.mediaUrl || p.media_url || p.thumbUrl || p.thumb_url || ''),
       likes: p.likes || 0,
       comments: p.comments || 0,
-      isVideo: p.isVideo || false,
-      isReel: p.isReel || false,
-      isSidecar: p.isSidecar || false,
+      isVideo: p.isVideo ?? p.is_video ?? false,
+      isReel: p.isReel ?? p.is_reel ?? false,
+      isSidecar: p.isSidecar ?? p.is_sidecar ?? false,
       caption: p.caption || '',
       timestamp: p.timestamp,
-    })) || [],
-    highlights: instagramProfile.highlights?.map((h: any) => ({
-      id: h.id || h.instagramId,
+    })),
+    highlights: rawHighlights.map((h: any) => ({
+      id: h.id || h.instagramId || h.instagram_id,
       title: h.title || 'Highlight',
-      coverUrl: proxyImageUrl(h.coverUrl || h.mediaUrl || ''),
-      caption: h.caption,
-      mediaUrl: (h.mediaUrl && /\.(mp4|mov|avi|webm|mkv)/i.test(unproxyImageUrl(h.mediaUrl))) ? unproxyImageUrl(h.mediaUrl) : proxyImageUrl(h.mediaUrl || ''),
-      mediaCount: h.mediaCount || 1,
-      createdAt: h.createdAt,
-    })) || [],
-    storiesList: instagramProfile.storiesList?.map((s: any) => ({
-      id: s.id || s.instagramId,
-      thumbUrl: proxyImageUrl(s.thumbUrl || s.mediaUrl || ''),
-      mediaUrl: s.isVideo ? unproxyImageUrl(s.mediaUrl || '') : proxyImageUrl(s.mediaUrl || ''),
-      likes: 0,
-      comments: 0,
-      isVideo: s.isVideo || false,
+      coverUrl: proxyImageUrl(h.coverUrl || h.cover_url || h.mediaUrl || h.media_url || ''),
+      caption: h.caption || '',
+      mediaUrl: proxyImageUrl(h.mediaUrl || h.media_url || h.coverUrl || h.cover_url || ''),
+      mediaCount: h.mediaCount || h.media_count || 1,
+      createdAt: h.createdAt || h.created_at,
+    })),
+    storiesList: rawStories.map((s: any) => ({
+      id: s.id || s.instagramId || s.instagram_id,
+      thumbUrl: proxyImageUrl(s.thumbUrl || s.thumb_url || s.mediaUrl || s.media_url || ''),
+      mediaUrl: proxyImageUrl(s.mediaUrl || s.media_url || s.thumbUrl || s.thumb_url || ''),
+      likes: s.likes || 0,
+      comments: s.comments || 0,
+      isVideo: s.isVideo ?? s.is_video ?? false,
       isSidecar: false,
-      caption: s.caption,
-    })) || [],
+      caption: s.caption || '',
+    })),
   };
 }
 
