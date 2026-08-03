@@ -105,10 +105,10 @@ export async function fetchProfileData(username: string, bypassCache = false): P
   const cachedProfile = !bypassCache ? await cacheService.getProfile(normalizedUsername) : null;
 
   if (cachedProfile) {
-    // Detect stale cache: if we have posts but none have isReel defined,
-    // the cache was built before the reels upgrade — force a fresh fetch.
+    // Detect stale cache: if built before reels upgrade or if it's a fallback profile (UI-Avatars avatar)
     const cachedPosts: any[] = cachedProfile.posts_list || cachedProfile.posts || [];
-    const isStale = cachedPosts.length > 0 && cachedPosts.every((p: any) => p.isReel === undefined);
+    const isStale = (cachedPosts.length > 0 && cachedPosts.every((p: any) => p.isReel === undefined)) ||
+                    (cachedProfile.profile_pic_url && cachedProfile.profile_pic_url.includes('ui-avatars.com'));
     if (!isStale) {
       const profile = createFrontendProfile(cachedProfile, {
         postsList: cachedPosts,
@@ -117,7 +117,7 @@ export async function fetchProfileData(username: string, bypassCache = false): P
       });
       return { profile, source: 'cache' };
     }
-    console.log(`Stale cache detected for ${normalizedUsername} (no isReel field) — forcing fresh fetch`);
+    console.log(`Stale cache detected for ${normalizedUsername} — forcing fresh fetch`);
   }
 
   const instagramProfile = await getInstagramProfile(normalizedUsername);
@@ -143,7 +143,10 @@ export async function fetchProfileData(username: string, bypassCache = false): P
     posts_list: instagramProfile.postsList || [],
   };
 
-  await cacheService.storeProfile(normalizedUsername, profileData);
+  // Only store real profile data in Supabase cache — skip fallback profiles
+  if (!instagramProfile.profilePicUrl?.includes('ui-avatars.com')) {
+    await cacheService.storeProfile(normalizedUsername, profileData);
+  }
 
   const profile = createFrontendProfile(profileData, instagramProfile);
   return { profile, source: 'api' };
