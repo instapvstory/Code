@@ -56,9 +56,7 @@ export default async function UsernamePage({ params }: Props) {
           profile not found
         </div>
       ) : profile ? (
-        <TurnstileGate siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? ''}>
-          <ProfileClientWrapper profile={profile} />
-        </TurnstileGate>
+        <ProfileClientWrapper profile={profile} />
       ) : null}
 
       <MarketingSections />
