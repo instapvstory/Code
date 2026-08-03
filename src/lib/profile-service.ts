@@ -109,9 +109,12 @@ export async function fetchProfileData(username: string, bypassCache = false): P
   const cachedProfile = !bypassCache ? await cacheService.getProfile(normalizedUsername) : null;
 
   if (cachedProfile) {
-    // Detect stale cache: if built before reels upgrade or if it's a fallback profile (UI-Avatars avatar)
+    // Detect stale cache: if older than 12 hours (signed URLs expire), built before reels upgrade, or fallback avatar
     const cachedPosts: any[] = cachedProfile.posts_list || cachedProfile.posts || [];
-    const isStale = (cachedPosts.length > 0 && cachedPosts.every((p: any) => p.isReel === undefined)) ||
+    const lastFetched = cachedProfile.last_fetched ? new Date(cachedProfile.last_fetched).getTime() : 0;
+    const isExpired = !lastFetched || (Date.now() - lastFetched) > (12 * 60 * 60 * 1000);
+    const isStale = isExpired ||
+                    (cachedPosts.length > 0 && cachedPosts.every((p: any) => p.isReel === undefined)) ||
                     (cachedProfile.profile_pic_url && cachedProfile.profile_pic_url.includes('ui-avatars.com'));
     if (!isStale) {
       const profile = createFrontendProfile(cachedProfile, {
@@ -121,7 +124,7 @@ export async function fetchProfileData(username: string, bypassCache = false): P
       });
       return { profile, source: 'cache' };
     }
-    console.log(`Stale cache detected for ${normalizedUsername} — forcing fresh fetch`);
+    console.log(`Stale cache detected for ${normalizedUsername} — forcing fresh fetch from Instagram API`);
   }
 
   const instagramProfile = await getInstagramProfile(normalizedUsername);
