@@ -33,21 +33,15 @@ export async function GET(req: NextRequest) {
   try {
     const upstream = await fetch(rawUrl, {
       headers: {
-        // Pretend to be Instagram itself so CDN servers don't block us
-        'Referer': 'https://www.instagram.com/',
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'User-Agent': 'facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)',
         'Accept': 'image/avif,image/webp,image/apng,image/*,*/*;q=0.8',
-        'Accept-Encoding': 'gzip, deflate, br',
-        'sec-fetch-dest': 'image',
-        'sec-fetch-mode': 'no-cors',
-        'sec-fetch-site': 'cross-site',
       },
-      // Do not follow redirects blindly — allow up to 5
       redirect: 'follow',
     });
 
     if (!upstream.ok) {
-      return new NextResponse(`Upstream error: ${upstream.status}`, { status: upstream.status });
+      // If upstream fails (e.g. status 403), redirect directly to raw URL as fallback
+      return NextResponse.redirect(rawUrl, { status: 302 });
     }
 
     const contentType = upstream.headers.get('content-type') || 'image/jpeg';
@@ -57,13 +51,12 @@ export async function GET(req: NextRequest) {
       status: 200,
       headers: {
         'Content-Type': contentType,
-        // Cache aggressively — CDN images for a profile don't change often
         'Cache-Control': 'public, max-age=86400, s-maxage=86400, stale-while-revalidate=604800',
         'Access-Control-Allow-Origin': '*',
       },
     });
   } catch (err: any) {
     console.error('[proxy-image] fetch failed:', err.message);
-    return new NextResponse('Failed to fetch image', { status: 502 });
+    return NextResponse.redirect(rawUrl, { status: 302 });
   }
 }
