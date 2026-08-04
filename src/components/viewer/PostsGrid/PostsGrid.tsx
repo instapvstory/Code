@@ -111,7 +111,7 @@ const PostsGrid = ({ posts, username, isStoryView = false }: { posts: Post[]; us
                   fill
                   sizes="(max-width: 640px) 33vw, (max-width: 1200px) 25vw, 300px"
                   className={styles.postImage}
-                  unoptimized={post.thumbUrl.startsWith('/api/proxy-image') || post.thumbUrl.startsWith('http')}
+                  unoptimized
                   onError={(e) => {
                     const img = e.currentTarget as HTMLImageElement;
                     img.style.opacity = '0.5';

@@ -20,23 +20,22 @@ function unproxyImageUrl(url: string | undefined | null): string {
 }
 
 /**
- * Rewrites an Instagram/imginn CDN URL to go through our local proxy so the
- * browser can load it without being blocked by hotlink-protection headers.
- * Only rewrites known CDN hosts — relative paths and other URLs pass through unchanged.
+ * Returns the direct CDN URL for browser rendering.
+ * Instagram CDN images load fine in the browser directly — only server-side
+ * requests from datacenter IPs get blocked. We do NOT proxy here.
  */
 function proxyImageUrl(url: string | undefined | null): string {
   if (!url) return '';
-  // Already a proxy URL or a relative/data URL — return as-is
-  if (url.startsWith('/api/proxy-image') || url.startsWith('data:') || url.startsWith('/')) return url;
-  try {
-    const parsed = new URL(url);
-    const cdn = /cdninstagram\.com|fbcdn\.net|instagram\.com|imginn\.com/i.test(parsed.hostname);
-    if (cdn) {
-      return `/api/proxy-image?url=${encodeURIComponent(url)}`;
+  // Already a proxy URL — decode it back to the raw CDN URL for direct loading
+  if (url.startsWith('/api/proxy-image?url=')) {
+    try {
+      const searchParams = new URL(url, 'http://localhost').searchParams;
+      return searchParams.get('url') || url;
+    } catch {
+      return url;
     }
-  } catch {
-    // not a valid URL — return as-is
   }
+  // Return direct URL — browser loads it fine from Instagram/Facebook CDN
   return url;
 }
 
