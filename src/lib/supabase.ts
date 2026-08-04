@@ -60,10 +60,12 @@ export async function getProfileByUsername(username: string): Promise<Profile | 
     .from('profiles')
     .select('*')
     .eq('username', username.toLowerCase())
-    .single();
+    .maybeSingle();
 
   if (error) {
-    console.error('Error fetching profile:', error);
+    if (error.code !== 'PGRST116' && Object.keys(error).length > 0) {
+      console.error('Error fetching profile:', error);
+    }
     return null;
   }
 
