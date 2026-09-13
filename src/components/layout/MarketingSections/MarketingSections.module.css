@@ -857,3 +857,142 @@
     font-size: 0.85rem;
   }
 }
+
+/* ─────────────────────────────────────────────
+   Why We Built This Section
+───────────────────────────────────────────── */
+.whyGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  margin-bottom: 56px;
+}
+
+@media (max-width: 900px) {
+  .whyGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.whyCard {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 20px;
+  padding: 32px 28px;
+  transition: border-color 0.3s, transform 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+
+.whyCard::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at top left, color-mix(in srgb, var(--acc) 8%, transparent), transparent 70%);
+  pointer-events: none;
+}
+
+.whyCard:hover {
+  border-color: color-mix(in srgb, var(--acc) 40%, transparent);
+  transform: translateY(-4px);
+}
+
+.whyIcon {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--acc) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--acc) 25%, transparent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--acc);
+  margin-bottom: 20px;
+}
+
+.whyTitle {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 12px;
+  line-height: 1.4;
+}
+
+.whyDesc {
+  font-size: 0.93rem;
+  color: #9ca3af;
+  line-height: 1.7;
+}
+
+/* ─────────────────────────────────────────────
+   Editorial Block (inline prose in a section)
+───────────────────────────────────────────── */
+.editorialBlock {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 20px;
+  padding: 40px 48px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.editorialTitle {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 20px;
+}
+
+.editorialBlock p {
+  color: #9ca3af;
+  font-size: 1rem;
+  line-height: 1.8;
+  margin-bottom: 18px;
+}
+
+.editorialBlock p:last-child {
+  margin-bottom: 0;
+}
+
+@media (max-width: 700px) {
+  .editorialBlock {
+    padding: 28px 24px;
+  }
+}
+
+/* ─────────────────────────────────────────────
+   Editorial Two-Column Layout
+───────────────────────────────────────────── */
+.editorialColumns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+@media (max-width: 768px) {
+  .editorialColumns {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+}
+
+.editorialCol h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 12px;
+  margin-top: 32px;
+}
+
+.editorialCol h3:first-child {
+  margin-top: 0;
+}
+
+.editorialCol p {
+  color: #9ca3af;
+  font-size: 0.97rem;
+  line-height: 1.8;
+}
+

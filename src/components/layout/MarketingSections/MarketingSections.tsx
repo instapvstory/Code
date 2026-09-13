@@ -151,55 +151,25 @@ const useCases = [
   },
 ];
 
-/* ─────── Testimonials Data ─────── */
-const testimonials = [
+/* ─────── Why We Built This Data ─────── */
+const whyWeBuiltPoints = [
   {
-    name: 'Sarah K.',
-    role: 'Digital Marketing Manager',
-    avatar: 'SK',
-    rating: 5,
-    text: "PvStoryViewer is the cleanest Instagram viewer I've found. No shady ads, no login prompts — just works perfectly. Our team uses it daily for competitor analysis.",
+    icon: <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>,
+    title: 'Instagram makes it hard to view public profiles without an account',
+    desc: 'Public accounts are supposed to be visible to everyone — but the platform increasingly prompts non-logged-in visitors to sign up. We built a tool to remove that unnecessary friction.',
     color: '#7c3aed',
   },
   {
-    name: 'Ahmed R.',
-    role: 'Content Creator',
-    avatar: 'AR',
-    rating: 5,
-    text: "I was skeptical at first, but this tool is legitimately impressive. Fetches real stories and reels instantly. It's become my go-to for content research.",
+    icon: <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>,
+    title: 'Researchers and marketers needed a cleaner option',
+    desc: 'Viewing a competitor\'s stories from your branded account leaves a footprint. Viewing an influencer\'s content from your personal account creates a data trail. There was no clean, professional option — so we made one.',
     color: '#06b6d4',
   },
   {
-    name: 'Priya M.',
-    role: 'Brand Strategist',
-    avatar: 'PM',
-    rating: 5,
-    text: "Finally, a professional tool that respects my privacy. No sign-up, no data collection. The UI is stunning and it just works. Highly recommended.",
+    icon: <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>,
+    title: 'We only access what\'s already public',
+    desc: 'Every profile on PvStoryViewer is a public account — set to public by the account holder. We don\'t access private accounts, we don\'t store your searches on our servers, and we don\'t ask for your Instagram credentials.',
     color: '#10b981',
-  },
-  {
-    name: 'James T.',
-    role: 'Freelance Photographer',
-    avatar: 'JT',
-    rating: 5,
-    text: "The story viewer is absolutely unmatched. Real-time, beautiful display, and no watermarks. I use it to get inspiration from top photographers anonymously.",
-    color: '#f59e0b',
-  },
-  {
-    name: 'Mikaela J.',
-    role: 'Social Media Researcher',
-    avatar: 'MJ',
-    rating: 5,
-    text: "Perfect for academic research. I can study public profiles, posts, and engagement patterns without disrupting the subjects or needing an account.",
-    color: '#ec4899',
-  },
-  {
-    name: 'Daniel C.',
-    role: 'Tech Entrepreneur',
-    avatar: 'DC',
-    rating: 5,
-    text: "Built on high-performance global architecture — that alone sets it apart from every scraped, sketchy alternative. This is how a professional tool should work.",
-    color: '#8b5cf6',
   },
 ];
 
@@ -442,38 +412,33 @@ export default function MarketingSections({ initialPosts = [] }: MarketingSectio
         <AdSlot placement="homepage_after_blog" style={{ maxWidth: 728, margin: '0 auto' }} />
       </div>
 
-      {/* ── TESTIMONIALS ── */}
-      <section className={styles.section} id="testimonials">
+      {/* ── WHY WE BUILT THIS ── */}
+      <section className={styles.section} id="why-built">
         <div className={styles.container}>
           <div className={styles.sectionHead}>
             <span className={styles.badge}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginRight: '6px', verticalAlign: 'middle' }}><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-              Testimonials
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginRight: '6px', verticalAlign: 'middle' }}><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              Why This Exists
             </span>
-            <h2 className={styles.sectionTitle}>What Our Users<br /><span className={styles.grad}>Are Saying</span></h2>
-            <p className={styles.sectionSub}>Trusted by marketers, creators, researchers, and everyday users around the world.</p>
+            <h2 className={styles.sectionTitle}>Why We Built<br /><span className={styles.grad}>PvStoryViewer</span></h2>
+            <p className={styles.sectionSub}>No fake testimonials. Just an honest explanation of the problem we set out to solve.</p>
           </div>
 
-          <div className={styles.testimonialsGrid}>
-            {testimonials.map((t, i) => (
-              <div key={i} className={styles.testimonialCard}>
-                <div className={styles.stars}>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none" style={{ marginRight: '4px' }}><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none" style={{ marginRight: '4px' }}><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none" style={{ marginRight: '4px' }}><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none" style={{ marginRight: '4px' }}><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
-                </div>
-                <p className={styles.testimonialText}>&quot;{t.text}&quot;</p>
-                <div className={styles.testimonialAuthor}>
-                  <div className={styles.testimonialAvatar} style={{ background: t.color }}>{t.avatar}</div>
-                  <div>
-                    <div className={styles.testimonialName}>{t.name}</div>
-                    <div className={styles.testimonialRole}>{t.role}</div>
-                  </div>
-                </div>
+          <div className={styles.whyGrid}>
+            {whyWeBuiltPoints.map((point, i) => (
+              <div key={i} className={styles.whyCard} style={{ '--acc': point.color } as React.CSSProperties}>
+                <div className={styles.whyIcon}>{point.icon}</div>
+                <h3 className={styles.whyTitle}>{point.title}</h3>
+                <p className={styles.whyDesc}>{point.desc}</p>
               </div>
             ))}
+          </div>
+
+          <div className={styles.editorialBlock}>
+            <h3 className={styles.editorialTitle}>What &ldquo;Public&rdquo; Actually Means on Instagram</h3>
+            <p>When an Instagram account is set to public, its owner has deliberately chosen to make their content visible to anyone on the internet — not just logged-in Instagram users. That&apos;s a choice the account holder makes consciously. Public stories, posts, reels, and highlights are meant to be seen. The barrier Instagram adds (requiring a login to view content you&apos;ve already made public) is a platform decision to grow its user base, not a privacy protection.</p>
+            <p>PvStoryViewer respects this distinction. We only retrieve content from public accounts — the same content that&apos;s visible to anyone who navigates to that profile. We access this through Instagram&apos;s official data infrastructure for Business and Creator accounts, which is how the platform is designed to work with third-party applications.</p>
+            <p>The result: you see what the account has made publicly available. Nothing more, nothing private, and no account required on your end. That&apos;s the whole tool.</p>
           </div>
         </div>
       </section>
@@ -511,6 +476,33 @@ export default function MarketingSections({ initialPosts = [] }: MarketingSectio
                 </div>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── HOW PUBLIC INSTAGRAM DATA WORKS ── */}
+      <section className={styles.section} id="how-data-works">
+        <div className={styles.container}>
+          <div className={styles.sectionHead}>
+            <span className={styles.badge}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginRight: '6px', verticalAlign: 'middle' }}><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+              How It Works
+            </span>
+            <h2 className={styles.sectionTitle}>Understanding<br /><span className={styles.grad}>Public Instagram Data</span></h2>
+          </div>
+          <div className={styles.editorialColumns}>
+            <div className={styles.editorialCol}>
+              <h3>Business vs Creator vs Personal Accounts</h3>
+              <p>Instagram has three account types. Business and Creator accounts are designed for professional, public-facing use — they explicitly opt into broader data sharing through Instagram&apos;s official API. Personal accounts, even when set to public, operate under different data-sharing rules. This is why PvStoryViewer works for most public-facing brands, influencers, and organizations (who use Business or Creator accounts) but may not work for all personal accounts.</p>
+              <h3>Why No Login Is Required</h3>
+              <p>Our servers make the data request to Instagram — not your browser. The profile data is retrieved server-side and delivered to you. Because no personal Instagram session is involved in the transaction, there is no view record created. This is fundamentally different from logging into a secondary account or using a browser trick — those methods still involve an account session.</p>
+            </div>
+            <div className={styles.editorialCol}>
+              <h3>What Happens to Your Search</h3>
+              <p>When you search a username, we fetch the current public data for that profile and display it. We do not store your search history on our servers. Your recent searches are saved locally in your browser only, for your own convenience — they never leave your device. We don&apos;t build a profile on you, and we don&apos;t sell search data.</p>
+              <h3>Story Data and How It&apos;s Retrieved</h3>
+              <p>Instagram stories expire after 24 hours. When you view a story through PvStoryViewer, we retrieve the current active story data from the public account at the moment of your request. If no stories are currently active on an account, the story viewer section will show empty. Highlights — saved stories that persist on a profile — are also accessible for public accounts and remain visible until the account holder removes them.</p>
+            </div>
           </div>
         </div>
       </section>

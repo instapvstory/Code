@@ -4,8 +4,19 @@ import Breadcrumb from '@/components/layout/Breadcrumb/Breadcrumb';
 import styles from './features.module.css';
 
 export const metadata = {
-  title: 'Core Features - PvStoryViewer',
-  description: 'Explore the powerful features of PvStoryViewer, from anonymous story viewing to high-quality content discovery.',
+  title: 'Core Features — How PvStoryViewer Works',
+  description: 'Explore every feature of PvStoryViewer: anonymous story viewing, reel playback, profile data, highlight browsing, and more. No login required.',
+  openGraph: {
+    title: 'Core Features — PvStoryViewer',
+    description: 'Explore every feature of PvStoryViewer: anonymous story viewing, reel playback, profile data, highlight browsing, and more.',
+    type: 'website',
+    url: 'https://pvstoryviewer.com/features',
+  },
+  twitter: {
+    card: 'summary',
+    title: 'Core Features — PvStoryViewer',
+    description: 'Anonymous story viewing, reel playback, profile data, and more. No login required.',
+  },
 };
 
 const features = [

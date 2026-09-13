@@ -11,30 +11,50 @@ const inter = Inter({
   preload: true,
 });
 
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://pvstoryviewer.com';
+
 export const metadata: Metadata = {
-  title: "PvStoryViewer - Anonymous Instagram Story & Profile Viewer",
-  description: "View Instagram stories, posts, followers and highlights anonymously. No login required.",
-  keywords: ["instagram viewer", "anonymous instagram", "instagram story viewer", "instagram profile viewer"],
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: 'PvStoryViewer — Anonymous Instagram Story & Profile Viewer',
+    template: '%s | PvStoryViewer',
+  },
+  description: 'View Instagram stories, posts, reels, highlights and profile data anonymously. No login required. Works on Business and Creator accounts.',
+  keywords: ['instagram viewer', 'anonymous instagram', 'instagram story viewer', 'instagram profile viewer', 'view instagram stories without account', 'instagram anonymous viewer'],
+  authors: [{ name: 'PvStoryViewer Editorial Team', url: SITE_URL }],
+  creator: 'PvStoryViewer',
   icons: {
     icon: [
-      { url: "/favicon.ico" },
-      { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
-      { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+      { url: '/favicon.ico' },
+      { url: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
+      { url: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
     ],
-    apple: [
-      { url: "/apple-touch-icon.png" },
-    ],
-    other: [
-      { rel: "manifest", url: "/site.webmanifest" },
-    ],
+    apple: [{ url: '/apple-touch-icon.png' }],
+    other: [{ rel: 'manifest', url: '/site.webmanifest' }],
   },
   openGraph: {
-    title: "PvStoryViewer - Anonymous Instagram Story & Profile Viewer",
-    description: "View Instagram stories, posts, followers and highlights anonymously. No login required.",
-    type: "website",
-    images: [{ url: "/android-chrome-512x512.png" }],
+    title: 'PvStoryViewer — Anonymous Instagram Story & Profile Viewer',
+    description: 'View Instagram stories, posts, reels and highlights anonymously. No login required.',
+    type: 'website',
+    url: SITE_URL,
+    siteName: 'PvStoryViewer',
+    images: [
+      {
+        url: '/android-chrome-512x512.png',
+        width: 512,
+        height: 512,
+        alt: 'PvStoryViewer — Anonymous Instagram Story Viewer',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'PvStoryViewer — Anonymous Instagram Story & Profile Viewer',
+    description: 'View Instagram stories, posts, reels and highlights anonymously. No login required.',
+    images: ['/android-chrome-512x512.png'],
   },
 };
+
 
 export default function RootLayout({
   children,
