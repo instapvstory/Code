@@ -36,12 +36,26 @@ export default function Hero() {
     const username = (value ?? query).trim().replace(/^@/, '').replace(/^https?:\/\/(www\.)?instagram\.com\//, '').replace(/\/$/, '');
     if (!username) return;
 
-    // Trigger ad redirect on first submit of the session
+    // Trigger ad redirect on every search submit — opens in new tab for maximum CPM revenue
     if (typeof window !== 'undefined') {
-      const hasClicked = sessionStorage.getItem('pvstory_search_ad_clicked');
-      if (!hasClicked) {
-        sessionStorage.setItem('pvstory_search_ad_clicked', 'true');
-        window.open('https://www.effectivecpmnetwork.com/a8hzkht0t?key=8e8f1f7c68aa8d3862601bcc04cd0d59', '_blank');
+      // Track click count in sessionStorage for frequency control (max 3 per session)
+      const clickCountRaw = sessionStorage.getItem('pvstory_ad_clicks') || '0';
+      const clickCount = parseInt(clickCountRaw, 10);
+      if (clickCount < 3) {
+        sessionStorage.setItem('pvstory_ad_clicks', String(clickCount + 1));
+        // Use window.open with noopener for security
+        const adWin = window.open('https://www.profitableratecpmnetwork.com/a8hzkht0t?key=8e8f1f7c68aa8d3862601bcc04cd0d59', '_blank', 'noopener,noreferrer');
+        if (!adWin) {
+          // Popup blocked — fallback: create a hidden anchor click
+          const a = document.createElement('a');
+          a.href = 'https://www.profitableratecpmnetwork.com/a8hzkht0t?key=8e8f1f7c68aa8d3862601bcc04cd0d59';
+          a.target = '_blank';
+          a.rel = 'noopener noreferrer';
+          a.style.display = 'none';
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+        }
       }
     }
     

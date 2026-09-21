@@ -98,6 +98,12 @@ export default function RootLayout({
             gtag('config', 'G-M16BTK301X');
           `}
         </Script>
+        {/* Adsterra Social Bar — highest CPM format, fires on all pages */}
+        <Script
+          id="adsterra-social-bar"
+          src="//pl4629628.profitableratecpmnetwork.com/invoke.js"
+          strategy="lazyOnload"
+        />
         <ClientLayout>
           {children}
         </ClientLayout>

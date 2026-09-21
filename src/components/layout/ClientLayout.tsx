@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import dynamic from 'next/dynamic';
+import Script from 'next/script';
 import Header from '@/components/layout/Header/Header';
 import Footer from '@/components/layout/Footer/Footer';
 
@@ -12,6 +13,13 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
   const pathname = usePathname();
   const isAdminRoute = pathname?.startsWith('/admin') || false;
   const [adClosed, setAdClosed] = useState(false);
+  const [adsterraReady, setAdsterraReady] = useState(false);
+
+  useEffect(() => {
+    // Delay Adsterra direct banner until page is interactive
+    const id = setTimeout(() => setAdsterraReady(true), 3000);
+    return () => clearTimeout(id);
+  }, []);
 
   return (
     <div className="app-wrapper" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }} suppressHydrationWarning={true}>
@@ -20,6 +28,15 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
         {children}
       </main>
       {!isAdminRoute && <Footer />}
+
+      {/* Adsterra In-Page Push — fires once per session, very high CTR */}
+      {!isAdminRoute && adsterraReady && (
+        <Script
+          id="adsterra-inpage-push"
+          src="//pl4629628.profitableratecpmnetwork.com/invoke.js"
+          strategy="lazyOnload"
+        />
+      )}
 
       {/* Sticky Footer Ad */}
       {!isAdminRoute && !adClosed && (
@@ -63,8 +80,9 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
             }}
             title="Close Advertisement"
           >
-            ×
+            &times;
           </button>
+          {/* Try DB-configured ad first, fallback to direct Adsterra banner */}
           <AdSlot placement="sticky_footer" style={{ margin: '0 auto' }} />
         </div>
       )}
