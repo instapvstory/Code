@@ -1,1020 +1,451 @@
-'use client';
-
-import { useState, useEffect } from 'react';
-import { useAuth } from '@/components/admin/AdminAuthProvider';
-import { useRouter } from 'next/navigation';
+"use client";
+import { useState, useEffect } from "react";
+import { useAuth } from "@/components/admin/AdminAuthProvider";
+import { useRouter } from "next/navigation";
 import {
-  Plus, Edit, Trash2, Eye, DollarSign, BarChart3, Calendar,
-  ChevronLeft, ChevronRight, Search, Filter, Download
-} from 'lucide-react';
+  Plus, Edit2, Trash2, Save, X, Eye,
+  Code, CheckCircle, AlertCircle, RefreshCw,
+  LayoutGrid, Search, Copy, Layers,
+} from "lucide-react";
+
+const PLACEMENTS = [
+  { id: "hero_left",       label: "Homepage – Left Sidebar",       page: "Homepage", desc: "160×600 sidebar left of search" },
+  { id: "hero_right",      label: "Homepage – Right Sidebar",      page: "Homepage", desc: "160×600 sidebar right of search" },
+  { id: "below_search",    label: "Homepage – Below Search Bar",   page: "Homepage", desc: "728×90 banner below search input" },
+  { id: "sticky_footer",   label: "Sticky Footer (All Pages)",     page: "Global",   desc: "Fixed bottom banner on every page" },
+  { id: "blog_top",        label: "Blog List – Top Banner",        page: "Blog",     desc: "728×90 at top of blog listing" },
+  { id: "blog_sidebar",    label: "Blog List – Sidebar",           page: "Blog",     desc: "300×600 sidebar on blog listing" },
+  { id: "between_posts",   label: "Blog – Between Post Cards",     page: "Blog",     desc: "Native ad between post cards" },
+  { id: "article_top",     label: "Article – Top of Content",      page: "Article",  desc: "728×90 above article body" },
+  { id: "article_mid",     label: "Article – Mid Content",         page: "Article",  desc: "In-content after 2nd paragraph" },
+  { id: "article_bottom",  label: "Article – End of Content",      page: "Article",  desc: "728×90 below article body" },
+  { id: "article_sidebar", label: "Article – Sidebar",             page: "Article",  desc: "300×250 sticky sidebar" },
+  { id: "profile_top",     label: "Profile Page – Top",            page: "Profile",  desc: "Banner above profile viewer" },
+  { id: "profile_left",    label: "Profile Page – Left Sidebar",   page: "Profile",  desc: "160×600 left of profile" },
+  { id: "profile_right",   label: "Profile Page – Right Sidebar",  page: "Profile",  desc: "160×600 right of profile" },
+];
+
+const PAGE_GROUPS = ["All", "Global", "Homepage", "Blog", "Article", "Profile"];
+
+const AD_TYPES = [
+  { id: "custom",  label: "Custom HTML",    color: "#6366f1" },
+  { id: "adsense", label: "Google AdSense", color: "#4285F4" },
+  { id: "script",  label: "Ext. Script",   color: "#f59e0b" },
+];
 
 interface Ad {
-  id: string;
-  name: string;
-  ad_type: string;
-  position: string;
-  content: string;
-  is_active: boolean;
-  start_date: string | null;
-  end_date: string | null;
-  target_url: string | null;
-  image_url: string | null;
-  dimensions: string | null;
+  id: string; name: string; placement: string; code: string;
+  type: string; status: string; target_devices: string;
+  priority: number; start_date: string | null; end_date: string | null;
   created_at: string;
-  stats: {
-    total_clicks: number;
-    total_impressions: number;
-    ctr: string;
-  };
 }
 
-export default function AdsPage() {
+const EMPTY = { name: "", placement: "", code: "", type: "custom", status: "active", target_devices: "all", priority: 5, start_date: "", end_date: "" };
+
+export default function AdManagerPage() {
   const { user, loading } = useAuth();
   const router = useRouter();
-  
   const [ads, setAds] = useState<Ad[]>([]);
   const [total, setTotal] = useState(0);
   const [loadingData, setLoadingData] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedType, setSelectedType] = useState('all');
-  const [selectedStatus, setSelectedStatus] = useState('all');
-  const [currentPage, setCurrentPage] = useState(1);
-  const [showCreateModal, setShowCreateModal] = useState(false);
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [selectedAd, setSelectedAd] = useState<Ad | null>(null);
-  const [selectedAdIds, setSelectedAdIds] = useState<string[]>([]);
-  const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
-  const [showBulkDeleteModal, setShowBulkDeleteModal] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [editingAd, setEditingAd] = useState<Ad | null>(null);
+  const [form, setForm] = useState<typeof EMPTY>(EMPTY);
+  const [saving, setSaving] = useState(false);
+  const [msg, setMsg] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [filterPage, setFilterPage] = useState("All");
+  const [filterStatus, setFilterStatus] = useState("all");
+  const [searchQ, setSearchQ] = useState("");
+  const [previewMode, setPreviewMode] = useState(false);
+  const [viewMode, setViewMode] = useState<"grid" | "list">("list");
 
-  const limit = 10;
-
-  useEffect(() => {
-    if (!loading && !user) {
-      router.push('/admin/login');
-    }
-  }, [user, loading, router]);
-
-  useEffect(() => {
-    if (user) {
-      fetchAds();
-    }
-  }, [user, currentPage, selectedType, selectedStatus]);
+  useEffect(() => { if (!loading && !user) router.push("/admin/login"); }, [user, loading, router]);
+  useEffect(() => { if (user) fetchAds(); }, [user]);
 
   const fetchAds = async () => {
+    setLoadingData(true);
     try {
-      setLoadingData(true);
-      const params = new URLSearchParams({
-        page: currentPage.toString(),
-        limit: limit.toString(),
-      });
-      
-      if (selectedType !== 'all') params.append('type', selectedType);
-      if (selectedStatus !== 'all') params.append('status', selectedStatus);
-      
-      const response = await fetch(`/api/admin/ads?${params}`);
-      const data = await response.json();
-      
-      if (data.success) {
-        setAds(data.data);
-        setTotal(data.pagination.total);
-      }
-    } catch (error) {
-      console.error('Error fetching ads:', error);
-      setMessage({ type: 'error', text: 'Failed to load ads' });
-    } finally {
-      setLoadingData(false);
+      const res = await fetch("/api/admin/ads?limit=100");
+      const data = await res.json();
+      if (data.success) { setAds(data.data || []); setTotal(data.pagination?.total || 0); }
+    } finally { setLoadingData(false); }
+  };
+
+  const openCreate = (placement?: string) => {
+    setEditingAd(null);
+    setForm({ ...EMPTY, placement: placement || "" });
+    setMsg(null);
+    setPreviewMode(false);
+    setShowModal(true);
+  };
+
+  const openEdit = (ad: Ad) => {
+    setEditingAd(ad);
+    setForm({ name: ad.name, placement: ad.placement, code: ad.code, type: ad.type, status: ad.status, target_devices: ad.target_devices, priority: ad.priority, start_date: ad.start_date || "", end_date: ad.end_date || "" });
+    setMsg(null);
+    setPreviewMode(false);
+    setShowModal(true);
+  };
+
+  const handleSave = async () => {
+    if (!form.name.trim() || !form.placement || !form.code.trim()) {
+      setMsg({ type: "error", text: "Name, placement zone and ad code are all required." });
+      return;
     }
-  };
-
-  const handleCreateAd = () => {
-    setShowCreateModal(true);
-  };
-
-  const handleEditAd = (ad: Ad) => {
-    // Navigate to edit page or show edit modal
-    setSelectedAd(ad);
-    setShowCreateModal(true);
-  };
-
-  const handleDeleteAd = (ad: Ad) => {
-    setSelectedAd(ad);
-    setShowDeleteModal(true);
-  };
-
-  const confirmDelete = async () => {
-    if (!selectedAd) return;
-    
+    setSaving(true); setMsg(null);
     try {
-      const response = await fetch(`/api/admin/ads/${selectedAd.id}`, {
-        method: 'DELETE',
-      });
-      
-      const data = await response.json();
-      
-      if (data.success) {
-        setMessage({ type: 'success', text: 'Ad deleted successfully' });
-        fetchAds();
-      } else {
-        setMessage({ type: 'error', text: data.message || 'Failed to delete ad' });
-      }
-    } catch (error) {
-      console.error('Error deleting ad:', error);
-      setMessage({ type: 'error', text: 'Failed to delete ad' });
-    } finally {
-      setShowDeleteModal(false);
-      setSelectedAd(null);
-    }
+      const url = editingAd ? `/api/admin/ads/${editingAd.id}` : "/api/admin/ads";
+      const res = await fetch(url, { method: editingAd ? "PUT" : "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...form, start_date: form.start_date || null, end_date: form.end_date || null }) });
+      const data = await res.json();
+      if (data.success) { setMsg({ type: "success", text: editingAd ? "Ad updated!" : "Ad created!" }); setShowModal(false); fetchAds(); }
+      else setMsg({ type: "error", text: data.error || "Save failed" });
+    } catch { setMsg({ type: "error", text: "Network error" }); }
+    finally { setSaving(false); }
   };
 
-  const toggleAdStatus = async (ad: Ad) => {
-    try {
-      const response = await fetch(`/api/admin/ads/${ad.id}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ is_active: !ad.is_active }),
-      });
-      
-      const data = await response.json();
-      
-      if (data.success) {
-        setMessage({ type: 'success', text: `Ad ${!ad.is_active ? 'activated' : 'paused'} successfully` });
-        fetchAds();
-      } else {
-        setMessage({ type: 'error', text: data.message || 'Failed to update ad status' });
-      }
-    } catch (error) {
-      console.error('Error updating ad status:', error);
-      setMessage({ type: 'error', text: 'Failed to update ad status' });
-    }
+  const handleDelete = async (id: string) => {
+    if (!confirm("Delete this ad permanently?")) return;
+    setDeletingId(id);
+    try { await fetch(`/api/admin/ads/${id}`, { method: "DELETE" }); setAds(p => p.filter(a => a.id !== id)); setMsg({ type: "success", text: "Ad deleted." }); }
+    finally { setDeletingId(null); }
   };
 
-  const handleToggleSelectAll = () => {
-    if (selectedAdIds.length === filteredAds.length && filteredAds.length > 0) {
-      setSelectedAdIds([]);
-    } else {
-      setSelectedAdIds(filteredAds.map(ad => ad.id));
-    }
+  const toggleStatus = async (ad: Ad) => {
+    const ns = ad.status === "active" ? "inactive" : "active";
+    await fetch(`/api/admin/ads/${ad.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ status: ns }) });
+    setAds(p => p.map(a => a.id === ad.id ? { ...a, status: ns } : a));
   };
 
-  const handleToggleSelectAd = (id: string) => {
-    setSelectedAdIds(prev => 
-      prev.includes(id) 
-        ? prev.filter(adId => adId !== id) 
-        : [...prev, id]
-    );
-  };
-
-  const handleBulkDelete = () => {
-    if (selectedAdIds.length === 0) return;
-    setShowBulkDeleteModal(true);
-  };
-
-  const confirmBulkDelete = async () => {
-    try {
-      setLoadingData(true);
-      const response = await fetch('/api/admin/ads', {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ids: selectedAdIds }),
-      });
-      
-      const data = await response.json();
-      
-      if (data.success) {
-        setMessage({ type: 'success', text: `${selectedAdIds.length} ads deleted successfully` });
-        setSelectedAdIds([]);
-        fetchAds();
-      } else {
-        setMessage({ type: 'error', text: data.message || 'Failed to delete ads' });
-      }
-    } catch (error) {
-      console.error('Error bulk deleting ads:', error);
-      setMessage({ type: 'error', text: 'Failed to delete ads' });
-    } finally {
-      setShowBulkDeleteModal(false);
-      setLoadingData(false);
-    }
-  };
-
-  const handleBulkStatusChange = async (status: 'active' | 'paused') => {
-    if (selectedAdIds.length === 0) return;
-    
-    try {
-      setLoadingData(true);
-      const response = await fetch('/api/admin/ads', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ids: selectedAdIds, status }),
-      });
-      
-      const data = await response.json();
-      
-      if (data.success) {
-        setMessage({ type: 'success', text: `${selectedAdIds.length} ads updated successfully` });
-        fetchAds();
-      } else {
-        setMessage({ type: 'error', text: data.message || 'Failed to update ads' });
-      }
-    } catch (error) {
-      console.error('Error bulk updating ads:', error);
-      setMessage({ type: 'error', text: 'Failed to update ads' });
-    } finally {
-      setLoadingData(false);
-    }
-  };
-
-  const filteredAds = ads.filter(ad => {
-    if (searchQuery && !ad.name.toLowerCase().includes(searchQuery.toLowerCase())) {
-      return false;
-    }
-    return true;
+  const filtered = ads.filter(ad => {
+    const p = PLACEMENTS.find(pl => pl.id === ad.placement);
+    return (filterPage === "All" || p?.page === filterPage) && (filterStatus === "all" || ad.status === filterStatus) && (!searchQ || ad.name.toLowerCase().includes(searchQ.toLowerCase()));
   });
 
-  const totalPages = Math.ceil(total / limit);
+  const getZoneAds = (pid: string) => ads.filter(a => a.placement === pid);
 
-  if (loading || loadingData) {
-    return (
-      <div style={{ padding: '2rem', textAlign: 'center' }}>
-        <div style={{ fontSize: '1.5rem', color: '#64748b' }}>Loading ads...</div>
-      </div>
-    );
-  }
+  const badgeStyle = (s: string) => ({ active: { bg: "#f0fdf4", color: "#16a34a", border: "#bbf7d0", label: "Active" }, inactive: { bg: "#f8fafc", color: "#64748b", border: "#e2e8f0", label: "Inactive" }, testing: { bg: "#fffbeb", color: "#d97706", border: "#fde68a", label: "Testing" } } as any)[s] || { bg: "#f1f5f9", color: "#475569", border: "#e2e8f0", label: s };
+
+  const inp = { width: "100%", padding: "10px 14px", border: "1px solid #e2e8f0", borderRadius: 10, fontSize: 14, outline: "none", boxSizing: "border-box" as const, color: "#0f172a" };
+  const lbl = { fontSize: 13, fontWeight: 600, color: "#374151", display: "block", marginBottom: 6 };
+
+  if (loading) return null;
 
   return (
-    <div style={{ padding: '2rem', maxWidth: '1400px', margin: '0 auto' }}>
+    <div style={{ padding: 24, maxWidth: 1280, margin: "0 auto" }}>
+      <style>{`@keyframes spin{to{transform:rotate(360deg)}}@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}.ad-row:hover td{background:#f8faff!important}.zone-card:hover{border-color:#6366f1!important}`}</style>
+
       {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 28 }}>
         <div>
-          <h1 style={{ fontSize: '2rem', fontWeight: 'bold', color: '#1e293b' }}>Ad Management</h1>
-          <p style={{ color: '#64748b', marginTop: '0.5rem' }}>
-            Manage advertisements and track performance metrics
-          </p>
+          <h1 style={{ fontSize: 26, fontWeight: 700, color: "#0f172a", margin: 0 }}>Ad Manager</h1>
+          <p style={{ color: "#64748b", marginTop: 6, fontSize: 14 }}>{total} ads across {PLACEMENTS.length} placement zones</p>
         </div>
-        <button
-          onClick={handleCreateAd}
-          style={{
-            padding: '0.75rem 1.5rem',
-            background: '#3b82f6',
-            color: 'white',
-            border: 'none',
-            borderRadius: '0.5rem',
-            fontWeight: '600',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.5rem',
-          }}
-        >
-          <Plus size={20} />
-          Create New Ad
-        </button>
+        <div style={{ display: "flex", gap: 10 }}>
+          <button onClick={() => setViewMode(v => v === "list" ? "grid" : "list")} style={{ background: "#f1f5f9", color: "#475569", border: "none", borderRadius: 10, padding: "10px 16px", cursor: "pointer", display: "flex", alignItems: "center", gap: 6, fontWeight: 500, fontSize: 13 }}>
+            <LayoutGrid size={15} />{viewMode === "list" ? "Zone View" : "List View"}
+          </button>
+          <button onClick={() => openCreate()} style={{ background: "linear-gradient(135deg,#6366f1,#8b5cf6)", color: "#fff", border: "none", borderRadius: 10, padding: "10px 22px", fontWeight: 600, fontSize: 14, cursor: "pointer", display: "flex", alignItems: "center", gap: 8 }}>
+            <Plus size={16} />New Ad
+          </button>
+        </div>
       </div>
 
-      {message && (
-        <div style={{
-          padding: '1rem',
-          marginBottom: '1.5rem',
-          background: message.type === 'success' ? '#d1fae5' : '#fee2e2',
-          color: message.type === 'success' ? '#065f46' : '#991b1b',
-          borderRadius: '0.5rem',
-          border: `1px solid ${message.type === 'success' ? '#a7f3d0' : '#fecaca'}`,
-        }}>
-          {message.text}
+      {/* Global message */}
+      {msg && !showModal && (
+        <div style={{ padding: "12px 16px", borderRadius: 10, marginBottom: 20, background: msg.type === "success" ? "#f0fdf4" : "#fef2f2", border: `1px solid ${msg.type === "success" ? "#bbf7d0" : "#fecaca"}`, color: msg.type === "success" ? "#16a34a" : "#dc2626", display: "flex", alignItems: "center", gap: 10, fontSize: 14 }}>
+          {msg.type === "success" ? <CheckCircle size={16} /> : <AlertCircle size={16} />}
+          {msg.text}
+          <button onClick={() => setMsg(null)} style={{ marginLeft: "auto", background: "none", border: "none", cursor: "pointer", color: "inherit" }}><X size={14} /></button>
         </div>
       )}
 
       {/* Filters */}
-      <div style={{
-        background: 'white',
-        borderRadius: '0.75rem',
-        padding: '1.5rem',
-        marginBottom: '1.5rem',
-        boxShadow: '0 1px 3px 0 rgba(0,0,0,0.1)',
-      }}>
-        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-          <div style={{ position: 'relative', flex: 1 }}>
-            <Search size={20} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
-            <input
-              type="text"
-              placeholder="Search ads by name..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              style={{
-                width: '100%',
-                padding: '0.75rem 0.75rem 0.75rem 2.5rem',
-                border: '1px solid #d1d5db',
-                borderRadius: '0.5rem',
-                fontSize: '0.875rem',
-              }}
-            />
-          </div>
-          
-          <div style={{ display: 'flex', gap: '0.5rem' }}>
-            <select
-              value={selectedType}
-              onChange={(e) => setSelectedType(e.target.value)}
-              style={{
-                padding: '0.75rem',
-                border: '1px solid #d1d5db',
-                borderRadius: '0.5rem',
-                fontSize: '0.875rem',
-                background: 'white',
-              }}
-            >
-              <option value="all">All Types</option>
-              <option value="banner">Banner</option>
-              <option value="sidebar">Sidebar</option>
-              <option value="inline">Inline</option>
-              <option value="popup">Popup</option>
-              <option value="native">Native</option>
-            </select>
-            
-            <select
-              value={selectedStatus}
-              onChange={(e) => setSelectedStatus(e.target.value)}
-              style={{
-                padding: '0.75rem',
-                border: '1px solid #d1d5db',
-                borderRadius: '0.5rem',
-                fontSize: '0.875rem',
-                background: 'white',
-              }}
-            >
-              <option value="all">All Status</option>
-              <option value="active">Active</option>
-              <option value="paused">Paused</option>
-              <option value="expired">Expired</option>
-            </select>
-            
-            <button
-              style={{
-                padding: '0.75rem 1rem',
-                background: '#f1f5f9',
-                color: '#475569',
-                border: '1px solid #cbd5e1',
-                borderRadius: '0.5rem',
-                fontSize: '0.875rem',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5rem',
-              }}
-            >
-              <Filter size={16} />
-              More Filters
-            </button>
-          </div>
+      <div style={{ background: "#fff", border: "1px solid #e2e8f0", borderRadius: 12, padding: "14px 16px", marginBottom: 20, display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
+        <div style={{ position: "relative", flex: 1, minWidth: 180 }}>
+          <Search size={14} style={{ position: "absolute", left: 11, top: "50%", transform: "translateY(-50%)", color: "#94a3b8" }} />
+          <input value={searchQ} onChange={e => setSearchQ(e.target.value)} placeholder="Search ads..." style={{ ...inp, paddingLeft: 34 }} />
         </div>
+        {PAGE_GROUPS.map(g => (
+          <button key={g} onClick={() => setFilterPage(g)} style={{ padding: "7px 14px", borderRadius: 8, border: "none", cursor: "pointer", fontSize: 12, fontWeight: 500, background: filterPage === g ? "#6366f1" : "#f1f5f9", color: filterPage === g ? "#fff" : "#475569" }}>{g}</button>
+        ))}
+        <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)} style={{ padding: "8px 12px", border: "1px solid #e2e8f0", borderRadius: 8, fontSize: 13, color: "#475569", cursor: "pointer" }}>
+          <option value="all">All Status</option>
+          <option value="active">Active</option>
+          <option value="inactive">Inactive</option>
+        </select>
       </div>
 
-      {/* Bulk Actions Bar */}
-      {selectedAdIds.length > 0 && (
-        <div style={{
-          background: '#eff6ff',
-          borderRadius: '0.75rem',
-          padding: '1rem 1.5rem',
-          marginBottom: '1.5rem',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          border: '1px solid #bfdbfe',
-          boxShadow: '0 1px 2px 0 rgba(0,0,0,0.05)',
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-            <span style={{ fontSize: '0.875rem', fontWeight: '600', color: '#1e40af' }}>
-              {selectedAdIds.length} ads selected
-            </span>
-            <div style={{ width: '1px', height: '1.5rem', background: '#bfdbfe' }}></div>
-            <div style={{ display: 'flex', gap: '0.5rem' }}>
-              <button
-                onClick={() => handleBulkStatusChange('active')}
-                style={{
-                  padding: '0.5rem 1rem',
-                  background: 'white',
-                  color: '#16a34a',
-                  border: '1px solid #bcf0da',
-                  borderRadius: '0.5rem',
-                  fontSize: '0.8125rem',
-                  fontWeight: '600',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.4rem',
-                }}
-              >
-                ▶️ Activate
-              </button>
-              <button
-                onClick={() => handleBulkStatusChange('paused')}
-                style={{
-                  padding: '0.5rem 1rem',
-                  background: 'white',
-                  color: '#d97706',
-                  border: '1px solid #fde68a',
-                  borderRadius: '0.5rem',
-                  fontSize: '0.8125rem',
-                  fontWeight: '600',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.4rem',
-                }}
-              >
-                ⏸️ Pause
-              </button>
-            </div>
-          </div>
-          <button
-            onClick={handleBulkDelete}
-            style={{
-              padding: '0.5rem 1.25rem',
-              background: '#ef4444',
-              color: 'white',
-              border: 'none',
-              borderRadius: '0.5rem',
-              fontSize: '0.8125rem',
-              fontWeight: '600',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.5rem',
-            }}
-          >
-            <Trash2 size={16} />
-            Delete Selected
-          </button>
-        </div>
-      )}
-
-      {/* Stats Summary */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem', marginBottom: '1.5rem' }}>
-        <div style={{
-          background: 'white',
-          borderRadius: '0.75rem',
-          padding: '1.5rem',
-          boxShadow: '0 1px 3px 0 rgba(0,0,0,0.1)',
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
-            <div style={{ padding: '0.5rem', background: '#dbeafe', borderRadius: '0.5rem' }}>
-              <DollarSign size={20} color="#3b82f6" />
-            </div>
-            <div style={{ fontSize: '0.875rem', color: '#64748b' }}>Total Ads</div>
-          </div>
-          <div style={{ fontSize: '1.875rem', fontWeight: 'bold', color: '#1e293b' }}>{total}</div>
-        </div>
-        
-        <div style={{
-          background: 'white',
-          borderRadius: '0.75rem',
-          padding: '1.5rem',
-          boxShadow: '0 1px 3px 0 rgba(0,0,0,0.1)',
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
-            <div style={{ padding: '0.5rem', background: '#dcfce7', borderRadius: '0.5rem' }}>
-              <Eye size={20} color="#16a34a" />
-            </div>
-            <div style={{ fontSize: '0.875rem', color: '#64748b' }}>Active Ads</div>
-          </div>
-          <div style={{ fontSize: '1.875rem', fontWeight: 'bold', color: '#16a34a' }}>
-            {ads.filter(ad => ad.is_active).length}
-          </div>
-        </div>
-        
-        <div style={{
-          background: 'white',
-          borderRadius: '0.75rem',
-          padding: '1.5rem',
-          boxShadow: '0 1px 3px 0 rgba(0,0,0,0.1)',
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
-            <div style={{ padding: '0.5rem', background: '#fef3c7', borderRadius: '0.5rem' }}>
-              <BarChart3 size={20} color="#d97706" />
-            </div>
-            <div style={{ fontSize: '0.875rem', color: '#64748b' }}>Avg CTR</div>
-          </div>
-          <div style={{ fontSize: '1.875rem', fontWeight: 'bold', color: '#d97706' }}>
-            {ads.length > 0 
-              ? (ads.reduce((sum, ad) => sum + parseFloat(ad.stats.ctr), 0) / ads.length).toFixed(2) + '%'
-              : '0%'
-            }
-          </div>
-        </div>
-        
-        <div style={{
-          background: 'white',
-          borderRadius: '0.75rem',
-          padding: '1.5rem',
-          boxShadow: '0 1px 3px 0 rgba(0,0,0,0.1)',
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
-            <div style={{ padding: '0.5rem', background: '#f3e8ff', borderRadius: '0.5rem' }}>
-              <Calendar size={20} color="#9333ea" />
-            </div>
-            <div style={{ fontSize: '0.875rem', color: '#64748b' }}>Expiring Soon</div>
-          </div>
-          <div style={{ fontSize: '1.875rem', fontWeight: 'bold', color: '#9333ea' }}>
-            {ads.filter(ad => {
-              if (!ad.end_date) return false;
-              const endDate = new Date(ad.end_date);
-              const today = new Date();
-              const diffTime = endDate.getTime() - today.getTime();
-              const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-              return diffDays <= 7 && diffDays > 0;
-            }).length}
-          </div>
-        </div>
-      </div>
-
-      {/* Ads Table */}
-      <div style={{
-        background: 'white',
-        borderRadius: '0.75rem',
-        overflow: 'hidden',
-        boxShadow: '0 1px 3px 0 rgba(0,0,0,0.1)',
-      }}>
-        <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-            <thead>
-              <tr style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
-                <th style={{ padding: '1rem', textAlign: 'left', width: '40px' }}>
-                  <input
-                    type="checkbox"
-                    checked={selectedAdIds.length === filteredAds.length && filteredAds.length > 0}
-                    onChange={handleToggleSelectAll}
-                    style={{ width: '1.1rem', height: '1.1rem', cursor: 'pointer', accentColor: '#3b82f6' }}
-                  />
-                </th>
-                <th style={{ padding: '1rem', textAlign: 'left', fontSize: '0.875rem', fontWeight: '600', color: '#475569' }}>Ad</th>
-                <th style={{ padding: '1rem', textAlign: 'left', fontSize: '0.875rem', fontWeight: '600', color: '#475569' }}>Type & Position</th>
-                <th style={{ padding: '1rem', textAlign: 'left', fontSize: '0.875rem', fontWeight: '600', color: '#475569' }}>Status</th>
-                <th style={{ padding: '1rem', textAlign: 'left', fontSize: '0.875rem', fontWeight: '600', color: '#475569' }}>Performance</th>
-                <th style={{ padding: '1rem', textAlign: 'left', fontSize: '0.875rem', fontWeight: '600', color: '#475569' }}>Dates</th>
-                <th style={{ padding: '1rem', textAlign: 'left', fontSize: '0.875rem', fontWeight: '600', color: '#475569' }}>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredAds.length === 0 ? (
-                <tr>
-                  <td colSpan={7} style={{ padding: '3rem', textAlign: 'center', color: '#64748b' }}>
-                    <div style={{ fontSize: '1rem', marginBottom: '0.5rem' }}>No ads found</div>
-                    <div style={{ fontSize: '0.875rem' }}>Create your first ad to get started</div>
-                  </td>
-                </tr>
-              ) : (
-                filteredAds.map((ad) => (
-                  <tr key={ad.id} style={{ borderBottom: '1px solid #f1f5f9', background: selectedAdIds.includes(ad.id) ? '#f8faff' : 'transparent' }}>
-                    <td style={{ padding: '1rem' }}>
-                      <input
-                        type="checkbox"
-                        checked={selectedAdIds.includes(ad.id)}
-                        onChange={() => handleToggleSelectAd(ad.id)}
-                        style={{ width: '1.1rem', height: '1.1rem', cursor: 'pointer', accentColor: '#3b82f6' }}
-                      />
-                    </td>
-                    <td style={{ padding: '1rem' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                        {ad.image_url ? (
-                          <div style={{
-                            width: '48px',
-                            height: '48px',
-                            borderRadius: '0.375rem',
-                            overflow: 'hidden',
-                            background: '#f1f5f9',
-                          }}>
-                            <img
-                              src={ad.image_url}
-                              alt={ad.name}
-                              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                            />
-                          </div>
-                        ) : (
-                          <div style={{
-                            width: '48px',
-                            height: '48px',
-                            borderRadius: '0.375rem',
-                            background: '#e0f2fe',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                          }}>
-                            <DollarSign size={24} color="#0ea5e9" />
-                          </div>
-                        )}
-                        <div>
-                          <div style={{ fontWeight: '500', color: '#1e293b' }}>{ad.name}</div>
-                          <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '0.25rem' }}>
-                            {ad.target_url ? new URL(ad.target_url).hostname : 'No URL'}
-                          </div>
-                        </div>
-                      </div>
-                    </td>
-                    <td style={{ padding: '1rem' }}>
-                      <div style={{ fontWeight: '500', color: '#1e293b' }}>{ad.ad_type}</div>
-                      <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '0.25rem' }}>{ad.position}</div>
-                    </td>
-                    <td style={{ padding: '1rem' }}>
-                      <div style={{
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        padding: '0.25rem 0.75rem',
-                        borderRadius: '9999px',
-                        fontSize: '0.75rem',
-                        fontWeight: '500',
-                        background: ad.is_active ? '#d1fae5' : '#fef3c7',
-                        color: ad.is_active ? '#065f46' : '#92400e',
-                      }}>
-                        {ad.is_active ? 'Active' : 'Paused'}
-                      </div>
-                    </td>
-                    <td style={{ padding: '1rem' }}>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                          <div style={{ fontSize: '0.75rem', color: '#64748b' }}>Clicks:</div>
-                          <div style={{ fontWeight: '500', color: '#1e293b' }}>{ad.stats.total_clicks}</div>
-                        </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                          <div style={{ fontSize: '0.75rem', color: '#64748b' }}>Impressions:</div>
-                          <div style={{ fontWeight: '500', color: '#1e293b' }}>{ad.stats.total_impressions}</div>
-                        </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                          <div style={{ fontSize: '0.75rem', color: '#64748b' }}>CTR:</div>
-                          <div style={{ fontWeight: '500', color: '#1e293b' }}>{ad.stats.ctr}%</div>
-                        </div>
-                      </div>
-                    </td>
-                    <td style={{ padding: '1rem' }}>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-                        <div style={{ fontSize: '0.75rem', color: '#64748b' }}>
-                          Start: {ad.start_date ? new Date(ad.start_date).toLocaleDateString() : 'Not set'}
-                        </div>
-                        <div style={{ fontSize: '0.75rem', color: '#64748b' }}>
-                          End: {ad.end_date ? new Date(ad.end_date).toLocaleDateString() : 'Not set'}
-                        </div>
-                      </div>
-                    </td>
-                    <td style={{ padding: '1rem' }}>
-                      <div style={{ display: 'flex', gap: '0.5rem' }}>
-                        <button
-                          onClick={() => handleEditAd(ad)}
-                          style={{
-                            padding: '0.5rem',
-                            background: '#f1f5f9',
-                            color: '#475569',
-                            border: 'none',
-                            borderRadius: '0.375rem',
-                            cursor: 'pointer',
-                          }}
-                          title="Edit"
-                        >
-                          <Edit size={16} />
-                        </button>
-                        <button
-                          onClick={() => toggleAdStatus(ad)}
-                          style={{
-                            padding: '0.5rem',
-                            background: ad.is_active ? '#fef3c7' : '#d1fae5',
-                            color: ad.is_active ? '#92400e' : '#065f46',
-                            border: 'none',
-                            borderRadius: '0.375rem',
-                            cursor: 'pointer',
-                          }}
-                          title={ad.is_active ? 'Pause' : 'Activate'}
-                        >
-                          {ad.is_active ? '⏸️' : '▶️'}
-                        </button>
-                        <button
-                          onClick={() => handleDeleteAd(ad)}
-                          style={{
-                            padding: '0.5rem',
-                            background: '#fee2e2',
-                            color: '#dc2626',
-                            border: 'none',
-                            borderRadius: '0.375rem',
-                            cursor: 'pointer',
-                          }}
-                          title="Delete"
-                        >
-                          <Trash2 size={16} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1.5rem' }}>
-          <div style={{ fontSize: '0.875rem', color: '#64748b' }}>
-            Showing {(currentPage - 1) * limit + 1} to {Math.min(currentPage * limit, total)} of {total} ads
-          </div>
-          <div style={{ display: 'flex', gap: '0.5rem' }}>
-            <button
-              onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-              disabled={currentPage === 1}
-              style={{
-                padding: '0.5rem 1rem',
-                background: currentPage === 1 ? '#f1f5f9' : 'white',
-                color: currentPage === 1 ? '#94a3b8' : '#475569',
-                border: '1px solid #d1d5db',
-                borderRadius: '0.375rem',
-                cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.25rem',
-              }}
-            >
-              <ChevronLeft size={16} />
-              Previous
-            </button>
-            
-            <div style={{ display: 'flex', gap: '0.25rem' }}>
-              {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                let pageNum;
-                if (totalPages <= 5) {
-                  pageNum = i + 1;
-                } else if (currentPage <= 3) {
-                  pageNum = i + 1;
-                } else if (currentPage >= totalPages - 2) {
-                  pageNum = totalPages - 4 + i;
-                } else {
-                  pageNum = currentPage - 2 + i;
-                }
-                
+      {/* ── ZONE VIEW ── */}
+      {viewMode === "grid" && PAGE_GROUPS.filter(g => g !== "All").map(pg => {
+        if (filterPage !== "All" && filterPage !== pg) return null;
+        const zones = PLACEMENTS.filter(p => p.page === pg);
+        return (
+          <div key={pg} style={{ marginBottom: 28 }}>
+            <h2 style={{ fontSize: 16, fontWeight: 700, color: "#0f172a", marginBottom: 14 }}>{pg} Zones</h2>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(270px,1fr))", gap: 14 }}>
+              {zones.map(zone => {
+                const za = getZoneAds(zone.id);
+                const hasActive = za.some(a => a.status === "active");
                 return (
-                  <button
-                    key={pageNum}
-                    onClick={() => setCurrentPage(pageNum)}
-                    style={{
-                      padding: '0.5rem 1rem',
-                      background: currentPage === pageNum ? '#3b82f6' : 'white',
-                      color: currentPage === pageNum ? 'white' : '#475569',
-                      border: '1px solid #d1d5db',
-                      borderRadius: '0.375rem',
-                      cursor: 'pointer',
-                      fontWeight: currentPage === pageNum ? '600' : '400',
-                    }}
-                  >
-                    {pageNum}
-                  </button>
+                  <div key={zone.id} className="zone-card" style={{ background: "#fff", border: `2px solid ${hasActive ? "#bbf7d0" : "#e2e8f0"}`, borderRadius: 14, padding: 16, transition: "border 0.2s" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10 }}>
+                      <div>
+                        <div style={{ fontWeight: 600, fontSize: 13, color: "#0f172a" }}>{zone.label}</div>
+                        <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 3 }}>{zone.desc}</div>
+                      </div>
+                      {hasActive && <span style={{ background: "#f0fdf4", color: "#16a34a", fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 999, border: "1px solid #bbf7d0", whiteSpace: "nowrap" }}>LIVE</span>}
+                    </div>
+                    {za.length > 0 ? za.map(ad => {
+                      const b = badgeStyle(ad.status);
+                      return (
+                        <div key={ad.id} style={{ display: "flex", alignItems: "center", gap: 6, background: "#f8fafc", borderRadius: 8, padding: "6px 10px", marginBottom: 5 }}>
+                          <span style={{ flex: 1, fontSize: 12, fontWeight: 500, color: "#334155", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{ad.name}</span>
+                          <span style={{ background: b.bg, color: b.color, border: `1px solid ${b.border}`, fontSize: 10, fontWeight: 600, padding: "1px 7px", borderRadius: 999 }}>{b.label}</span>
+                          <button onClick={() => openEdit(ad)} style={{ background: "none", border: "none", cursor: "pointer", color: "#94a3b8", padding: 2 }}><Edit2 size={12} /></button>
+                          <button onClick={() => handleDelete(ad.id)} style={{ background: "none", border: "none", cursor: "pointer", color: "#f87171", padding: 2 }}><Trash2 size={12} /></button>
+                        </div>
+                      );
+                    }) : (
+                      <div style={{ background: "#f8fafc", border: "1px dashed #e2e8f0", borderRadius: 8, padding: 10, textAlign: "center", marginBottom: 8 }}>
+                        <span style={{ fontSize: 11, color: "#94a3b8" }}>No ad configured</span>
+                      </div>
+                    )}
+                    <button onClick={() => openCreate(zone.id)} style={{ width: "100%", background: "#f1f5f9", border: "none", borderRadius: 8, padding: "6px 0", fontSize: 11, fontWeight: 500, color: "#6366f1", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 4, marginTop: 4 }}>
+                      <Plus size={11} />Add Ad Here
+                    </button>
+                  </div>
                 );
               })}
             </div>
-            
-            <button
-              onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-              disabled={currentPage === totalPages}
-              style={{
-                padding: '0.5rem 1rem',
-                background: currentPage === totalPages ? '#f1f5f9' : 'white',
-                color: currentPage === totalPages ? '#94a3b8' : '#475569',
-                border: '1px solid #d1d5db',
-                borderRadius: '0.375rem',
-                cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.25rem',
-              }}
-            >
-              Next
-              <ChevronRight size={16} />
-            </button>
           </div>
+        );
+      })}
+
+      {/* ── LIST VIEW ── */}
+      {viewMode === "list" && (
+        <div style={{ background: "#fff", border: "1px solid #e2e8f0", borderRadius: 14, overflow: "hidden" }}>
+          {loadingData ? (
+            <div style={{ display: "flex", justifyContent: "center", padding: 60 }}>
+              <RefreshCw size={24} style={{ animation: "spin 1s linear infinite", color: "#6366f1" }} />
+            </div>
+          ) : filtered.length === 0 ? (
+            <div style={{ textAlign: "center", padding: "60px 20px" }}>
+              <Layers size={48} style={{ color: "#e2e8f0", margin: "0 auto 16px", display: "block" }} />
+              <p style={{ color: "#94a3b8", fontSize: 15 }}>No ads found. Create your first ad to get started.</p>
+              <button onClick={() => openCreate()} style={{ marginTop: 12, background: "linear-gradient(135deg,#6366f1,#8b5cf6)", color: "#fff", border: "none", borderRadius: 10, padding: "10px 24px", fontWeight: 600, cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 6 }}>
+                <Plus size={14} />Create First Ad
+              </button>
+            </div>
+          ) : (
+            <table style={{ width: "100%", borderCollapse: "collapse" }}>
+              <thead>
+                <tr style={{ background: "#f8fafc", borderBottom: "1px solid #e2e8f0" }}>
+                  {["Ad Name", "Placement Zone", "Type", "Device", "Status", "Actions"].map(h => (
+                    <th key={h} style={{ padding: "12px 16px", textAlign: "left", fontSize: 12, fontWeight: 600, color: "#64748b", textTransform: "uppercase", letterSpacing: 0.5 }}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {filtered.map(ad => {
+                  const zone = PLACEMENTS.find(p => p.id === ad.placement);
+                  const b = badgeStyle(ad.status);
+                  return (
+                    <tr key={ad.id} className="ad-row" style={{ borderBottom: "1px solid #f1f5f9" }}>
+                      <td style={{ padding: "14px 16px" }}>
+                        <div style={{ fontWeight: 600, fontSize: 14, color: "#0f172a" }}>{ad.name}</div>
+                        <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 2 }}>Priority: {ad.priority} · {new Date(ad.created_at).toLocaleDateString()}</div>
+                      </td>
+                      <td style={{ padding: "14px 16px" }}>
+                        <div style={{ fontWeight: 500, fontSize: 13, color: "#334155" }}>{zone?.label || ad.placement}</div>
+                        <div style={{ fontSize: 11, color: "#94a3b8" }}>{zone?.page}</div>
+                      </td>
+                      <td style={{ padding: "14px 16px" }}>
+                        <span style={{ background: "#ede9fe", color: "#7c3aed", fontSize: 11, fontWeight: 600, padding: "3px 9px", borderRadius: 999 }}>{AD_TYPES.find(t => t.id === ad.type)?.label || ad.type}</span>
+                      </td>
+                      <td style={{ padding: "14px 16px", fontSize: 13, color: "#475569" }}>{ad.target_devices}</td>
+                      <td style={{ padding: "14px 16px" }}>
+                        <button onClick={() => toggleStatus(ad)} style={{ background: b.bg, color: b.color, border: `1px solid ${b.border}`, fontSize: 11, fontWeight: 600, padding: "4px 10px", borderRadius: 999, cursor: "pointer" }}>{b.label}</button>
+                      </td>
+                      <td style={{ padding: "14px 16px" }}>
+                        <div style={{ display: "flex", gap: 6 }}>
+                          <button onClick={() => openEdit(ad)} style={{ background: "#f1f5f9", border: "none", borderRadius: 7, padding: "6px 10px", cursor: "pointer", color: "#6366f1", display: "flex" }}><Edit2 size={14} /></button>
+                          <button onClick={() => handleDelete(ad.id)} disabled={deletingId === ad.id} style={{ background: "#fef2f2", border: "none", borderRadius: 7, padding: "6px 10px", cursor: "pointer", color: "#ef4444", display: "flex" }}>
+                            {deletingId === ad.id ? <RefreshCw size={14} style={{ animation: "spin 1s linear infinite" }} /> : <Trash2 size={14} />}
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          )}
         </div>
       )}
 
-      {/* Bulk Delete Confirmation Modal */}
-      {showBulkDeleteModal && (
-        <div style={{
-          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-          background: 'rgba(0,0,0,0.5)', display: 'flex',
-          alignItems: 'center', justifyContent: 'center', zIndex: 100,
-        }}>
-          <div style={{ background: 'white', borderRadius: '0.75rem', padding: '2rem', maxWidth: '400px', width: '100%' }}>
-            <h3 style={{ fontSize: '1.25rem', fontWeight: '600', color: '#1e293b', marginBottom: '1rem' }}>Bulk Delete Ads</h3>
-            <p style={{ color: '#64748b', marginBottom: '1.5rem' }}>
-              Are you sure you want to delete {selectedAdIds.length} selected ads? This action cannot be undone.
-            </p>
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem' }}>
-              <button onClick={() => setShowBulkDeleteModal(false)}
-                style={{ padding: '0.75rem 1.5rem', background: '#f1f5f9', color: '#475569', border: 'none', borderRadius: '0.5rem', fontWeight: '500', cursor: 'pointer' }}>
-                Cancel
-              </button>
-              <button onClick={confirmBulkDelete}
-                style={{ padding: '0.75rem 1.5rem', background: '#dc2626', color: 'white', border: 'none', borderRadius: '0.5rem', fontWeight: '500', cursor: 'pointer' }}>
-                Delete All
+      {/* ── CREATE / EDIT MODAL ── */}
+      {showModal && (
+        <div style={{ position: "fixed", inset: 0, zIndex: 1000, background: "rgba(0,0,0,0.55)", display: "flex", alignItems: "center", justifyContent: "center", padding: 20, backdropFilter: "blur(4px)" }}>
+          <div style={{ background: "#fff", borderRadius: 20, width: "100%", maxWidth: 800, maxHeight: "92vh", overflow: "hidden", display: "flex", flexDirection: "column", boxShadow: "0 25px 80px rgba(0,0,0,0.25)", animation: "fadeIn 0.2s ease" }}>
+
+            {/* Modal Header */}
+            <div style={{ padding: "20px 24px", borderBottom: "1px solid #f1f5f9", display: "flex", alignItems: "center", justifyContent: "space-between", background: "linear-gradient(135deg,#0f172a,#1e293b)" }}>
+              <div>
+                <h2 style={{ fontSize: 18, fontWeight: 700, color: "#fff", margin: 0 }}>{editingAd ? "Edit Ad" : "Create New Ad"}</h2>
+                <p style={{ fontSize: 12, color: "#94a3b8", margin: "4px 0 0" }}>Paste your ad code and choose where to display it on the site</p>
+              </div>
+              <div style={{ display: "flex", gap: 8 }}>
+                <button onClick={() => setPreviewMode(v => !v)} style={{ background: "rgba(255,255,255,0.1)", border: "none", borderRadius: 8, padding: "7px 14px", color: "#e2e8f0", cursor: "pointer", display: "flex", alignItems: "center", gap: 6, fontSize: 13 }}>
+                  <Eye size={14} />{previewMode ? "Edit Mode" : "Preview"}
+                </button>
+                <button onClick={() => { setShowModal(false); setMsg(null); }} style={{ background: "rgba(255,255,255,0.06)", border: "none", borderRadius: 8, padding: 8, cursor: "pointer", color: "#94a3b8" }}>
+                  <X size={18} />
+                </button>
+              </div>
+            </div>
+
+            <div style={{ overflow: "auto", flex: 1, padding: 24 }}>
+              {msg && (
+                <div style={{ padding: "10px 14px", borderRadius: 8, marginBottom: 18, background: msg.type === "success" ? "#f0fdf4" : "#fef2f2", border: `1px solid ${msg.type === "success" ? "#bbf7d0" : "#fecaca"}`, color: msg.type === "success" ? "#16a34a" : "#dc2626", display: "flex", alignItems: "center", gap: 8, fontSize: 13 }}>
+                  {msg.type === "success" ? <CheckCircle size={15} /> : <AlertCircle size={15} />}{msg.text}
+                </div>
+              )}
+
+              {!previewMode ? (
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+                  {/* Ad Name */}
+                  <div style={{ gridColumn: "1/-1" }}>
+                    <label style={lbl}>Ad Name *</label>
+                    <input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="e.g. Adsterra Homepage Banner" style={inp} />
+                  </div>
+
+                  {/* Placement */}
+                  <div>
+                    <label style={lbl}>Placement Zone *</label>
+                    <select value={form.placement} onChange={e => setForm(f => ({ ...f, placement: e.target.value }))} style={{ ...inp, cursor: "pointer" }}>
+                      <option value="">-- Select Zone --</option>
+                      {PAGE_GROUPS.filter(g => g !== "All").map(pg => (
+                        <optgroup key={pg} label={`${pg} Page`}>
+                          {PLACEMENTS.filter(p => p.page === pg).map(p => (
+                            <option key={p.id} value={p.id}>{p.label}</option>
+                          ))}
+                        </optgroup>
+                      ))}
+                    </select>
+                    {form.placement && <p style={{ fontSize: 11, color: "#6366f1", margin: "5px 0 0" }}>{PLACEMENTS.find(p => p.id === form.placement)?.desc}</p>}
+                  </div>
+
+                  {/* Ad Type */}
+                  <div>
+                    <label style={lbl}>Ad Type</label>
+                    <div style={{ display: "flex", gap: 6 }}>
+                      {AD_TYPES.map(t => (
+                        <button key={t.id} onClick={() => setForm(f => ({ ...f, type: t.id }))} style={{ flex: 1, padding: "9px 6px", border: `2px solid ${form.type === t.id ? t.color : "#e2e8f0"}`, borderRadius: 8, cursor: "pointer", fontSize: 11, fontWeight: 600, background: form.type === t.id ? t.color + "18" : "#fff", color: form.type === t.id ? t.color : "#64748b", transition: "all 0.15s" }}>
+                          {t.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Device Targeting */}
+                  <div>
+                    <label style={lbl}>Device Targeting</label>
+                    <div style={{ display: "flex", gap: 6 }}>
+                      {[{ id: "all", label: "All" }, { id: "desktop", label: "Desktop" }, { id: "mobile", label: "Mobile" }, { id: "tablet", label: "Tablet" }].map(d => (
+                        <button key={d.id} onClick={() => setForm(f => ({ ...f, target_devices: d.id }))} style={{ flex: 1, padding: "9px 4px", border: `2px solid ${form.target_devices === d.id ? "#6366f1" : "#e2e8f0"}`, borderRadius: 8, cursor: "pointer", fontSize: 11, fontWeight: 600, background: form.target_devices === d.id ? "#ede9fe" : "#fff", color: form.target_devices === d.id ? "#6366f1" : "#64748b" }}>
+                          {d.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Status */}
+                  <div>
+                    <label style={lbl}>Status</label>
+                    <select value={form.status} onChange={e => setForm(f => ({ ...f, status: e.target.value }))} style={{ ...inp, cursor: "pointer" }}>
+                      <option value="active">Active – show on site</option>
+                      <option value="inactive">Inactive – hidden</option>
+                      <option value="testing">Testing – visible to admin only</option>
+                    </select>
+                  </div>
+
+                  {/* Priority */}
+                  <div>
+                    <label style={lbl}>Priority (1–10, higher = shown first)</label>
+                    <input type="number" min={1} max={10} value={form.priority} onChange={e => setForm(f => ({ ...f, priority: parseInt(e.target.value) || 5 }))} style={inp} />
+                  </div>
+
+                  {/* Dates */}
+                  <div>
+                    <label style={lbl}>Start Date (optional)</label>
+                    <input type="date" value={form.start_date} onChange={e => setForm(f => ({ ...f, start_date: e.target.value }))} style={inp} />
+                  </div>
+                  <div>
+                    <label style={lbl}>End Date (optional)</label>
+                    <input type="date" value={form.end_date} onChange={e => setForm(f => ({ ...f, end_date: e.target.value }))} style={inp} />
+                  </div>
+
+                  {/* Code Editor */}
+                  <div style={{ gridColumn: "1/-1" }}>
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
+                      <label style={lbl}>
+                        <Code size={14} style={{ verticalAlign: "middle", marginRight: 6 }} />
+                        Ad Code * <span style={{ color: "#94a3b8", fontWeight: 400 }}>(paste full ad script or HTML)</span>
+                      </label>
+                      <button onClick={() => navigator.clipboard.writeText(form.code)} style={{ background: "none", border: "none", color: "#6366f1", cursor: "pointer", fontSize: 12, display: "flex", alignItems: "center", gap: 4 }}>
+                        <Copy size={12} />Copy
+                      </button>
+                    </div>
+                    <div style={{ background: "#0f172a", borderRadius: 12, overflow: "hidden", border: "2px solid #e2e8f0" }}>
+                      <div style={{ background: "#1e293b", padding: "8px 14px", display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+                        <div style={{ display: "flex", gap: 6 }}>
+                          <div style={{ width: 10, height: 10, borderRadius: "50%", background: "#ef4444" }} />
+                          <div style={{ width: 10, height: 10, borderRadius: "50%", background: "#f59e0b" }} />
+                          <div style={{ width: 10, height: 10, borderRadius: "50%", background: "#22c55e" }} />
+                        </div>
+                        <span style={{ color: "#64748b", fontSize: 12, fontFamily: "monospace" }}>{form.placement || "ad-code.html"}</span>
+                        <span style={{ color: "#22c55e", fontSize: 11 }}>HTML / JS</span>
+                      </div>
+                      <textarea
+                        value={form.code}
+                        onChange={e => setForm(f => ({ ...f, code: e.target.value }))}
+                        rows={12}
+                        placeholder={"<!-- Paste your ad code here -->\n\n<!-- Adsterra example: -->\n<script type=\"text/javascript\">\n  atOptions = { 'key': 'YOUR_KEY', 'format': 'iframe' };\n</script>\n<script src=\"//www.topcreativeformat.com/YOUR_KEY/invoke.js\"></script>\n\n<!-- AdSense example: -->\n<ins class=\"adsbygoogle\" style=\"display:block\"\n  data-ad-client=\"ca-pub-XXXXXXXX\"\n  data-ad-slot=\"XXXXXXXX\"></ins>"}
+                        style={{ width: "100%", background: "transparent", border: "none", color: "#e2e8f0", fontSize: 13, lineHeight: 1.7, padding: 16, resize: "vertical", outline: "none", boxSizing: "border-box", minHeight: 240, fontFamily: "monospace" }}
+                      />
+                    </div>
+                    <p style={{ fontSize: 11, color: "#94a3b8", marginTop: 6 }}>
+                      Supports: Adsterra scripts, Google AdSense ins tags, any iframe, popunder codes, banner HTML — anything your ad network gives you.
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <div>
+                  <div style={{ background: "#f8fafc", border: "2px dashed #e2e8f0", borderRadius: 14, padding: 24, textAlign: "center", minHeight: 160, marginBottom: 16 }}>
+                    <p style={{ color: "#94a3b8", fontSize: 13, marginBottom: 12 }}>Rendered preview:</p>
+                    {form.code
+                      ? <div dangerouslySetInnerHTML={{ __html: form.code }} />
+                      : <p style={{ color: "#cbd5e1" }}>No code entered yet</p>}
+                  </div>
+                  <div style={{ background: "#f0f9ff", border: "1px solid #bae6fd", borderRadius: 10, padding: 14 }}>
+                    <p style={{ fontSize: 13, color: "#0369a1", margin: 0 }}>ℹ️ External ad scripts (Adsterra, AdSense) may not fully render in preview but will work correctly on the live site.</p>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Modal Footer */}
+            <div style={{ padding: "16px 24px", borderTop: "1px solid #f1f5f9", display: "flex", justifyContent: "flex-end", gap: 10, background: "#fafbfc" }}>
+              <button onClick={() => { setShowModal(false); setMsg(null); }} style={{ background: "#f1f5f9", color: "#475569", border: "none", borderRadius: 10, padding: "10px 24px", fontWeight: 500, cursor: "pointer", fontSize: 14 }}>Cancel</button>
+              <button onClick={handleSave} disabled={saving} style={{ background: "linear-gradient(135deg,#6366f1,#8b5cf6)", color: "#fff", border: "none", borderRadius: 10, padding: "10px 28px", fontWeight: 600, cursor: saving ? "not-allowed" : "pointer", opacity: saving ? 0.7 : 1, display: "flex", alignItems: "center", gap: 8, fontSize: 14 }}>
+                {saving ? <RefreshCw size={15} style={{ animation: "spin 1s linear infinite" }} /> : <Save size={15} />}
+                {saving ? "Saving..." : editingAd ? "Update Ad" : "Create Ad"}
               </button>
             </div>
           </div>
         </div>
       )}
-
-      {/* Delete Confirmation Modal */}
-      {showDeleteModal && selectedAd && (
-        <div style={{
-          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-          background: 'rgba(0,0,0,0.5)', display: 'flex',
-          alignItems: 'center', justifyContent: 'center', zIndex: 50,
-        }}>
-          <div style={{ background: 'white', borderRadius: '0.75rem', padding: '2rem', maxWidth: '400px', width: '100%' }}>
-            <h3 style={{ fontSize: '1.25rem', fontWeight: '600', color: '#1e293b', marginBottom: '1rem' }}>Delete Ad</h3>
-            <p style={{ color: '#64748b', marginBottom: '1.5rem' }}>
-              Are you sure you want to delete "{selectedAd.name}"? This action cannot be undone.
-            </p>
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem' }}>
-              <button onClick={() => { setShowDeleteModal(false); setSelectedAd(null); }}
-                style={{ padding: '0.75rem 1.5rem', background: '#f1f5f9', color: '#475569', border: 'none', borderRadius: '0.5rem', fontWeight: '500', cursor: 'pointer' }}>
-                Cancel
-              </button>
-              <button onClick={confirmDelete}
-                style={{ padding: '0.75rem 1.5rem', background: '#dc2626', color: 'white', border: 'none', borderRadius: '0.5rem', fontWeight: '500', cursor: 'pointer' }}>
-                Delete
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Create / Edit Ad Modal */}
-      {showCreateModal && (
-        <CreateAdModal
-          ad={selectedAd}
-          onClose={() => { setShowCreateModal(false); setSelectedAd(null); }}
-          onSaved={() => { setShowCreateModal(false); setSelectedAd(null); fetchAds(); setMessage({ type: 'success', text: selectedAd ? 'Ad updated!' : 'Ad created!' }); }}
-        />
-      )}
-    </div>
-  );
-}
-
-/* ── Create / Edit modal ── */
-function CreateAdModal({ ad, onClose, onSaved }: { ad: Ad | null; onClose: () => void; onSaved: () => void; }) {
-  const isEdit = !!ad;
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState('');
-  const [form, setForm] = useState({
-    name: ad?.name || '',
-    type: ad?.ad_type || 'adsense',
-    placement: ad?.position || 'before_content',
-    code: ad?.content || '',
-    status: ad?.is_active ? 'active' : 'paused',
-    start_date: ad?.start_date ? ad.start_date.slice(0, 10) : '',
-    end_date: ad?.end_date ? ad.end_date.slice(0, 10) : '',
-  });
-
-  const set = (key: string, val: string) => setForm(f => ({ ...f, [key]: val }));
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!form.name.trim() || !form.code.trim()) { setError('Name and Ad Code are required.'); return; }
-    setSaving(true); setError('');
-    try {
-      const payload = {
-        name: form.name,
-        type: form.type,
-        placement: form.placement,
-        code: form.code,
-        status: form.status,
-        start_date: form.start_date || null,
-        end_date: form.end_date || null,
-      };
-      let res;
-      if (isEdit && ad) {
-        res = await fetch(`/api/admin/ads/${ad.id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-      } else {
-        res = await fetch('/api/admin/ads', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-      }
-      const data = await res.json();
-      if (data.success) { onSaved(); } else { setError(data.message || data.error || 'Failed to save ad.'); }
-    } catch (err) { setError('Network error. Please try again.'); }
-    finally { setSaving(false); }
-  };
-
-  const inputStyle: React.CSSProperties = {
-    width: '100%', padding: '0.6rem 0.75rem', border: '1px solid #d1d5db',
-    borderRadius: '0.5rem', fontSize: '0.875rem', boxSizing: 'border-box',
-  };
-  const labelStyle: React.CSSProperties = { display: 'block', fontSize: '0.8rem', fontWeight: '600', color: '#374151', marginBottom: '0.35rem' };
-
-  return (
-    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.55)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 60, padding: '1rem' }}>
-      <div style={{ background: 'white', borderRadius: '0.875rem', width: '100%', maxWidth: '600px', maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}>
-        {/* Modal Header */}
-        <div style={{ padding: '1.5rem 1.5rem 1rem', borderBottom: '1px solid #e5e7eb', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <h2 style={{ fontSize: '1.25rem', fontWeight: '700', color: '#1e293b', margin: 0 }}>
-            {isEdit ? 'Edit Ad' : 'Create New Ad'}
-          </h2>
-          <button onClick={onClose} style={{ background: 'none', border: 'none', fontSize: '1.5rem', cursor: 'pointer', color: '#9ca3af', lineHeight: 1 }}>×</button>
-        </div>
-
-        {/* Form */}
-        <form onSubmit={handleSubmit} style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          {error && <div style={{ padding: '0.75rem', background: '#fee2e2', color: '#991b1b', borderRadius: '0.5rem', fontSize: '0.875rem' }}>{error}</div>}
-
-          {/* Ad Name */}
-          <div>
-            <label style={labelStyle}>Ad Name *</label>
-            <input style={inputStyle} type="text" placeholder="e.g. Homepage Banner AdSense" value={form.name} onChange={e => set('name', e.target.value)} required />
-          </div>
-
-          {/* Type + Placement row */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-            <div>
-              <label style={labelStyle}>Ad Network / Type *</label>
-              <select style={inputStyle} value={form.type} onChange={e => set('type', e.target.value)}>
-                <option value="adsense">Google AdSense</option>
-                <option value="custom">Custom HTML</option>
-                <option value="script">JavaScript Script</option>
-                <option value="banner">Banner Image</option>
-                <option value="native">Native Ad</option>
-              </select>
-            </div>
-            <div>
-              <label style={labelStyle}>Placement / Position *</label>
-              <select style={inputStyle} value={form.placement} onChange={e => set('placement', e.target.value)}>
-                <option value="before_content">Before Content</option>
-                <option value="after_content">After Content</option>
-                <option value="below_search">Below Hero Search</option>
-                <option value="after_hero">After Hero Section</option>
-                <option value="sticky_footer">Sticky Footer Ad</option>
-                <option value="hero_left">Hero Left Sidebar</option>
-                <option value="hero_right">Hero Right Sidebar</option>
-                <option value="result_left">Result Page Left</option>
-                <option value="result_right">Result Page Right</option>
-                <option value="homepage_after_features">Home After Features</option>
-                <option value="homepage_after_blog">Home After Blog</option>
-                <option value="sidebar">Sidebar</option>
-                <option value="header">Header</option>
-                <option value="footer">Footer</option>
-                <option value="between_blocks">Between Blocks</option>
-                <option value="after_p1">After Paragraph 1</option>
-                <option value="after_p3">After Paragraph 3</option>
-                <option value="after_p5">After Paragraph 5</option>
-              </select>
-            </div>
-          </div>
-
-          {/* Ad Code */}
-          <div>
-            <label style={labelStyle}>Ad Code / Script *</label>
-            <p style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '0.4rem', marginTop: 0 }}>
-              Paste your AdSense code, custom HTML, or ad network script here.
-            </p>
-            <textarea
-              style={{ ...inputStyle, minHeight: '140px', fontFamily: 'monospace', fontSize: '0.8rem', resize: 'vertical' }}
-              placeholder={`<!-- Google AdSense Example -->\n<ins class="adsbygoogle"\n  style="display:block"\n  data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"\n  data-ad-slot="XXXXXXXXXX"\n  data-ad-format="auto"></ins>\n<script>(adsbygoogle = window.adsbygoogle || []).push({});</script>`}
-              value={form.code}
-              onChange={e => set('code', e.target.value)}
-              required
-            />
-          </div>
-
-          {/* Status + Dates */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
-            <div>
-              <label style={labelStyle}>Status</label>
-              <select style={inputStyle} value={form.status} onChange={e => set('status', e.target.value)}>
-                <option value="active">Active</option>
-                <option value="paused">Paused</option>
-              </select>
-            </div>
-            <div>
-              <label style={labelStyle}>Start Date</label>
-              <input style={inputStyle} type="date" value={form.start_date} onChange={e => set('start_date', e.target.value)} />
-            </div>
-            <div>
-              <label style={labelStyle}>End Date</label>
-              <input style={inputStyle} type="date" value={form.end_date} onChange={e => set('end_date', e.target.value)} />
-            </div>
-          </div>
-
-          {/* Tip box */}
-          <div style={{ padding: '0.75rem', background: '#eff6ff', borderRadius: '0.5rem', border: '1px solid #bfdbfe' }}>
-            <p style={{ fontSize: '0.8rem', color: '#1d4ed8', margin: 0, fontWeight: '600', marginBottom: '0.25rem' }}>💡 Supported Ad Networks</p>
-            <p style={{ fontSize: '0.75rem', color: '#3b82f6', margin: 0 }}>
-              Google AdSense · Media.net · Ezoic · PropellerAds · Adsterra · Any custom HTML/JS ad code
-            </p>
-          </div>
-
-          {/* Actions */}
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', paddingTop: '0.5rem', borderTop: '1px solid #f1f5f9' }}>
-            <button type="button" onClick={onClose}
-              style={{ padding: '0.75rem 1.5rem', background: '#f1f5f9', color: '#475569', border: 'none', borderRadius: '0.5rem', fontWeight: '500', cursor: 'pointer', fontSize: '0.875rem' }}>
-              Cancel
-            </button>
-            <button type="submit" disabled={saving}
-              style={{ padding: '0.75rem 1.75rem', background: saving ? '#93c5fd' : '#3b82f6', color: 'white', border: 'none', borderRadius: '0.5rem', fontWeight: '600', cursor: saving ? 'not-allowed' : 'pointer', fontSize: '0.875rem' }}>
-              {saving ? 'Saving…' : isEdit ? 'Update Ad' : 'Create Ad'}
-            </button>
-          </div>
-        </form>
-      </div>
     </div>
   );
 }

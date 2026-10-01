@@ -17,18 +17,22 @@ import {
   PenSquare,
   Search,
   DollarSign,
+  FileCode,
 } from 'lucide-react';
 
+
 const navigation = [
-  { name: 'Dashboard', href: '/admin/dashboard', icon: LayoutDashboard },
-  { name: 'Posts', href: '/admin/posts', icon: FileText },
-  { name: 'Categories', href: '/admin/categories', icon: FolderOpen },
-  { name: 'Tags', href: '/admin/tags', icon: Tag },
-  { name: 'Media', href: '/admin/media', icon: Image },
-  { name: 'SEO', href: '/admin/seo', icon: Search },
-  { name: 'Ads', href: '/admin/ads', icon: DollarSign },
-  { name: 'Settings', href: '/admin/settings', icon: Settings },
+  { name: 'Dashboard',    href: '/admin/dashboard',    icon: LayoutDashboard },
+  { name: 'Posts',        href: '/admin/posts',         icon: FileText },
+  { name: 'Categories',  href: '/admin/categories',    icon: FolderOpen },
+  { name: 'Tags',        href: '/admin/tags',          icon: Tag },
+  { name: 'Media',       href: '/admin/media',         icon: Image },
+  { name: 'SEO',         href: '/admin/seo',           icon: Search },
+  { name: 'Ad Manager',  href: '/admin/ads',           icon: DollarSign },
+  { name: 'Ad Networks', href: '/admin/ad-networks',   icon: FileCode },
+  { name: 'Settings',    href: '/admin/settings',      icon: Settings },
 ];
+
 
 export default function AdminSidebar() {
   const pathname = usePathname();
