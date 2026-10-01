@@ -9,20 +9,23 @@ import {
 } from "lucide-react";
 
 const PLACEMENTS = [
-  { id: "hero_left",       label: "Homepage – Left Sidebar",       page: "Homepage", desc: "160×600 sidebar left of search" },
-  { id: "hero_right",      label: "Homepage – Right Sidebar",      page: "Homepage", desc: "160×600 sidebar right of search" },
-  { id: "below_search",    label: "Homepage – Below Search Bar",   page: "Homepage", desc: "728×90 banner below search input" },
-  { id: "sticky_footer",   label: "Sticky Footer (All Pages)",     page: "Global",   desc: "Fixed bottom banner on every page" },
-  { id: "blog_top",        label: "Blog List – Top Banner",        page: "Blog",     desc: "728×90 at top of blog listing" },
-  { id: "blog_sidebar",    label: "Blog List – Sidebar",           page: "Blog",     desc: "300×600 sidebar on blog listing" },
-  { id: "between_posts",   label: "Blog – Between Post Cards",     page: "Blog",     desc: "Native ad between post cards" },
-  { id: "article_top",     label: "Article – Top of Content",      page: "Article",  desc: "728×90 above article body" },
-  { id: "article_mid",     label: "Article – Mid Content",         page: "Article",  desc: "In-content after 2nd paragraph" },
-  { id: "article_bottom",  label: "Article – End of Content",      page: "Article",  desc: "728×90 below article body" },
-  { id: "article_sidebar", label: "Article – Sidebar",             page: "Article",  desc: "300×250 sticky sidebar" },
-  { id: "profile_top",     label: "Profile Page – Top",            page: "Profile",  desc: "Banner above profile viewer" },
-  { id: "profile_left",    label: "Profile Page – Left Sidebar",   page: "Profile",  desc: "160×600 left of profile" },
-  { id: "profile_right",   label: "Profile Page – Right Sidebar",  page: "Profile",  desc: "160×600 right of profile" },
+  { id: "hero_left",               label: "Homepage – Left Sidebar",       page: "Homepage", desc: "160×600 sidebar left of search" },
+  { id: "hero_right",              label: "Homepage – Right Sidebar",      page: "Homepage", desc: "160×600 sidebar right of search" },
+  { id: "below_search",            label: "Homepage – Below Search Bar",   page: "Homepage", desc: "728×90 banner below search input" },
+  { id: "after_hero",              label: "Homepage – After Hero",         page: "Homepage", desc: "728×90 banner below hero section" },
+  { id: "homepage_after_features", label: "Homepage – After Features",     page: "Homepage", desc: "Banner after comparison table" },
+  { id: "homepage_after_blog",     label: "Homepage – After Blog Section", page: "Homepage", desc: "728×90 banner before FAQ" },
+  { id: "sticky_footer",           label: "Sticky Footer (All Pages)",     page: "Global",   desc: "Fixed bottom banner on every page" },
+  { id: "blog_top",                label: "Blog List – Top Banner",        page: "Blog",     desc: "728×90 at top of blog listing" },
+  { id: "blog_sidebar",            label: "Blog List – Sidebar",           page: "Blog",     desc: "300×600 sidebar on blog listing" },
+  { id: "between_posts",           label: "Blog – Between Post Cards",     page: "Blog",     desc: "Native ad between post cards" },
+  { id: "article_top",             label: "Article – Top of Content",      page: "Article",  desc: "728×90 above article body" },
+  { id: "article_mid",             label: "Article – Mid Content",         page: "Article",  desc: "In-content middle of article" },
+  { id: "article_bottom",          label: "Article – End of Content",      page: "Article",  desc: "728×90 below article body" },
+  { id: "article_sidebar",         label: "Article – Sidebar",             page: "Article",  desc: "300×250 sticky sidebar" },
+  { id: "profile_top",             label: "Profile Page – Top",            page: "Profile",  desc: "Banner above profile viewer" },
+  { id: "profile_left",            label: "Profile Page – Left Sidebar",   page: "Profile",  desc: "160×600 left of profile" },
+  { id: "profile_right",           label: "Profile Page – Right Sidebar",  page: "Profile",  desc: "160×600 right of profile" },
 ];
 
 const PAGE_GROUPS = ["All", "Global", "Homepage", "Blog", "Article", "Profile"];

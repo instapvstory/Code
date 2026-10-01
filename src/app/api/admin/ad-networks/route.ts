@@ -6,8 +6,8 @@ import { supabaseAdmin } from "@/lib/supabase-admin";
 
 const PUBLIC_DIR = path.join(process.cwd(), "public");
 
-// Supported TXT file types
-const ALLOWED_FILES: Record<string, { desc: string; example: string }> = {
+// Default standard files with descriptions
+const DEFAULT_FILES: Record<string, { desc: string; example: string }> = {
   "ads.txt": {
     desc: "IAB ads.txt - authorizes digital ad sellers for your domain",
     example: "google.com, pub-XXXXXXXXXXXXXXXX, DIRECT, f08c47fec0942fa0",
@@ -21,6 +21,13 @@ const ALLOWED_FILES: Record<string, { desc: string; example: string }> = {
     example: '{"contact_email":"admin@pvstoryviewer.com","sellers":[]}',
   },
 };
+
+// Validate that filename is a safe .txt or .json file without directory traversal
+function isValidFileName(name: string): boolean {
+  if (!name || typeof name !== "string") return false;
+  if (name.includes("..") || name.includes("/") || name.includes("\\")) return false;
+  return /^[a-zA-Z0-9_\-\.]+\.(txt|json)$/i.test(name.trim());
+}
 
 // Helper: auth check
 async function checkAuth(request: NextRequest) {
@@ -79,7 +86,7 @@ async function getFileContent(fileName: string): Promise<string> {
   return diskContent;
 }
 
-// GET - read file contents + list all ad network files
+// GET - read file contents or list all ad network files
 export async function GET(request: NextRequest) {
   const user = await checkAuth(request);
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -88,16 +95,59 @@ export async function GET(request: NextRequest) {
   const file = searchParams.get("file");
 
   if (file) {
-    if (!ALLOWED_FILES[file]) {
-      return NextResponse.json({ error: "Invalid file" }, { status: 400 });
+    if (!isValidFileName(file)) {
+      return NextResponse.json({ error: "Invalid file name. Must end with .txt or .json" }, { status: 400 });
     }
     const content = await getFileContent(file);
     return NextResponse.json({ success: true, file, content });
   }
 
-  // List all files with their status from DB & disk
+  // Discover all files: default files + database entries + disk files
+  const fileMap = new Map<string, { desc: string; example: string }>();
+
+  // 1. Add defaults
+  for (const [name, meta] of Object.entries(DEFAULT_FILES)) {
+    fileMap.set(name, meta);
+  }
+
+  // 2. Query custom files from Supabase DB
+  try {
+    const { data: dbFiles } = await supabaseAdmin
+      .from("ads")
+      .select("placement, name")
+      .eq("type", "ad_network_file");
+
+    if (dbFiles) {
+      for (const row of dbFiles) {
+        const fname = row.placement || row.name;
+        if (isValidFileName(fname) && !fileMap.has(fname)) {
+          fileMap.set(fname, {
+            desc: `Custom Ad Network File (${fname})`,
+            example: "# Custom ad network authorization or verification",
+          });
+        }
+      }
+    }
+  } catch (err) {
+    console.error("Error querying dbFiles for ad-networks:", err);
+  }
+
+  // 3. Scan public directory for any extra .txt or .json files
+  try {
+    const diskFiles = await fs.readdir(PUBLIC_DIR);
+    for (const df of diskFiles) {
+      if (isValidFileName(df) && !fileMap.has(df) && df !== "robots.txt") {
+        fileMap.set(df, {
+          desc: `Custom File (${df})`,
+          example: "# Ad network verification file",
+        });
+      }
+    }
+  } catch {}
+
+  // List all discovered files with status & contents
   const fileStatuses = await Promise.all(
-    Object.entries(ALLOWED_FILES).map(async ([name, meta]) => {
+    Array.from(fileMap.entries()).map(async ([name, meta]) => {
       const content = await getFileContent(name);
       const exists = content.trim().length > 0;
       const lineCount = content.split("\n").filter((l) => l.trim() && !l.startsWith("#")).length;
@@ -108,7 +158,7 @@ export async function GET(request: NextRequest) {
   return NextResponse.json({ success: true, files: fileStatuses });
 }
 
-// POST - save/update a file in DB and disk
+// POST - save/update any file in DB and disk
 export async function POST(request: NextRequest) {
   const user = await checkAuth(request);
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -116,8 +166,8 @@ export async function POST(request: NextRequest) {
   const body = await request.json();
   const { file, content } = body;
 
-  if (!file || !ALLOWED_FILES[file]) {
-    return NextResponse.json({ error: "Invalid file name" }, { status: 400 });
+  if (!file || !isValidFileName(file)) {
+    return NextResponse.json({ error: "Invalid file name. Must be a safe name ending in .txt or .json" }, { status: 400 });
   }
 
   if (typeof content !== "string") {
@@ -126,7 +176,7 @@ export async function POST(request: NextRequest) {
 
   const cleanContent = content.trim();
 
-  // Basic validation for ads.txt format
+  // Basic validation if file is ads.txt or app-ads.txt
   if (file === "ads.txt" || file === "app-ads.txt") {
     const lines = cleanContent.split("\n").filter((l) => l.trim() && !l.startsWith("#"));
     for (const line of lines) {
@@ -181,7 +231,6 @@ export async function POST(request: NextRequest) {
   try {
     await fs.writeFile(path.join(PUBLIC_DIR, file), cleanContent + "\n", "utf-8");
   } catch (err) {
-    // Non-fatal if filesystem is read-only (e.g., serverless), DB is the source of truth
     console.warn(`Filesystem write skipped for ${file} (serverless/read-only):`, err);
   }
 
@@ -200,7 +249,7 @@ export async function DELETE(request: NextRequest) {
   const { searchParams } = request.nextUrl;
   const file = searchParams.get("file");
 
-  if (!file || !ALLOWED_FILES[file]) {
+  if (!file || !isValidFileName(file)) {
     return NextResponse.json({ error: "Invalid file" }, { status: 400 });
   }
 

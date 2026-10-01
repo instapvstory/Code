@@ -344,6 +344,11 @@ export default function MarketingSections({ initialPosts = [] }: MarketingSectio
         </div>
       </section>
 
+      {/* ── HOMEPAGE AD SLOT: After Features ── */}
+      <div style={{ textAlign: 'center', padding: '16px 24px 0' }}>
+        <AdSlot placement="homepage_after_features" style={{ maxWidth: 728, margin: '0 auto' }} />
+      </div>
+
       {/* ── USE CASES ── */}
       <section className={styles.section} id="use-cases">
         <div className={styles.container}>

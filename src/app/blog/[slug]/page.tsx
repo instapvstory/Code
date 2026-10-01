@@ -4,8 +4,28 @@ import { blogPosts } from '@/lib/blogData';
 import { relatedPostsMap } from '@/lib/blogRelated';
 import styles from '../blog.module.css';
 import Breadcrumb from '@/components/layout/Breadcrumb/Breadcrumb';
+import AdSlot from '@/components/ads/AdSlot';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://pvstoryviewer.com';
+
+function splitArticleAtMiddle(html: string): [string, string] {
+  if (!html) return ['', ''];
+  const pCloseRegex = /<\/p>/gi;
+  const indices: number[] = [];
+  let match;
+  while ((match = pCloseRegex.exec(html)) !== null) {
+    indices.push(match.index + match[0].length);
+  }
+
+  // If article has at least 3 paragraphs, split near the middle
+  if (indices.length >= 3) {
+    const midIdx = Math.floor(indices.length / 2);
+    const splitPoint = indices[midIdx];
+    return [html.slice(0, splitPoint), html.slice(splitPoint)];
+  }
+
+  return [html, ''];
+}
 
 interface PostPageProps {
   params: Promise<{ slug: string }>;
@@ -82,6 +102,8 @@ export default async function BlogPostPage({ params }: PostPageProps) {
     notFound();
   }
 
+  const [firstHalf, secondHalf] = splitArticleAtMiddle(post.content);
+
   // ── Related posts (topical authority internal links) ──
   const relatedSlugs = relatedPostsMap[slug] || [];
   const relatedPosts = relatedSlugs
@@ -123,9 +145,29 @@ export default async function BlogPostPage({ params }: PostPageProps) {
             </div>
           )}
 
-          {/* Article Body */}
+          {/* Top of Article Ad */}
+          <div style={{ margin: '24px 0', textAlign: 'center' }}>
+            <AdSlot placement="article_top" style={{ maxWidth: 728, margin: '0 auto' }} />
+          </div>
+
+          {/* Article Body with Mid-Content Ad */}
           <div className={styles.article}>
-            <div dangerouslySetInnerHTML={{ __html: post.content }} />
+            {secondHalf ? (
+              <>
+                <div dangerouslySetInnerHTML={{ __html: firstHalf }} />
+                <div style={{ margin: '36px 0', textAlign: 'center' }}>
+                  <AdSlot placement="article_mid" style={{ maxWidth: 728, margin: '0 auto' }} />
+                </div>
+                <div dangerouslySetInnerHTML={{ __html: secondHalf }} />
+              </>
+            ) : (
+              <div dangerouslySetInnerHTML={{ __html: post.content }} />
+            )}
+          </div>
+
+          {/* Bottom of Article Ad */}
+          <div style={{ margin: '32px 0', textAlign: 'center' }}>
+            <AdSlot placement="article_bottom" style={{ maxWidth: 728, margin: '0 auto' }} />
           </div>
 
           {/* ── Related Reading (topical internal links) ── */}

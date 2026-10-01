@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { supabaseAdmin } from '@/lib/supabase-admin';
 
 // Define ad type interface
 interface Ad {
@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '1');
     
     // Build query
-    let query = supabase
+    let query = supabaseAdmin
       .from('ads')
       .select('*')
       .neq('type', 'ad_network_file')

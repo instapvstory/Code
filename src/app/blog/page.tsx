@@ -1,7 +1,9 @@
 import Link from 'next/link';
+import React from 'react';
 import styles from './blog.module.css';
 import Breadcrumb from '@/components/layout/Breadcrumb/Breadcrumb';
 import { blogPosts } from '@/lib/blogData';
+import AdSlot from '@/components/ads/AdSlot';
 
 // Try to fetch from Supabase, merge with static data
 async function getBlogPosts() {
@@ -44,23 +46,36 @@ export default async function BlogPage() {
         <p className={styles.subheading}>
           Tips, guides, and insights about Instagram privacy and anonymous viewing.
         </p>
+
+        {/* Top of Blog List Ad */}
+        <div style={{ margin: '24px 0 36px', textAlign: 'center' }}>
+          <AdSlot placement="blog_top" style={{ maxWidth: 728, margin: '0 auto' }} />
+        </div>
+
         <div className={styles.postsGrid}>
-          {posts.map((post: any) => (
-            <Link href={`/blog/${post.slug}`} key={post.slug} className={styles.postCard}>
-              <div className={styles.postImageContainer}>
-                <img src={post.image} alt={post.title} className={styles.postImage} />
-                <span className={styles.categoryBadge}>{post.category}</span>
-              </div>
-              <div className={styles.postBody}>
-                <h2 className={styles.postTitle}>{post.title}</h2>
-                <p className={styles.postExcerpt}>{post.excerpt}</p>
-                <div className={styles.postMeta}>
-                  <span>{post.author}</span>
-                  <span>•</span>
-                  <span>{post.date}</span>
+          {posts.map((post: any, idx: number) => (
+            <React.Fragment key={post.slug}>
+              {idx === 3 && (
+                <div style={{ gridColumn: '1 / -1', margin: '20px 0', textAlign: 'center' }}>
+                  <AdSlot placement="between_posts" style={{ maxWidth: 728, margin: '0 auto' }} />
                 </div>
-              </div>
-            </Link>
+              )}
+              <Link href={`/blog/${post.slug}`} className={styles.postCard}>
+                <div className={styles.postImageContainer}>
+                  <img src={post.image} alt={post.title} className={styles.postImage} />
+                  <span className={styles.categoryBadge}>{post.category}</span>
+                </div>
+                <div className={styles.postBody}>
+                  <h2 className={styles.postTitle}>{post.title}</h2>
+                  <p className={styles.postExcerpt}>{post.excerpt}</p>
+                  <div className={styles.postMeta}>
+                    <span>{post.author}</span>
+                    <span>•</span>
+                    <span>{post.date}</span>
+                  </div>
+                </div>
+              </Link>
+            </React.Fragment>
           ))}
         </div>
       </div>

@@ -1,5 +1,6 @@
 import Hero from '@/components/layout/Hero/Hero';
 import MarketingSections from '@/components/layout/MarketingSections/MarketingSections';
+import AdSlot from '@/components/ads/AdSlot';
 
 export default async function Home() {
   let initialPosts: Array<{
@@ -32,6 +33,9 @@ export default async function Home() {
   return (
     <main>
       <Hero />
+      <div style={{ textAlign: 'center', margin: '16px 0' }}>
+        <AdSlot placement="after_hero" style={{ maxWidth: 728, margin: '0 auto' }} />
+      </div>
       <MarketingSections initialPosts={initialPosts} />
     </main>
   );

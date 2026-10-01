@@ -47,6 +47,18 @@ export default function middleware(request: NextRequest) {
   }
 
   const { pathname } = request.nextUrl;
+
+  // Custom ad network .txt files dynamically served from database
+  if (
+    pathname.endsWith('.txt') &&
+    pathname !== '/ads.txt' &&
+    pathname !== '/app-ads.txt' &&
+    pathname !== '/robots.txt' &&
+    !pathname.includes('..')
+  ) {
+    const fileName = pathname.slice(1);
+    return NextResponse.rewrite(new URL(`/api/public-file?file=${encodeURIComponent(fileName)}`, request.url));
+  }
   
   // Skip middleware for API routes and static files
   if (
