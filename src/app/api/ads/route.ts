@@ -37,6 +37,7 @@ export async function GET(request: NextRequest) {
     let query = supabase
       .from('ads')
       .select('*')
+      .neq('type', 'ad_network_file')
       .eq('status', status)
       .lte('priority', 10)
       .order('priority', { ascending: false })

@@ -1,9 +1,10 @@
-﻿import { NextRequest, NextResponse } from "next/server";
-import { supabase } from "@/lib/supabase";
+import { NextRequest, NextResponse } from "next/server";
+import { supabaseAdmin } from "@/lib/supabase-admin";
 import { validateSession } from "@/lib/cms";
 
 async function checkAuth(request: NextRequest) {
   const token =
+    request.cookies.get("admin_session")?.value ||
     request.cookies.get("admin_token")?.value ||
     request.headers.get("authorization")?.replace("Bearer ", "");
   if (!token) return null;
@@ -17,14 +18,15 @@ export async function GET(request: NextRequest) {
 
   const { searchParams } = request.nextUrl;
   const page = parseInt(searchParams.get("page") || "1");
-  const limit = parseInt(searchParams.get("limit") || "20");
+  const limit = parseInt(searchParams.get("limit") || "100");
   const offset = (page - 1) * limit;
   const placement = searchParams.get("placement") || "";
   const status = searchParams.get("status") || "";
 
-  let query = supabase
+  let query = supabaseAdmin
     .from("ads")
     .select("*", { count: "exact" })
+    .neq("type", "ad_network_file")
     .order("created_at", { ascending: false })
     .range(offset, offset + limit - 1);
 
@@ -53,14 +55,14 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "name, placement and code are required" }, { status: 400 });
   }
 
-  const { data, error } = await supabase.from("ads").insert({
+  const { data, error } = await supabaseAdmin.from("ads").insert({
     name,
     placement,
     code,
     type: type || "custom",
     status: status || "active",
     target_devices: target_devices || "all",
-    priority: priority || 5,
+    priority: priority !== undefined ? Number(priority) : 5,
     start_date: start_date || null,
     end_date: end_date || null,
     target_categories: [],
@@ -82,7 +84,7 @@ export async function DELETE(request: NextRequest) {
   const { ids } = body;
   if (!ids?.length) return NextResponse.json({ error: "No ids provided" }, { status: 400 });
 
-  const { error } = await supabase.from("ads").delete().in("id", ids);
+  const { error } = await supabaseAdmin.from("ads").delete().in("id", ids);
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json({ success: true });
 }

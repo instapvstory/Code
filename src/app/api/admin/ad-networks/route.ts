@@ -1,7 +1,8 @@
-﻿import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { promises as fs } from "fs";
 import path from "path";
 import { validateSession } from "@/lib/cms";
+import { supabaseAdmin } from "@/lib/supabase-admin";
 
 const PUBLIC_DIR = path.join(process.cwd(), "public");
 
@@ -24,10 +25,58 @@ const ALLOWED_FILES: Record<string, { desc: string; example: string }> = {
 // Helper: auth check
 async function checkAuth(request: NextRequest) {
   const token =
+    request.cookies.get("admin_session")?.value ||
     request.cookies.get("admin_token")?.value ||
     request.headers.get("authorization")?.replace("Bearer ", "");
   if (!token) return null;
   return await validateSession(token);
+}
+
+// Helper: Get file content from Supabase DB, fallback to public file, seed DB if missing
+async function getFileContent(fileName: string): Promise<string> {
+  try {
+    const { data } = await supabaseAdmin
+      .from("ads")
+      .select("code")
+      .eq("type", "ad_network_file")
+      .eq("placement", fileName)
+      .maybeSingle();
+
+    if (data?.code !== undefined && data?.code !== null) {
+      return data.code;
+    }
+  } catch (err) {
+    console.error(`Error querying DB for ${fileName}:`, err);
+  }
+
+  // Fallback to local public file
+  let diskContent = "";
+  try {
+    diskContent = await fs.readFile(path.join(PUBLIC_DIR, fileName), "utf-8");
+  } catch {}
+
+  // If found on disk but not in DB, seed to DB
+  if (diskContent.trim()) {
+    try {
+      await supabaseAdmin.from("ads").insert({
+        name: fileName,
+        placement: fileName,
+        code: diskContent.trim(),
+        type: "ad_network_file",
+        status: "active",
+        target_devices: "all",
+        target_categories: [],
+        target_tags: [],
+        priority: 1,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      });
+    } catch (e) {
+      console.error(`Error seeding ${fileName} to DB:`, e);
+    }
+  }
+
+  return diskContent;
 }
 
 // GET - read file contents + list all ad network files
@@ -39,29 +88,19 @@ export async function GET(request: NextRequest) {
   const file = searchParams.get("file");
 
   if (file) {
-    // Read specific file
     if (!ALLOWED_FILES[file]) {
       return NextResponse.json({ error: "Invalid file" }, { status: 400 });
     }
-    try {
-      const content = await fs.readFile(path.join(PUBLIC_DIR, file), "utf-8");
-      return NextResponse.json({ success: true, file, content });
-    } catch {
-      return NextResponse.json({ success: true, file, content: "" });
-    }
+    const content = await getFileContent(file);
+    return NextResponse.json({ success: true, file, content });
   }
 
-  // List all files with their status
+  // List all files with their status from DB & disk
   const fileStatuses = await Promise.all(
     Object.entries(ALLOWED_FILES).map(async ([name, meta]) => {
-      let content = "";
-      let exists = false;
-      let lineCount = 0;
-      try {
-        content = await fs.readFile(path.join(PUBLIC_DIR, name), "utf-8");
-        exists = true;
-        lineCount = content.split("\n").filter((l) => l.trim() && !l.startsWith("#")).length;
-      } catch {}
+      const content = await getFileContent(name);
+      const exists = content.trim().length > 0;
+      const lineCount = content.split("\n").filter((l) => l.trim() && !l.startsWith("#")).length;
       return { name, ...meta, exists, lineCount, content };
     })
   );
@@ -69,7 +108,7 @@ export async function GET(request: NextRequest) {
   return NextResponse.json({ success: true, files: fileStatuses });
 }
 
-// POST - save/update a file
+// POST - save/update a file in DB and disk
 export async function POST(request: NextRequest) {
   const user = await checkAuth(request);
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -85,9 +124,11 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Invalid content" }, { status: 400 });
   }
 
+  const cleanContent = content.trim();
+
   // Basic validation for ads.txt format
   if (file === "ads.txt" || file === "app-ads.txt") {
-    const lines = content.split("\n").filter((l) => l.trim() && !l.startsWith("#"));
+    const lines = cleanContent.split("\n").filter((l) => l.trim() && !l.startsWith("#"));
     for (const line of lines) {
       const parts = line.split(",").map((p) => p.trim());
       if (parts.length < 3) {
@@ -98,16 +139,60 @@ export async function POST(request: NextRequest) {
     }
   }
 
-  await fs.writeFile(path.join(PUBLIC_DIR, file), content.trim() + "\n", "utf-8");
+  // 1. Save in Supabase database
+  const { data: existing } = await supabaseAdmin
+    .from("ads")
+    .select("id")
+    .eq("type", "ad_network_file")
+    .eq("placement", file)
+    .maybeSingle();
+
+  if (existing?.id) {
+    const { error: updateError } = await supabaseAdmin.from("ads").update({
+      code: cleanContent,
+      status: "active",
+      updated_at: new Date().toISOString(),
+    }).eq("id", existing.id);
+
+    if (updateError) {
+      return NextResponse.json({ error: `Database save failed: ${updateError.message}` }, { status: 500 });
+    }
+  } else {
+    const { error: insertError } = await supabaseAdmin.from("ads").insert({
+      name: file,
+      placement: file,
+      code: cleanContent,
+      type: "ad_network_file",
+      status: "active",
+      target_devices: "all",
+      target_categories: [],
+      target_tags: [],
+      priority: 1,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    });
+
+    if (insertError) {
+      return NextResponse.json({ error: `Database save failed: ${insertError.message}` }, { status: 500 });
+    }
+  }
+
+  // 2. Also try to write to public directory for static file fallback
+  try {
+    await fs.writeFile(path.join(PUBLIC_DIR, file), cleanContent + "\n", "utf-8");
+  } catch (err) {
+    // Non-fatal if filesystem is read-only (e.g., serverless), DB is the source of truth
+    console.warn(`Filesystem write skipped for ${file} (serverless/read-only):`, err);
+  }
 
   return NextResponse.json({
     success: true,
-    message: `${file} saved successfully`,
-    lineCount: content.split("\n").filter((l) => l.trim() && !l.startsWith("#")).length,
+    message: `${file} saved to database successfully`,
+    lineCount: cleanContent.split("\n").filter((l) => l.trim() && !l.startsWith("#")).length,
   });
 }
 
-// DELETE - clear/delete a file
+// DELETE - clear/delete a file from DB and disk
 export async function DELETE(request: NextRequest) {
   const user = await checkAuth(request);
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -119,9 +204,17 @@ export async function DELETE(request: NextRequest) {
     return NextResponse.json({ error: "Invalid file" }, { status: 400 });
   }
 
+  // Delete from Supabase DB
+  await supabaseAdmin
+    .from("ads")
+    .delete()
+    .eq("type", "ad_network_file")
+    .eq("placement", file);
+
+  // Unlink from disk
   try {
     await fs.unlink(path.join(PUBLIC_DIR, file));
   } catch {}
 
-  return NextResponse.json({ success: true, message: `${file} deleted` });
+  return NextResponse.json({ success: true, message: `${file} deleted successfully` });
 }
