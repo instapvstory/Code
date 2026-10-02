@@ -5,20 +5,145 @@ import { useRouter } from "next/navigation";
 import {
   FileText, Plus, Save, RefreshCw, CheckCircle,
   AlertCircle, Copy, ExternalLink, ChevronDown, ChevronUp,
-  Globe, Shield, Info, Trash2, Upload, FilePlus, Sparkles
+  Globe, Shield, Info, Trash2, Upload, FilePlus, Sparkles,
+  HelpCircle, Check, Search, Wand2, Download, Eye, Zap
 } from "lucide-react";
 
-const PRESET_NETWORKS = [
-  { id: "google",       name: "Google AdSense",  color: "#4285F4", logo: "G",  docsUrl: "https://support.google.com/adsense/answer/7532444", lines: ["google.com, pub-1602093984257648, DIRECT, f08c47fec0942fa0"] },
-  { id: "adsterra",     name: "Adsterra",         color: "#00B96B", logo: "A",  docsUrl: "https://publishers.adsterra.com/", lines: ["adsterra.com, 4629628, DIRECT"] },
-  { id: "mgid",         name: "MGID",             color: "#E84B3A", logo: "M",  docsUrl: "https://help.mgid.com/", lines: ["mgid.com, 1234567, DIRECT"] },
-  { id: "propeller",    name: "PropellerAds",     color: "#FF6B35", logo: "P",  docsUrl: "https://publishers.propellerads.com/", lines: ["propellerads.com, YOUR_ID, DIRECT"] },
-  { id: "medianet",     name: "Media.net",        color: "#0066CC", logo: "MN", docsUrl: "https://www.media.net/", lines: ["media.net, YOUR_SITEID, DIRECT"] },
-  { id: "infolinks",    name: "Infolinks",        color: "#FF5500", logo: "IL", docsUrl: "https://www.infolinks.com/", lines: ["infolinks.com, YOUR_ID, DIRECT"] },
-  { id: "amazon",       name: "Amazon Ads",       color: "#FF9900", logo: "Az", docsUrl: "https://advertising.amazon.com/", lines: ["amazon-adsystem.com, 3916270810, DIRECT"] },
-  { id: "criteo",       name: "Criteo",           color: "#FF6900", logo: "C",  docsUrl: "https://www.criteo.com/", lines: ["criteo.com, YOUR_ID, DIRECT"] },
-  { id: "ezoic",        name: "Ezoic",            color: "#7C3AED", logo: "Ez", docsUrl: "https://www.ezoic.com/", lines: ["ezoic.com, YOUR_ID, DIRECT"] },
-  { id: "taboola",      name: "Taboola",          color: "#1F3B8C", logo: "T",  docsUrl: "https://www.taboola.com/", lines: ["taboola.com, YOUR_ID, DIRECT"] },
+interface PresetNetwork {
+  id: string;
+  name: string;
+  category: string;
+  color: string;
+  logo: string;
+  docsUrl: string;
+  sampleId: string;
+  hint: string;
+  format: (id: string) => string;
+}
+
+const PRESET_NETWORKS: PresetNetwork[] = [
+
+  {
+    id: "adsterra",
+    name: "Adsterra",
+    category: "Popunder / Banner",
+    color: "#00B96B",
+    logo: "A",
+    sampleId: "4629628",
+    hint: "Your numeric Adsterra Publisher ID",
+    docsUrl: "https://publishers.adsterra.com/",
+    format: (id) => `adsterra.com, ${id}, DIRECT`,
+  },
+  {
+    id: "revcontent",
+    name: "RevContent / RevBid",
+    category: "Native / Banner",
+    color: "#0284c7",
+    logo: "R",
+    sampleId: "123456",
+    hint: "Account/Widget ID from RevContent/RevBid dashboard",
+    docsUrl: "https://help.revcontent.com/",
+    format: (id) => `revcontent.com, ${id}, DIRECT, 0254dc44e9312a1e`,
+  },
+  {
+    id: "mgid",
+    name: "MGID",
+    category: "Native / Push",
+    color: "#E84B3A",
+    logo: "M",
+    sampleId: "1234567",
+    hint: "Your MGID publisher account number",
+    docsUrl: "https://help.mgid.com/",
+    format: (id) => `mgid.com, ${id}, DIRECT`,
+  },
+  {
+    id: "propeller",
+    name: "PropellerAds",
+    category: "Push / Pop / Interstitial",
+    color: "#FF6B35",
+    logo: "P",
+    sampleId: "123456",
+    hint: "Publisher ID shown on Propeller dashboard",
+    docsUrl: "https://publishers.propellerads.com/",
+    format: (id) => `propellerads.com, ${id}, DIRECT`,
+  },
+  {
+    id: "monetag",
+    name: "Monetag",
+    category: "Multi-Format",
+    color: "#6366f1",
+    logo: "Mo",
+    sampleId: "987654",
+    hint: "Publisher ID from Monetag",
+    docsUrl: "https://monetag.com/",
+    format: (id) => `monetag.com, ${id}, DIRECT`,
+  },
+  {
+    id: "medianet",
+    name: "Media.net",
+    category: "Search / Display",
+    color: "#0066CC",
+    logo: "MN",
+    sampleId: "YOUR_SITEID",
+    hint: "Media.net Account ID or Site ID",
+    docsUrl: "https://www.media.net/",
+    format: (id) => `media.net, ${id}, DIRECT`,
+  },
+  {
+    id: "infolinks",
+    name: "Infolinks",
+    category: "In-Text / Banner",
+    color: "#FF5500",
+    logo: "IL",
+    sampleId: "YOUR_ID",
+    hint: "Publisher ID from Infolinks",
+    docsUrl: "https://www.infolinks.com/",
+    format: (id) => `infolinks.com, ${id}, DIRECT`,
+  },
+  {
+    id: "amazon",
+    name: "Amazon Publisher Services",
+    category: "Header Bidding",
+    color: "#FF9900",
+    logo: "Az",
+    sampleId: "3916270810",
+    hint: "Publisher ID from Amazon APS",
+    docsUrl: "https://advertising.amazon.com/",
+    format: (id) => `amazon-adsystem.com, ${id}, DIRECT`,
+  },
+  {
+    id: "ezoic",
+    name: "Ezoic",
+    category: "AI Monetization",
+    color: "#7C3AED",
+    logo: "Ez",
+    sampleId: "YOUR_ID",
+    hint: "Ezoic Publisher ID",
+    docsUrl: "https://www.ezoic.com/",
+    format: (id) => `ezoic.com, ${id}, DIRECT`,
+  },
+  {
+    id: "taboola",
+    name: "Taboola",
+    category: "Native Recommendations",
+    color: "#1F3B8C",
+    logo: "T",
+    sampleId: "YOUR_ID",
+    hint: "Taboola Publisher Account ID",
+    docsUrl: "https://www.taboola.com/",
+    format: (id) => `taboola.com, ${id}, DIRECT`,
+  },
+  {
+    id: "admaven",
+    name: "AdMaven",
+    category: "Pop / Push / Banner",
+    color: "#059669",
+    logo: "AM",
+    sampleId: "YOUR_ID",
+    hint: "AdMaven account ID",
+    docsUrl: "https://ad-maven.com/",
+    format: (id) => `ad-maven.com, ${id}, DIRECT`,
+  },
 ];
 
 interface FileStatus {
@@ -37,21 +162,37 @@ export default function AdNetworksPage() {
   const [activeFile, setActiveFile] = useState("ads.txt");
   const [editorContent, setEditorContent] = useState("");
   const [saving, setSaving] = useState(false);
-  const [msg, setMsg] = useState<{ type: "success" | "error"; text: string } | null>(null);
-  const [expandedNet, setExpandedNet] = useState<string | null>(null);
+  const [msg, setMsg] = useState<{ type: "success" | "error" | "info"; text: string } | null>(null);
   const [loadingFiles, setLoadingFiles] = useState(true);
   const [origin, setOrigin] = useState("");
+
+  // Mode: "easy" (friendly guided cards) vs "advanced" (raw text editor)
+  const [activeTab, setActiveTab] = useState<"easy" | "advanced">("easy");
+
+  // Search filter for presets
+  const [presetSearch, setPresetSearch] = useState("");
+
+  // Quick 1-click Preset modal / prompt
+  const [selectedPreset, setSelectedPreset] = useState<PresetNetwork | null>(null);
+  const [presetInputId, setPresetInputId] = useState("");
+
+  // Smart Paste Box (for complete code or whole lines provided by ad network)
+  const [smartPasteText, setSmartPasteText] = useState("");
 
   // Modal / Form state for adding custom file
   const [showNewFileModal, setShowNewFileModal] = useState(false);
   const [newFileName, setNewFileName] = useState("");
 
-  // Custom network form state
-  const [showCustomNetForm, setShowCustomNetForm] = useState(false);
+  // Custom network form state (with simple helper tooltips)
   const [customNetDomain, setCustomNetDomain] = useState("");
   const [customNetPubId, setCustomNetPubId] = useState("");
   const [customNetType, setCustomNetType] = useState<"DIRECT" | "RESELLER">("DIRECT");
   const [customNetAuthId, setCustomNetAuthId] = useState("");
+  const [showDirectHelp, setShowDirectHelp] = useState(false);
+
+  // Live URL Verifier
+  const [verifyingUrl, setVerifyingUrl] = useState(false);
+  const [verifyResult, setVerifyResult] = useState<{ ok: boolean; status: number; preview: string } | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -89,6 +230,7 @@ export default function AdNetworksPage() {
   const switchFile = async (fileName: string) => {
     setActiveFile(fileName);
     setMsg(null);
+    setVerifyResult(null);
     const existing = files.find((f) => f.name === fileName);
     if (existing && existing.content !== undefined) {
       setEditorContent(existing.content);
@@ -99,18 +241,22 @@ export default function AdNetworksPage() {
     }
   };
 
-  const saveFile = async () => {
+  const saveFile = async (customContent?: string) => {
+    const toSave = customContent !== undefined ? customContent : editorContent;
     setSaving(true);
     setMsg(null);
     try {
       const res = await fetch("/api/admin/ad-networks", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ file: activeFile, content: editorContent }),
+        body: JSON.stringify({ file: activeFile, content: toSave }),
       });
       const data = await res.json();
       if (data.success) {
-        setMsg({ type: "success", text: `${activeFile} saved to database successfully (${data.lineCount} entries)` });
+        setMsg({
+          type: "success",
+          text: `🎉 Saved successfully! Your ${activeFile} is live with ${data.lineCount} entries.`
+        });
         loadFiles();
       } else {
         setMsg({ type: "error", text: data.error || "Save failed" });
@@ -123,7 +269,7 @@ export default function AdNetworksPage() {
   };
 
   const deleteFile = async (fileToDelete: string) => {
-    if (!confirm(`Are you sure you want to delete ${fileToDelete} permanently?`)) return;
+    if (!confirm(`Are you sure you want to permanently delete "${fileToDelete}"?`)) return;
     try {
       const res = await fetch(`/api/admin/ad-networks?file=${encodeURIComponent(fileToDelete)}`, {
         method: "DELETE",
@@ -141,46 +287,97 @@ export default function AdNetworksPage() {
     }
   };
 
-  // Add lines from preset network
-  const addNetwork = (lines: string[]) => {
+  // Add line to editor and auto-save option
+  const appendLines = async (linesToAdd: string[], feedbackName: string) => {
     const existing = editorContent.trim();
-    const newLines = lines.filter((l) => !existing.includes(l.split(",")[0].trim()));
-    if (!newLines.length) {
-      setMsg({ type: "error", text: "This ad network is already authorized in the file." });
+    // Filter duplicates
+    const cleanLines = linesToAdd
+      .map((l) => l.trim())
+      .filter((l) => l.length > 0)
+      .filter((l) => {
+        const domain = l.split(",")[0].trim().toLowerCase();
+        return !existing.toLowerCase().includes(domain) || l.startsWith("#");
+      });
+
+    if (cleanLines.length === 0) {
+      setMsg({
+        type: "info",
+        text: `Network "${feedbackName}" is already added in ${activeFile}.`
+      });
       return;
     }
-    setEditorContent((prev) => (prev.trim() ? prev.trim() + "\n" + newLines.join("\n") : newLines.join("\n")));
-    setMsg({ type: "success", text: `Added ${newLines.length} line(s). Click "Save ${activeFile}" to persist.` });
+
+    const newContent = existing ? `${existing}\n${cleanLines.join("\n")}` : cleanLines.join("\n");
+    setEditorContent(newContent);
+    // Auto-save so user doesn't forget
+    await saveFile(newContent);
   };
 
-  // Add custom user-specified network
-  const handleAddCustomNetwork = (e: React.FormEvent) => {
+  // Quick Preset Add
+  const handleConfirmPreset = async () => {
+    if (!selectedPreset) return;
+    const id = presetInputId.trim() || selectedPreset.sampleId;
+    const line = selectedPreset.format(id);
+    await appendLines([line], selectedPreset.name);
+    setSelectedPreset(null);
+    setPresetInputId("");
+  };
+
+  // Smart Paste Handler (Accepts full lines from any network email/dashboard)
+  const handleSmartPaste = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!customNetDomain.trim() || !customNetPubId.trim()) {
-      setMsg({ type: "error", text: "Domain and Publisher ID are required." });
+    if (!smartPasteText.trim()) return;
+
+    const raw = smartPasteText.trim();
+    const rawLines = raw.split("\n").map((l) => l.trim()).filter((l) => l.length > 0);
+
+    const validLines: string[] = [];
+    rawLines.forEach((line) => {
+      // Check if it's already an ads.txt format line (contains commas)
+      if (line.includes(",")) {
+        validLines.push(line);
+      } else if (line.startsWith("pub-") || /^\d+$/.test(line)) {
+        // Just an ID pasted
+        validLines.push(`google.com, ${line}, DIRECT, f08c47fec0942fa0`);
+      } else {
+        // Plain text entry
+        validLines.push(line);
+      }
+    });
+
+    if (validLines.length > 0) {
+      await appendLines(validLines, "Pasted Content");
+      setSmartPasteText("");
+    } else {
+      setMsg({ type: "error", text: "Could not detect valid lines. Please paste the line from your network." });
+    }
+  };
+
+  // Newbie-Friendly Custom Network Form
+  const handleAddCustomNetwork = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!customNetDomain.trim()) {
+      setMsg({ type: "error", text: "Please enter the ad network domain (e.g. revcontent.com)" });
       return;
     }
 
-    const domain = customNetDomain.trim().toLowerCase().replace(/^https?:\/\//, "").replace(/\/.*$/, "");
-    const pubId = customNetPubId.trim();
-    const type = customNetType;
+    const domain = customNetDomain
+      .trim()
+      .toLowerCase()
+      .replace(/^https?:\/\//, "")
+      .replace(/\/.*$/, "");
+    const pubId = customNetPubId.trim() || "0";
+    const type = customNetType; // DIRECT or RESELLER
     const authId = customNetAuthId.trim();
 
     const formattedLine = authId
       ? `${domain}, ${pubId}, ${type}, ${authId}`
       : `${domain}, ${pubId}, ${type}`;
 
-    if (editorContent.includes(domain)) {
-      setMsg({ type: "error", text: `Domain "${domain}" is already in this file.` });
-      return;
-    }
-
-    setEditorContent((prev) => (prev.trim() ? prev.trim() + "\n" + formattedLine : formattedLine));
+    await appendLines([formattedLine], domain);
     setCustomNetDomain("");
     setCustomNetPubId("");
     setCustomNetAuthId("");
-    setShowCustomNetForm(false);
-    setMsg({ type: "success", text: `Added "${domain}" to ${activeFile}. Click "Save ${activeFile}" to save to database.` });
   };
 
   // Create a brand new custom file
@@ -200,8 +397,9 @@ export default function AdNetworksPage() {
     setShowNewFileModal(false);
     setNewFileName("");
     setActiveFile(name);
-    setEditorContent(`# ${name}\n# Created for custom ad network verification\n`);
-    setMsg({ type: "success", text: `Created ${name}. Add your content and click "Save ${name}".` });
+    const initialContent = `# ${name}\n# Verification file for ad network approval\n`;
+    setEditorContent(initialContent);
+    await saveFile(initialContent);
   };
 
   // Handle local .txt file upload
@@ -210,32 +408,83 @@ export default function AdNetworksPage() {
     if (!file) return;
 
     const reader = new FileReader();
-    reader.onload = (event) => {
+    reader.onload = async (event) => {
       const text = (event.target?.result as string) || "";
       const uploadFileName = file.name.toLowerCase();
 
-      // If user wants to replace active file or create new
-      if (confirm(`Do you want to open "${file.name}" as a file tab? (Click Cancel to paste into current ${activeFile})`)) {
+      if (confirm(`Do you want to create a new file named "${file.name}"? (Click "Cancel" to append into current "${activeFile}")`)) {
         setActiveFile(uploadFileName);
         setEditorContent(text);
-        setMsg({ type: "success", text: `Loaded "${file.name}". Click "Save ${uploadFileName}" to save in dashboard.` });
+        await saveFile(text);
       } else {
-        setEditorContent((prev) => (prev.trim() ? prev.trim() + "\n" + text.trim() : text.trim()));
-        setMsg({ type: "success", text: `Appended contents of "${file.name}" into ${activeFile}.` });
+        const combined = editorContent ? `${editorContent}\n${text}` : text;
+        setEditorContent(combined);
+        await saveFile(combined);
       }
     };
     reader.readAsText(file);
-    // Reset file input
     if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  // Test / Verify URL Live
+  const verifyLiveUrl = async () => {
+    setVerifyingUrl(true);
+    setVerifyResult(null);
+    try {
+      const url = `/${activeFile}`;
+      const res = await fetch(url, { cache: "no-store" });
+      const text = await res.text();
+      setVerifyResult({
+        ok: res.ok,
+        status: res.status,
+        preview: text.slice(0, 200),
+      });
+    } catch {
+      setVerifyResult({
+        ok: false,
+        status: 500,
+        preview: "Failed to connect to public route",
+      });
+    } finally {
+      setVerifyingUrl(false);
+    }
+  };
+
+  // Remove a specific line from editor
+  const handleRemoveLine = async (lineToRemove: string) => {
+    const remaining = editorContent
+      .split("\n")
+      .filter((l) => l.trim() !== lineToRemove.trim())
+      .join("\n");
+    setEditorContent(remaining);
+    await saveFile(remaining);
   };
 
   const copyContent = () => {
     navigator.clipboard.writeText(editorContent);
-    setMsg({ type: "success", text: "Copied to clipboard!" });
+    setMsg({ type: "success", text: "Copied full file to clipboard!" });
   };
 
-  const lines = editorContent.split("\n").filter((l) => l.trim() && !l.startsWith("#"));
-  const currentFile = files.find((f) => f.name === activeFile);
+  const downloadFile = () => {
+    const blob = new Blob([editorContent], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = activeFile;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const parsedLines = editorContent
+    .split("\n")
+    .map((l) => l.trim())
+    .filter((l) => l && !l.startsWith("#"));
+
+  const filteredPresets = PRESET_NETWORKS.filter(
+    (p) =>
+      p.name.toLowerCase().includes(presetSearch.toLowerCase()) ||
+      p.category.toLowerCase().includes(presetSearch.toLowerCase())
+  );
 
   if (loading || loadingFiles) {
     return (
@@ -246,25 +495,35 @@ export default function AdNetworksPage() {
   }
 
   return (
-    <div style={{ padding: 24, maxWidth: 1240, margin: "0 auto" }}>
+    <div style={{ padding: 24, maxWidth: 1260, margin: "0 auto" }}>
       <style>{`
         @keyframes spin { to { transform: rotate(360deg); } }
         textarea { font-family: 'Fira Code', 'Cascadia Code', monospace !important; }
+        .preset-card:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.08); }
+        .btn-tab { transition: all 0.2s ease; }
       `}</style>
 
-      {/* Header */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 24, flexWrap: "wrap", gap: 16 }}>
+      {/* TOP HEADER */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20, flexWrap: "wrap", gap: 16 }}>
         <div>
-          <h1 style={{ fontSize: 26, fontWeight: 700, color: "#0f172a", margin: 0, display: "flex", alignItems: "center", gap: 10 }}>
-            <FileText size={26} color="#6366f1" /> Ad Networks &amp; TXT Files
-          </h1>
-          <p style={{ color: "#64748b", marginTop: 6, fontSize: 14 }}>
-            Manage ads.txt, app-ads.txt, or upload custom TXT files to approve your site across any ad network.
-          </p>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <div style={{ width: 42, height: 42, borderRadius: 12, background: "linear-gradient(135deg, #6366f1, #8b5cf6)", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", boxShadow: "0 4px 12px rgba(99,102,241,0.3)" }}>
+              <FileText size={22} />
+            </div>
+            <div>
+              <h1 style={{ fontSize: 24, fontWeight: 800, color: "#0f172a", margin: 0 }}>
+                Ad Networks &amp; Domain Verification
+              </h1>
+              <p style={{ color: "#64748b", marginTop: 4, fontSize: 13, margin: 0 }}>
+                Add authorization codes &amp; TXT files (ads.txt, revbid.txt, etc.) so ad networks approve your website instantly.
+              </p>
+            </div>
+          </div>
         </div>
 
-        <div style={{ display: "flex", gap: 10 }}>
-          {/* Upload TXT file button */}
+        {/* Global Action Tools */}
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+          {/* Hidden File Input */}
           <input
             ref={fileInputRef}
             type="file"
@@ -274,9 +533,10 @@ export default function AdNetworksPage() {
           />
           <button
             onClick={() => fileInputRef.current?.click()}
+            title="Upload a .txt file from your computer"
             style={{
-              padding: "9px 16px",
-              borderRadius: 10,
+              padding: "8px 14px",
+              borderRadius: 8,
               border: "1px solid #cbd5e1",
               background: "#fff",
               color: "#334155",
@@ -285,102 +545,689 @@ export default function AdNetworksPage() {
               cursor: "pointer",
               display: "flex",
               alignItems: "center",
-              gap: 7,
-              boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
+              gap: 6,
             }}
           >
             <Upload size={14} /> Upload TXT File
           </button>
 
-          {/* Add New File button */}
           <button
             onClick={() => setShowNewFileModal(true)}
             style={{
-              padding: "9px 16px",
-              borderRadius: 10,
-              border: "none",
-              background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
-              color: "#fff",
+              padding: "8px 14px",
+              borderRadius: 8,
+              border: "1px solid #e0e7ff",
+              background: "#eef2ff",
+              color: "#4f46e5",
               fontWeight: 600,
               fontSize: 13,
               cursor: "pointer",
               display: "flex",
               alignItems: "center",
-              gap: 7,
-              boxShadow: "0 2px 8px rgba(99,102,241,0.25)",
+              gap: 6,
             }}
           >
-            <FilePlus size={15} /> Add Custom File
+            <FilePlus size={14} /> + New Verification File
+          </button>
+
+          <button
+            onClick={verifyLiveUrl}
+            disabled={verifyingUrl}
+            style={{
+              padding: "8px 14px",
+              borderRadius: 8,
+              border: "1px solid #bbf7d0",
+              background: "#f0fdf4",
+              color: "#16a34a",
+              fontWeight: 600,
+              fontSize: 13,
+              cursor: verifyingUrl ? "not-allowed" : "pointer",
+              display: "flex",
+              alignItems: "center",
+              gap: 6,
+            }}
+          >
+            <Eye size={14} /> {verifyingUrl ? "Testing URL..." : `Test Live URL`}
           </button>
         </div>
       </div>
 
-      {/* Notification Message */}
+      {/* URL Verification Banner (if checked) */}
+      {verifyResult && (
+        <div
+          style={{
+            padding: "12px 16px",
+            borderRadius: 10,
+            marginBottom: 16,
+            background: verifyResult.ok ? "#f0fdf4" : "#fef2f2",
+            border: `1px solid ${verifyResult.ok ? "#86efac" : "#fca5a5"}`,
+            color: verifyResult.ok ? "#166534" : "#991b1b",
+            fontSize: 13,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            {verifyResult.ok ? <CheckCircle size={16} /> : <AlertCircle size={16} />}
+            <span>
+              <strong>{verifyResult.ok ? "HTTP 200 OK — Live & Accessible!" : `Error (${verifyResult.status})`}</strong>{" "}
+              Ad network bots can reach: <code>{origin}/{activeFile}</code>
+            </span>
+          </div>
+          <a
+            href={`${origin}/${activeFile}`}
+            target="_blank"
+            rel="noreferrer"
+            style={{ fontWeight: 700, color: verifyResult.ok ? "#15803d" : "#dc2626", textDecoration: "underline" }}
+          >
+            Open in new tab &rarr;
+          </a>
+        </div>
+      )}
+
+      {/* Notifications */}
       {msg && (
         <div
           style={{
             padding: "12px 16px",
             borderRadius: 10,
-            marginBottom: 20,
-            background: msg.type === "success" ? "#f0fdf4" : "#fef2f2",
-            border: `1px solid ${msg.type === "success" ? "#bbf7d0" : "#fecaca"}`,
-            color: msg.type === "success" ? "#16a34a" : "#dc2626",
+            marginBottom: 16,
+            background: msg.type === "success" ? "#f0fdf4" : msg.type === "error" ? "#fef2f2" : "#eff6ff",
+            border: `1px solid ${msg.type === "success" ? "#bbf7d0" : msg.type === "error" ? "#fecaca" : "#bfdbfe"}`,
+            color: msg.type === "success" ? "#16a34a" : msg.type === "error" ? "#dc2626" : "#2563eb",
             display: "flex",
             alignItems: "center",
             gap: 10,
-            fontSize: 14,
+            fontSize: 13,
           }}
         >
-          {msg.type === "success" ? <CheckCircle size={16} /> : <AlertCircle size={16} />}
+          {msg.type === "success" ? <CheckCircle size={16} /> : msg.type === "error" ? <AlertCircle size={16} /> : <Info size={16} />}
           {msg.text}
         </div>
       )}
 
-      {/* Main Grid: Left Editor & Right Ad Network helper */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 360px", gap: 24 }}>
-        {/* LEFT: Editor */}
-        <div>
-          {/* File Tabs */}
-          <div style={{ display: "flex", gap: 6, marginBottom: 14, overflowX: "auto", paddingBottom: 4 }}>
+      {/* FILE SELECTION TABS & URL BAR */}
+      <div style={{ background: "#fff", border: "1px solid #e2e8f0", borderRadius: 12, padding: "12px 16px", marginBottom: 20 }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
+          {/* File Pills */}
+          <div style={{ display: "flex", alignItems: "center", gap: 8, overflowX: "auto" }}>
+            <span style={{ fontSize: 12, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.05em", marginRight: 4 }}>
+              Active File:
+            </span>
             {files.map((f) => (
               <button
                 key={f.name}
                 onClick={() => switchFile(f.name)}
                 style={{
-                  padding: "8px 16px",
+                  padding: "7px 14px",
                   borderRadius: 8,
                   border: "none",
                   cursor: "pointer",
                   fontWeight: 600,
                   fontSize: 13,
-                  background: activeFile === f.name ? "#6366f1" : "#f1f5f9",
+                  background: activeFile === f.name ? "linear-gradient(135deg, #6366f1, #4f46e5)" : "#f1f5f9",
                   color: activeFile === f.name ? "#fff" : "#475569",
                   display: "flex",
                   alignItems: "center",
-                  gap: 7,
-                  whiteSpace: "nowrap",
-                  transition: "all 0.15s ease",
+                  gap: 6,
+                  boxShadow: activeFile === f.name ? "0 2px 6px rgba(99,102,241,0.3)" : "none",
                 }}
               >
-                <FileText size={14} />
+                <FileText size={13} />
                 {f.name}
-                {f.exists && (
-                  <span
-                    style={{
-                      background: activeFile === f.name ? "rgba(255,255,255,0.25)" : "#e2e8f0",
-                      color: activeFile === f.name ? "#fff" : "#64748b",
-                      borderRadius: 999,
-                      padding: "1px 7px",
-                      fontSize: 11,
-                    }}
-                  >
-                    {f.lineCount}
-                  </span>
-                )}
+                <span
+                  style={{
+                    background: activeFile === f.name ? "rgba(255,255,255,0.25)" : "#e2e8f0",
+                    color: activeFile === f.name ? "#fff" : "#64748b",
+                    borderRadius: 999,
+                    padding: "1px 6px",
+                    fontSize: 11,
+                  }}
+                >
+                  {f.lineCount}
+                </span>
               </button>
             ))}
           </div>
 
+          {/* Live Link Button */}
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <a
+              href={`${origin}/${activeFile}`}
+              target="_blank"
+              rel="noreferrer"
+              style={{
+                fontSize: 12,
+                color: "#4f46e5",
+                fontWeight: 600,
+                display: "flex",
+                alignItems: "center",
+                gap: 5,
+                background: "#f5f3ff",
+                padding: "6px 12px",
+                borderRadius: 6,
+                textDecoration: "none",
+                border: "1px solid #ddd6fe",
+              }}
+            >
+              <ExternalLink size={13} /> Live Link: /{activeFile}
+            </a>
+
+            {activeFile !== "ads.txt" && (
+              <button
+                onClick={() => deleteFile(activeFile)}
+                title="Delete this file"
+                style={{
+                  background: "#fee2e2",
+                  color: "#ef4444",
+                  border: "none",
+                  borderRadius: 6,
+                  padding: "6px 10px",
+                  fontSize: 12,
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 4,
+                  fontWeight: 600,
+                }}
+              >
+                <Trash2 size={13} /> Delete
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* MODE TOGGLE: Simple Mode (Newbies) vs Advanced Editor */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+        <div style={{ display: "flex", gap: 6, background: "#f1f5f9", padding: 4, borderRadius: 10 }}>
+          <button
+            onClick={() => setActiveTab("easy")}
+            style={{
+              padding: "7px 18px",
+              borderRadius: 8,
+              border: "none",
+              fontSize: 13,
+              fontWeight: 700,
+              cursor: "pointer",
+              background: activeTab === "easy" ? "#fff" : "transparent",
+              color: activeTab === "easy" ? "#4f46e5" : "#64748b",
+              boxShadow: activeTab === "easy" ? "0 2px 4px rgba(0,0,0,0.06)" : "none",
+              display: "flex",
+              alignItems: "center",
+              gap: 6,
+            }}
+          >
+            <Sparkles size={14} color={activeTab === "easy" ? "#6366f1" : "#64748b"} />
+            Easy Setup (Recommended for Newbies)
+          </button>
+          <button
+            onClick={() => setActiveTab("advanced")}
+            style={{
+              padding: "7px 18px",
+              borderRadius: 8,
+              border: "none",
+              fontSize: 13,
+              fontWeight: 700,
+              cursor: "pointer",
+              background: activeTab === "advanced" ? "#fff" : "transparent",
+              color: activeTab === "advanced" ? "#4f46e5" : "#64748b",
+              boxShadow: activeTab === "advanced" ? "0 2px 4px rgba(0,0,0,0.06)" : "none",
+              display: "flex",
+              alignItems: "center",
+              gap: 6,
+            }}
+          >
+            <FileText size={14} />
+            Raw Code &amp; TXT Editor
+          </button>
+        </div>
+
+        <div style={{ display: "flex", gap: 8 }}>
+          <button
+            onClick={copyContent}
+            style={{
+              padding: "6px 12px",
+              background: "#fff",
+              border: "1px solid #cbd5e1",
+              borderRadius: 8,
+              fontSize: 12,
+              fontWeight: 600,
+              color: "#475569",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              gap: 5,
+            }}
+          >
+            <Copy size={13} /> Copy All
+          </button>
+          <button
+            onClick={downloadFile}
+            style={{
+              padding: "6px 12px",
+              background: "#fff",
+              border: "1px solid #cbd5e1",
+              borderRadius: 8,
+              fontSize: 12,
+              fontWeight: 600,
+              color: "#475569",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              gap: 5,
+            }}
+          >
+            <Download size={13} /> Download
+          </button>
+        </div>
+      </div>
+
+      {/* =============================================================== */}
+      {/* TAB 1: EASY SETUP FOR NEWBIES (No confusing tech jargon)         */}
+      {/* =============================================================== */}
+      {activeTab === "easy" && (
+        <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+          {/* SECTION 1: SMART PASTE WIZARD */}
+          <div
+            style={{
+              background: "linear-gradient(135deg, #f8fafc 0%, #eff6ff 100%)",
+              border: "1.5px solid #bfdbfe",
+              borderRadius: 14,
+              padding: 20,
+              boxShadow: "0 2px 10px rgba(59,130,246,0.06)",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
+              <div style={{ width: 32, height: 32, borderRadius: 8, background: "#3b82f6", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff" }}>
+                <Wand2 size={18} />
+              </div>
+              <div>
+                <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: "#1e3a8a" }}>
+                  Option 1: Quick Paste Any Code Given by Your Ad Network
+                </h3>
+                <p style={{ margin: 0, fontSize: 13, color: "#3b82f6" }}>
+                  Did the ad network send you an email or verification snippet? Just paste it here — we format and save it for you!
+                </p>
+              </div>
+            </div>
+
+            <form onSubmit={handleSmartPaste} style={{ marginTop: 14 }}>
+              <textarea
+                value={smartPasteText}
+                onChange={(e) => setSmartPasteText(e.target.value)}
+                placeholder="Paste the line(s) here... (e.g. revbid.com, 987654, DIRECT or google.com, pub-1602093984257648, DIRECT, f08c47fec0942fa0)"
+                rows={3}
+                style={{
+                  width: "100%",
+                  padding: 12,
+                  borderRadius: 8,
+                  border: "1px solid #cbd5e1",
+                  fontSize: 13,
+                  outline: "none",
+                  boxSizing: "border-box",
+                  background: "#fff",
+                }}
+              />
+              <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 8 }}>
+                <button
+                  type="submit"
+                  disabled={!smartPasteText.trim()}
+                  style={{
+                    padding: "9px 20px",
+                    borderRadius: 8,
+                    border: "none",
+                    background: smartPasteText.trim() ? "linear-gradient(135deg, #2563eb, #1d4ed8)" : "#cbd5e1",
+                    color: "#fff",
+                    fontWeight: 700,
+                    fontSize: 13,
+                    cursor: smartPasteText.trim() ? "pointer" : "not-allowed",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 6,
+                    boxShadow: smartPasteText.trim() ? "0 2px 8px rgba(37,99,235,0.3)" : "none",
+                  }}
+                >
+                  <Plus size={15} /> Add to {activeFile} &amp; Save
+                </button>
+              </div>
+            </form>
+          </div>
+
+          {/* SECTION 2: 1-CLICK POPULAR AD NETWORKS */}
+          <div style={{ background: "#fff", border: "1px solid #e2e8f0", borderRadius: 14, padding: 20 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 10, marginBottom: 16 }}>
+              <div>
+                <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: "#0f172a", display: "flex", alignItems: "center", gap: 8 }}>
+                  <Zap size={18} color="#eab308" />
+                  Option 2: 1-Click Popular Networks (Google, Adsterra, RevBid, etc.)
+                </h3>
+                <p style={{ margin: "4px 0 0", fontSize: 13, color: "#64748b" }}>
+                  Select your network below, enter your Publisher/Account ID, and click Add.
+                </p>
+              </div>
+
+              {/* Search box for presets */}
+              <div style={{ position: "relative", width: 220 }}>
+                <Search size={14} color="#94a3b8" style={{ position: "absolute", left: 10, top: 10 }} />
+                <input
+                  type="text"
+                  placeholder="Search network..."
+                  value={presetSearch}
+                  onChange={(e) => setPresetSearch(e.target.value)}
+                  style={{
+                    width: "100%",
+                    padding: "7px 10px 7px 32px",
+                    borderRadius: 8,
+                    border: "1px solid #cbd5e1",
+                    fontSize: 12,
+                    boxSizing: "border-box",
+                  }}
+                />
+              </div>
+            </div>
+
+            {/* Grid of Preset Cards */}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: 14 }}>
+              {filteredPresets.map((net) => {
+                const domainToCheck = net.format("TEST").split(",")[0].trim().toLowerCase();
+                const isAdded = editorContent.toLowerCase().includes(domainToCheck);
+
+                return (
+                  <div
+                    key={net.id}
+                    className="preset-card"
+                    style={{
+                      border: isAdded ? "1.5px solid #86efac" : "1px solid #e2e8f0",
+                      background: isAdded ? "#f0fdf4" : "#fafbfc",
+                      borderRadius: 12,
+                      padding: 14,
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "space-between",
+                      transition: "all 0.15s ease",
+                    }}
+                  >
+                    <div>
+                      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
+                        <div
+                          style={{
+                            width: 32,
+                            height: 32,
+                            borderRadius: 8,
+                            background: net.color,
+                            color: "#fff",
+                            fontWeight: 800,
+                            fontSize: 12,
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            flexShrink: 0,
+                          }}
+                        >
+                          {net.logo}
+                        </div>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ fontWeight: 700, fontSize: 13, color: "#0f172a", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                            {net.name}
+                          </div>
+                          <div style={{ fontSize: 11, color: "#64748b" }}>{net.category}</div>
+                        </div>
+                      </div>
+
+                      <div style={{ fontSize: 11, color: "#64748b", margin: "6px 0 10px", lineHeight: 1.4 }}>
+                        {net.hint}
+                      </div>
+                    </div>
+
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingTop: 8, borderTop: "1px solid #f1f5f9" }}>
+                      {isAdded ? (
+                        <div style={{ display: "flex", alignItems: "center", gap: 4, color: "#16a34a", fontSize: 12, fontWeight: 700 }}>
+                          <Check size={14} /> Active in {activeFile}
+                        </div>
+                      ) : (
+                        <button
+                          onClick={() => {
+                            setSelectedPreset(net);
+                            setPresetInputId(net.sampleId.startsWith("YOUR") ? "" : net.sampleId);
+                          }}
+                          style={{
+                            background: net.color,
+                            color: "#fff",
+                            border: "none",
+                            borderRadius: 6,
+                            padding: "5px 12px",
+                            fontSize: 12,
+                            fontWeight: 600,
+                            cursor: "pointer",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 4,
+                          }}
+                        >
+                          <Plus size={13} /> Add Network
+                        </button>
+                      )}
+
+                      <a
+                        href={net.docsUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        style={{ fontSize: 11, color: "#6366f1", textDecoration: "none", display: "flex", alignItems: "center", gap: 3 }}
+                      >
+                        Help <ExternalLink size={10} />
+                      </a>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* SECTION 3: SIMPLE CUSTOM NETWORK FORM (WITH DIRECT/RESELLER EXPLAINED) */}
+          <div style={{ background: "#fff", border: "1px solid #e2e8f0", borderRadius: 14, padding: 20 }}>
+            <h3 style={{ margin: "0 0 4px", fontSize: 16, fontWeight: 700, color: "#0f172a", display: "flex", alignItems: "center", gap: 8 }}>
+              <Plus size={18} color="#6366f1" />
+              Option 3: Add Any Other Custom Network Manually
+            </h3>
+            <p style={{ margin: "0 0 16px", fontSize: 13, color: "#64748b" }}>
+              Have an ad network not listed above? Fill in these 2 fields and we’ll format it correctly.
+            </p>
+
+            <form onSubmit={handleAddCustomNetwork}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 14 }}>
+                {/* Network Domain */}
+                <div>
+                  <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#334155", marginBottom: 4 }}>
+                    1. Network Website / Domain *
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. revbid.com or ad-maven.com"
+                    value={customNetDomain}
+                    onChange={(e) => setCustomNetDomain(e.target.value)}
+                    required
+                    style={{ width: "100%", padding: "9px 12px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 13, boxSizing: "border-box" }}
+                  />
+                  <span style={{ fontSize: 11, color: "#94a3b8", marginTop: 3, display: "block" }}>
+                    The website of the ad company.
+                  </span>
+                </div>
+
+                {/* Publisher ID */}
+                <div>
+                  <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#334155", marginBottom: 4 }}>
+                    2. Your Account / Publisher ID *
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. 4629628 or pub-123456"
+                    value={customNetPubId}
+                    onChange={(e) => setCustomNetPubId(e.target.value)}
+                    required
+                    style={{ width: "100%", padding: "9px 12px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 13, boxSizing: "border-box" }}
+                  />
+                  <span style={{ fontSize: 11, color: "#94a3b8", marginTop: 3, display: "block" }}>
+                    Your ID in their dashboard.
+                  </span>
+                </div>
+
+                {/* Account Type with EXPLANATION */}
+                <div>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 4 }}>
+                    <label style={{ fontSize: 12, fontWeight: 700, color: "#334155" }}>
+                      3. Account Type
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => setShowDirectHelp(!showDirectHelp)}
+                      style={{ background: "none", border: "none", color: "#6366f1", fontSize: 11, fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 3 }}
+                    >
+                      <HelpCircle size={12} /> What is this?
+                    </button>
+                  </div>
+                  <select
+                    value={customNetType}
+                    onChange={(e) => setCustomNetType(e.target.value as "DIRECT" | "RESELLER")}
+                    style={{ width: "100%", padding: "9px 12px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 13, boxSizing: "border-box", background: "#fff" }}
+                  >
+                    <option value="DIRECT">DIRECT (You signed up directly with them — 99% of cases)</option>
+                    <option value="RESELLER">RESELLER (A third-party manages your ads)</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Explainer Box if Newbie is confused */}
+              {showDirectHelp && (
+                <div style={{ marginTop: 12, padding: 12, background: "#f8fafc", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 12, color: "#475569" }}>
+                  <strong>💡 Plain English Guide:</strong>
+                  <ul style={{ margin: "6px 0 0", paddingLeft: 18, lineHeight: 1.6 }}>
+                    <li><strong>DIRECT:</strong> Choose this if you created an account directly on their website and you control the account yourself. This is what you should choose almost always.</li>
+                    <li><strong>RESELLER:</strong> Only choose this if an ad agency or intermediary company controls the account on your behalf.</li>
+                  </ul>
+                </div>
+              )}
+
+              <div style={{ marginTop: 16, display: "flex", justifyContent: "flex-end" }}>
+                <button
+                  type="submit"
+                  style={{
+                    padding: "9px 24px",
+                    borderRadius: 8,
+                    border: "none",
+                    background: "linear-gradient(135deg, #10b981, #059669)",
+                    color: "#fff",
+                    fontWeight: 700,
+                    fontSize: 13,
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 6,
+                    boxShadow: "0 2px 8px rgba(16,185,129,0.25)",
+                  }}
+                >
+                  <Plus size={15} /> Add Custom Network &amp; Save
+                </button>
+              </div>
+            </form>
+          </div>
+
+          {/* SECTION 4: CURRENTLY AUTHORIZED AD NETWORKS TABLE (Easy View) */}
+          <div style={{ background: "#fff", border: "1px solid #e2e8f0", borderRadius: 14, padding: 20 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+              <div>
+                <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: "#0f172a" }}>
+                  Authorized Entries in {activeFile} ({parsedLines.length})
+                </h3>
+                <p style={{ margin: "2px 0 0", fontSize: 12, color: "#64748b" }}>
+                  These networks can show ads and pay you. You can delete any line at any time.
+                </p>
+              </div>
+              <span style={{ fontSize: 12, color: "#16a34a", fontWeight: 700, background: "#f0fdf4", padding: "4px 10px", borderRadius: 999, border: "1px solid #bbf7d0" }}>
+                ✓ Synced to Database
+              </span>
+            </div>
+
+            {parsedLines.length === 0 ? (
+              <div style={{ textAlign: "center", padding: "30px 10px", color: "#94a3b8", fontSize: 13 }}>
+                No ad networks added yet. Use the options above to add your first network!
+              </div>
+            ) : (
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                {parsedLines.map((line, idx) => {
+                  const parts = line.split(",").map((p) => p.trim());
+                  const domain = parts[0] || "";
+                  const pubId = parts[1] || "";
+                  const type = parts[2] || "DIRECT";
+
+                  return (
+                    <div
+                      key={idx}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        padding: "10px 14px",
+                        background: "#f8fafc",
+                        border: "1px solid #e2e8f0",
+                        borderRadius: 10,
+                        gap: 12,
+                      }}
+                    >
+                      <div style={{ display: "flex", alignItems: "center", gap: 10, flex: 1, minWidth: 0 }}>
+                        <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#22c55e" }} />
+                        <span style={{ fontWeight: 700, color: "#0f172a", fontSize: 13 }}>{domain}</span>
+                        <code style={{ fontSize: 12, color: "#475569", background: "#e2e8f0", padding: "2px 8px", borderRadius: 4 }}>
+                          {pubId}
+                        </code>
+                        <span
+                          style={{
+                            fontSize: 10,
+                            fontWeight: 700,
+                            padding: "2px 8px",
+                            borderRadius: 999,
+                            background: type.toUpperCase() === "DIRECT" ? "#dbeafe" : "#fef3c7",
+                            color: type.toUpperCase() === "DIRECT" ? "#1d4ed8" : "#92400e",
+                          }}
+                        >
+                          {type.toUpperCase()}
+                        </span>
+                      </div>
+
+                      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                        <button
+                          onClick={() => {
+                            navigator.clipboard.writeText(line);
+                            setMsg({ type: "success", text: `Copied line: ${line}` });
+                          }}
+                          title="Copy line"
+                          style={{ background: "none", border: "none", color: "#64748b", cursor: "pointer", padding: 4 }}
+                        >
+                          <Copy size={13} />
+                        </button>
+                        <button
+                          onClick={() => handleRemoveLine(line)}
+                          title="Remove from file"
+                          style={{ background: "none", border: "none", color: "#ef4444", cursor: "pointer", padding: 4 }}
+                        >
+                          <Trash2 size={13} />
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* =============================================================== */}
+      {/* TAB 2: ADVANCED CODE & TXT EDITOR                                */}
+      {/* =============================================================== */}
+      {activeTab === "advanced" && (
+        <div>
           {/* Active File Info Bar */}
           <div
             style={{
@@ -399,28 +1246,15 @@ export default function AdNetworksPage() {
             <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
               <Info size={15} color="#6366f1" />
               <span style={{ fontSize: 13, color: "#475569" }}>
-                {currentFile?.desc || `Custom file: ${activeFile}`}
+                Editing <strong>{activeFile}</strong> directly. Each line is served directly to crawlers at <code>{origin}/{activeFile}</code>.
               </span>
             </div>
-            <a
-              href={`${origin}/${activeFile}`}
-              target="_blank"
-              rel="noreferrer"
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 5,
-                fontSize: 12,
-                color: "#6366f1",
-                textDecoration: "none",
-                fontWeight: 600,
-              }}
-            >
-              <ExternalLink size={13} /> View Public URL: /{activeFile}
-            </a>
+            <span style={{ fontSize: 12, color: "#16a34a", fontWeight: 600 }}>
+              Changes auto-sync to Supabase upon clicking Save
+            </span>
           </div>
 
-          {/* Dark Monaco-Style Code Editor */}
+          {/* Dark Code Editor */}
           <div style={{ background: "#0f172a", borderRadius: 12, overflow: "hidden", boxShadow: "0 4px 24px rgba(0,0,0,0.12)" }}>
             <div
               style={{
@@ -459,7 +1293,7 @@ export default function AdNetworksPage() {
               </button>
             </div>
 
-            <div style={{ display: "flex", minHeight: 320 }}>
+            <div style={{ display: "flex", minHeight: 380 }}>
               {/* Line Numbers */}
               <div
                 style={{
@@ -485,7 +1319,7 @@ export default function AdNetworksPage() {
                 value={editorContent}
                 onChange={(e) => setEditorContent(e.target.value)}
                 spellCheck={false}
-                placeholder={`# ${activeFile}\n# Paste any ad network verification lines, authorization codes, or txt entries here\n# Format: domain, publisher-id, DIRECT|RESELLER, cert-id`}
+                placeholder={`# ${activeFile}\n# Paste verification lines, hashes, or domain txt records here`}
                 style={{
                   flex: 1,
                   background: "transparent",
@@ -495,8 +1329,8 @@ export default function AdNetworksPage() {
                   fontSize: 13,
                   lineHeight: "24px",
                   padding: 16,
-                  resize: "none",
-                  minHeight: 320,
+                  resize: "vertical",
+                  minHeight: 380,
                 }}
               />
             </div>
@@ -513,7 +1347,7 @@ export default function AdNetworksPage() {
                 color: "#64748b",
               }}
             >
-              <span>{lines.length} authorized lines</span>
+              <span>{parsedLines.length} active entries</span>
               <span>{editorContent.length} bytes</span>
               <span style={{ color: "#22c55e" }}>Saved to Supabase DB</span>
             </div>
@@ -522,7 +1356,7 @@ export default function AdNetworksPage() {
           {/* Action Buttons */}
           <div style={{ display: "flex", gap: 10, marginTop: 16, flexWrap: "wrap" }}>
             <button
-              onClick={saveFile}
+              onClick={() => saveFile()}
               disabled={saving}
               style={{
                 background: "linear-gradient(135deg,#6366f1,#8b5cf6)",
@@ -561,348 +1395,133 @@ export default function AdNetworksPage() {
             >
               <RefreshCw size={14} /> Reload
             </button>
+          </div>
+        </div>
+      )}
 
-            {activeFile !== "ads.txt" && (
-              <button
-                onClick={() => deleteFile(activeFile)}
+      {/* MODAL 1: PRESET NETWORK INPUT MODAL */}
+      {selectedPreset && (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            background: "rgba(15,23,42,0.6)",
+            backdropFilter: "blur(4px)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 1000,
+            padding: 16,
+          }}
+          onClick={() => setSelectedPreset(null)}
+        >
+          <div
+            style={{
+              background: "#fff",
+              borderRadius: 16,
+              width: "100%",
+              maxWidth: 440,
+              padding: 24,
+              boxShadow: "0 20px 40px rgba(0,0,0,0.2)",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
+              <div
                 style={{
-                  marginLeft: "auto",
-                  background: "#fef2f2",
-                  color: "#ef4444",
-                  border: "1px solid #fecaca",
+                  width: 38,
+                  height: 38,
                   borderRadius: 10,
-                  padding: "11px 18px",
-                  fontWeight: 500,
+                  background: selectedPreset.color,
+                  color: "#fff",
+                  fontWeight: 800,
                   fontSize: 14,
-                  cursor: "pointer",
                   display: "flex",
                   alignItems: "center",
-                  gap: 6,
+                  justifyContent: "center",
                 }}
               >
-                <Trash2 size={14} /> Delete File
-              </button>
-            )}
-          </div>
-
-          {/* Parsed Line Validation View */}
-          {lines.length > 0 && (
-            <div style={{ marginTop: 24, background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 12, padding: 16 }}>
-              <h3 style={{ fontSize: 14, fontWeight: 600, color: "#0f172a", margin: "0 0 12px" }}>
-                Parsed Entries ({lines.length})
-              </h3>
-              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                {lines.map((line, i) => {
-                  const parts = line.split(",").map((p) => p.trim());
-                  const valid = parts.length >= 3;
-                  return (
-                    <div
-                      key={i}
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 10,
-                        padding: "8px 12px",
-                        borderRadius: 8,
-                        background: valid ? "#f0fdf4" : "#fef2f2",
-                        border: `1px solid ${valid ? "#bbf7d0" : "#fecaca"}`,
-                      }}
-                    >
-                      {valid ? <CheckCircle size={14} color="#16a34a" /> : <AlertCircle size={14} color="#dc2626" />}
-                      <code style={{ fontSize: 12, color: valid ? "#15803d" : "#dc2626", flex: 1, wordBreak: "break-all" }}>
-                        {line}
-                      </code>
-                      {parts[2] && (
-                        <span
-                          style={{
-                            background: parts[2].toUpperCase() === "DIRECT" ? "#dbeafe" : "#fef3c7",
-                            color: parts[2].toUpperCase() === "DIRECT" ? "#1d4ed8" : "#92400e",
-                            fontSize: 10,
-                            fontWeight: 700,
-                            padding: "2px 8px",
-                            borderRadius: 999,
-                          }}
-                        >
-                          {parts[2].toUpperCase()}
-                        </span>
-                      )}
-                    </div>
-                  );
-                })}
+                {selectedPreset.logo}
+              </div>
+              <div>
+                <h3 style={{ margin: 0, fontSize: 17, fontWeight: 700, color: "#0f172a" }}>
+                  Add {selectedPreset.name}
+                </h3>
+                <span style={{ fontSize: 12, color: "#64748b" }}>{selectedPreset.category}</span>
               </div>
             </div>
-          )}
-        </div>
 
-        {/* RIGHT: Networks Panel & Custom Network Builder */}
-        <div>
-          {/* Custom Network Quick-Add Form */}
-          <div
-            style={{
-              background: "#fff",
-              border: "1px solid #e2e8f0",
-              borderRadius: 14,
-              overflow: "hidden",
-              boxShadow: "0 2px 12px rgba(0,0,0,0.05)",
-              marginBottom: 16,
-            }}
-          >
-            <div
-              style={{
-                padding: "14px 18px",
-                borderBottom: "1px solid #f1f5f9",
-                background: "#fafbfc",
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                cursor: "pointer",
-              }}
-              onClick={() => setShowCustomNetForm(!showCustomNetForm)}
-            >
-              <div>
-                <h2 style={{ fontSize: 15, fontWeight: 700, color: "#0f172a", margin: 0, display: "flex", alignItems: "center", gap: 7 }}>
-                  <Sparkles size={16} color="#8b5cf6" /> Add Any Custom Network
-                </h2>
-                <p style={{ fontSize: 12, color: "#64748b", margin: "2px 0 0" }}>
-                  Add your own desired ad network entry
-                </p>
-              </div>
+            <p style={{ fontSize: 13, color: "#475569", margin: "0 0 16px" }}>
+              {selectedPreset.hint}
+            </p>
+
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "#334155", marginBottom: 6 }}>
+                Your {selectedPreset.name} Account / Publisher ID:
+              </label>
+              <input
+                type="text"
+                placeholder={selectedPreset.sampleId}
+                value={presetInputId}
+                onChange={(e) => setPresetInputId(e.target.value)}
+                style={{
+                  width: "100%",
+                  padding: "10px 12px",
+                  borderRadius: 8,
+                  border: "1px solid #cbd5e1",
+                  fontSize: 14,
+                  boxSizing: "border-box",
+                }}
+                autoFocus
+              />
+            </div>
+
+            <div style={{ background: "#f8fafc", padding: 10, borderRadius: 8, marginBottom: 16, border: "1px solid #e2e8f0" }}>
+              <span style={{ fontSize: 11, color: "#64748b", display: "block", marginBottom: 2 }}>Will automatically generate:</span>
+              <code style={{ fontSize: 11, color: "#4f46e5", wordBreak: "break-all" }}>
+                {selectedPreset.format(presetInputId || selectedPreset.sampleId)}
+              </code>
+            </div>
+
+            <div style={{ display: "flex", justifyContent: "flex-end", gap: 10 }}>
               <button
                 type="button"
+                onClick={() => setSelectedPreset(null)}
                 style={{
-                  background: showCustomNetForm ? "#e2e8f0" : "#6366f1",
-                  color: showCustomNetForm ? "#334155" : "#fff",
-                  border: "none",
-                  borderRadius: 6,
-                  padding: "4px 10px",
-                  fontSize: 12,
+                  padding: "9px 16px",
+                  borderRadius: 8,
+                  border: "1px solid #cbd5e1",
+                  background: "#fff",
+                  color: "#475569",
                   fontWeight: 600,
+                  fontSize: 13,
                   cursor: "pointer",
                 }}
               >
-                {showCustomNetForm ? "Close" : "+ New"}
+                Cancel
               </button>
-            </div>
-
-            {showCustomNetForm && (
-              <form onSubmit={handleAddCustomNetwork} style={{ padding: 16 }}>
-                <div style={{ marginBottom: 12 }}>
-                  <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "#374151", marginBottom: 4 }}>
-                    Ad Network Domain *
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="e.g. admaven.com or monetag.com"
-                    value={customNetDomain}
-                    onChange={(e) => setCustomNetDomain(e.target.value)}
-                    style={{ width: "100%", padding: "8px 10px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 13, boxSizing: "border-box" }}
-                    required
-                  />
-                </div>
-
-                <div style={{ marginBottom: 12 }}>
-                  <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "#374151", marginBottom: 4 }}>
-                    Your Publisher / Account ID *
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="e.g. 9876543 or pub-123456"
-                    value={customNetPubId}
-                    onChange={(e) => setCustomNetPubId(e.target.value)}
-                    style={{ width: "100%", padding: "8px 10px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 13, boxSizing: "border-box" }}
-                    required
-                  />
-                </div>
-
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 12 }}>
-                  <div>
-                    <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "#374151", marginBottom: 4 }}>
-                      Relationship
-                    </label>
-                    <select
-                      value={customNetType}
-                      onChange={(e) => setCustomNetType(e.target.value as "DIRECT" | "RESELLER")}
-                      style={{ width: "100%", padding: "8px 10px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 13, boxSizing: "border-box" }}
-                    >
-                      <option value="DIRECT">DIRECT</option>
-                      <option value="RESELLER">RESELLER</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "#374151", marginBottom: 4 }}>
-                      Auth ID (Optional)
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="e.g. f08c47fec0942fa0"
-                      value={customNetAuthId}
-                      onChange={(e) => setCustomNetAuthId(e.target.value)}
-                      style={{ width: "100%", padding: "8px 10px", borderRadius: 8, border: "1px solid #cbd5e1", fontSize: 13, boxSizing: "border-box" }}
-                    />
-                  </div>
-                </div>
-
-                <button
-                  type="submit"
-                  style={{
-                    width: "100%",
-                    background: "linear-gradient(135deg, #10b981, #059669)",
-                    color: "#fff",
-                    border: "none",
-                    borderRadius: 8,
-                    padding: "9px 16px",
-                    fontWeight: 600,
-                    fontSize: 13,
-                    cursor: "pointer",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: 6,
-                  }}
-                >
-                  <Plus size={14} /> Add Line to {activeFile}
-                </button>
-              </form>
-            )}
-          </div>
-
-          {/* Preset Networks List */}
-          <div
-            style={{
-              background: "#fff",
-              border: "1px solid #e2e8f0",
-              borderRadius: 14,
-              overflow: "hidden",
-              boxShadow: "0 2px 12px rgba(0,0,0,0.05)",
-            }}
-          >
-            <div style={{ padding: "14px 18px", borderBottom: "1px solid #f1f5f9", background: "#fafbfc" }}>
-              <h2 style={{ fontSize: 15, fontWeight: 700, color: "#0f172a", margin: 0 }}>
-                Popular Ad Networks
-              </h2>
-              <p style={{ fontSize: 12, color: "#94a3b8", margin: "4px 0 0" }}>
-                1-click to authorize known ad partners in {activeFile}
-              </p>
-            </div>
-
-            <div style={{ maxHeight: 420, overflowY: "auto" }}>
-              {PRESET_NETWORKS.map((net) => {
-                const alreadyAdded = net.lines.some((l) => editorContent.includes(l.split(",")[0].trim()));
-                const isExpanded = expandedNet === net.id;
-                return (
-                  <div key={net.id} style={{ borderBottom: "1px solid #f1f5f9", background: alreadyAdded ? "#f0fdf4" : "#fff" }}>
-                    <div
-                      style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 16px", cursor: "pointer" }}
-                      onClick={() => setExpandedNet(isExpanded ? null : net.id)}
-                    >
-                      <div
-                        style={{
-                          width: 34,
-                          height: 34,
-                          borderRadius: 8,
-                          background: net.color,
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          color: "#fff",
-                          fontSize: 11,
-                          fontWeight: 800,
-                          flexShrink: 0,
-                        }}
-                      >
-                        {net.logo}
-                      </div>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontWeight: 600, fontSize: 13, color: "#0f172a" }}>{net.name}</div>
-                        <div style={{ fontSize: 11, color: alreadyAdded ? "#16a34a" : "#94a3b8" }}>
-                          {alreadyAdded ? "✓ Added" : `${net.lines.length} line(s)`}
-                        </div>
-                      </div>
-                      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                        {!alreadyAdded && (
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              addNetwork(net.lines);
-                            }}
-                            style={{
-                              background: net.color,
-                              color: "#fff",
-                              border: "none",
-                              borderRadius: 6,
-                              padding: "4px 10px",
-                              fontSize: 11,
-                              fontWeight: 600,
-                              cursor: "pointer",
-                              display: "flex",
-                              alignItems: "center",
-                              gap: 3,
-                            }}
-                          >
-                            <Plus size={11} /> Add
-                          </button>
-                        )}
-                        {isExpanded ? <ChevronUp size={14} color="#94a3b8" /> : <ChevronDown size={14} color="#94a3b8" />}
-                      </div>
-                    </div>
-                    {isExpanded && (
-                      <div style={{ padding: "0 16px 12px" }}>
-                        <div style={{ background: "#f8fafc", borderRadius: 8, padding: 8 }}>
-                          {net.lines.map((l, i) => (
-                            <code key={i} style={{ display: "block", fontSize: 11, color: "#475569", lineHeight: "18px", wordBreak: "break-all" }}>
-                              {l}
-                            </code>
-                          ))}
-                        </div>
-                        <a
-                          href={net.docsUrl}
-                          target="_blank"
-                          rel="noreferrer"
-                          style={{
-                            display: "inline-flex",
-                            alignItems: "center",
-                            gap: 4,
-                            fontSize: 11,
-                            color: "#6366f1",
-                            marginTop: 6,
-                            textDecoration: "none",
-                          }}
-                        >
-                          <ExternalLink size={11} /> View docs
-                        </a>
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Info cards */}
-          <div style={{ marginTop: 16, display: "flex", flexDirection: "column", gap: 10 }}>
-            <div style={{ background: "#eff6ff", border: "1px solid #bfdbfe", borderRadius: 12, padding: 14 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
-                <Globe size={15} color="#3b82f6" />
-                <span style={{ fontWeight: 600, fontSize: 13, color: "#1e40af" }}>Live URL Integration</span>
-              </div>
-              <p style={{ fontSize: 12, color: "#3b82f6", margin: 0, lineHeight: 1.5 }}>
-                Any TXT file saved here is instantly reachable on the web at <strong>pvstoryviewer.com/{activeFile}</strong>.
-              </p>
-            </div>
-            <div style={{ background: "#f0fdf4", border: "1px solid #bbf7d0", borderRadius: 12, padding: 14 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
-                <Shield size={15} color="#16a34a" />
-                <span style={{ fontWeight: 600, fontSize: 13, color: "#15803d" }}>Database Backed</span>
-              </div>
-              <p style={{ fontSize: 12, color: "#16a34a", margin: 0, lineHeight: 1.5 }}>
-                All records are saved directly in Supabase so your network approvals persist across every deployment and build.
-              </p>
+              <button
+                type="button"
+                onClick={handleConfirmPreset}
+                style={{
+                  padding: "9px 20px",
+                  borderRadius: 8,
+                  border: "none",
+                  background: selectedPreset.color,
+                  color: "#fff",
+                  fontWeight: 600,
+                  fontSize: 13,
+                  cursor: "pointer",
+                }}
+              >
+                Add &amp; Save Now
+              </button>
             </div>
           </div>
         </div>
-      </div>
+      )}
 
-      {/* Modal: Create New Custom File */}
+      {/* MODAL 2: CREATE NEW CUSTOM FILE */}
       {showNewFileModal && (
         <div
           style={{
@@ -930,10 +1549,10 @@ export default function AdNetworksPage() {
             onClick={(e) => e.stopPropagation()}
           >
             <h3 style={{ margin: "0 0 8px", fontSize: 18, fontWeight: 700, color: "#0f172a" }}>
-              Add Custom TXT File
+              Create New Verification File
             </h3>
             <p style={{ margin: "0 0 16px", fontSize: 13, color: "#64748b" }}>
-              Enter the filename required by your ad network for domain approval or verification.
+              Enter the exact filename required by your ad network (e.g. <code>revbid.txt</code>, <code>adsterra-verify.txt</code>).
             </p>
 
             <form onSubmit={handleCreateNewFile}>
@@ -943,7 +1562,7 @@ export default function AdNetworksPage() {
                 </label>
                 <input
                   type="text"
-                  placeholder="e.g. adsterra.txt or verification.txt"
+                  placeholder="e.g. revbid.txt or verify.txt"
                   value={newFileName}
                   onChange={(e) => setNewFileName(e.target.value)}
                   style={{
@@ -958,7 +1577,7 @@ export default function AdNetworksPage() {
                   required
                 />
                 <span style={{ fontSize: 11, color: "#94a3b8", marginTop: 4, display: "block" }}>
-                  Must end in .txt or .json. Will be hosted at pvstoryviewer.com/{newFileName || "your-file.txt"}
+                  Will be immediately accessible to ad crawlers at {origin}/{newFileName || "your-file.txt"}
                 </span>
               </div>
 
@@ -992,7 +1611,7 @@ export default function AdNetworksPage() {
                     cursor: "pointer",
                   }}
                 >
-                  Create File Tab
+                  Create &amp; Open
                 </button>
               </div>
             </form>
