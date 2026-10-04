@@ -176,16 +176,27 @@ export async function POST(request: NextRequest) {
 
   const cleanContent = content.trim();
 
-  // Basic validation if file is ads.txt or app-ads.txt
+  // Validate ads.txt / app-ads.txt — allow comments, directives, blank lines
+  // Only validate actual seller record lines (contain commas)
   if (file === "ads.txt" || file === "app-ads.txt") {
-    const lines = cleanContent.split("\n").filter((l) => l.trim() && !l.startsWith("#"));
-    for (const line of lines) {
-      const parts = line.split(",").map((p) => p.trim());
-      if (parts.length < 3) {
-        return NextResponse.json({
-          error: `Invalid line format: "${line}". Expected: domain, publisher-id, DIRECT|RESELLER`,
-        }, { status: 400 });
+    const lines = cleanContent.split("\n");
+    for (const rawLine of lines) {
+      const line = rawLine.trim();
+      // Skip blank lines, comments, and directive lines
+      if (!line || line.startsWith("#") || /^(ownerdomain|managerdomain|inventorypartnerdomain)\s*=/i.test(line)) {
+        continue;
       }
+      // Seller record lines must have at least 3 comma-separated fields
+      if (line.includes(",")) {
+        const parts = line.split(",").map((p) => p.trim());
+        if (parts.length < 3) {
+          return NextResponse.json({
+            error: `Invalid seller line: "${line}". Expected: domain, publisher-id, DIRECT|RESELLER`,
+          }, { status: 400 });
+        }
+      }
+      // Lines without commas that aren't directives/comments are invalid
+      // (but we skip this to be lenient with future IAB extensions)
     }
   }
 

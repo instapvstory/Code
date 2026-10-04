@@ -1,4 +1,17 @@
-ownerdomain=pvstoryviewer.com
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
+const { Client } = require('pg');
+
+const client = new Client({
+  host: 'db.lmhlyoeuduketjclrwws.supabase.co',
+  port: 5432,
+  database: 'postgres',
+  user: 'postgres',
+  password: 'QMpM9@Fu!&%c.?+',
+  ssl: { rejectUnauthorized: false },
+});
+
+const ADS_TXT_CONTENT = `ownerdomain=pvstoryviewer.com
 managerdomain=revbid.net
 revbid.net, 21983, DIRECT
 # RevBid + Adagio
@@ -372,7 +385,7 @@ onetag.com, 7f5d22b0006ab5a, RESELLER
 152media.info, 152M728, RESELLER
 betweendigital.com, 45128, RESELLER
 themediagrid.com, ZG1DBN, RESELLER, 35d5010d7789b49d
-videoheroes.tv, 212648, RESELLER, 064bc410192443d8
+videoheroes.tv, 212648, RESELLER , 064bc410192443d8
 openx.com, 540717821, RESELLER, 6a698e2ec38604c6
 openx.com, 541163172, RESELLER, 6a698e2ec38604c6
 xandr.com, 10736, RESELLER, f5ab79cb980f11d1
@@ -674,6 +687,12 @@ openx.com,540274407,RESELLER,6a698e2ec38604c6
 smaato.com,1100047713,RESELLER,07bcf65f187117b4
 smartadserver.com,4342,RESELLER
 amxrtb.com,105199918,RESELLER
+pubmatic.com,158355,RESELLER
+appnexus.com,12290,RESELLER
+lijit.com,260380,RESELLER
+rubiconproject.com,23844,RESELLER
+openx.com,559680764,RESELLER
+sharethrough.com,a6a34444,RESELLER
 nativo.com,6067,RESELLER,59521ca7cc5e9fee
 openx.com,537145117,RESELLER,6a698e2ec38604c6
 lijit.com,244287,RESELLER,fafdf38b16bf6b2b
@@ -892,4 +911,40 @@ rubiconproject.com, 28021, RESELLER, 0bfd66d529a55807
 triplelift.com, 14706, RESELLER, 6c33edb13117fd86
 appnexus.com, 3920, RESELLER, f5ab79cb980f11d1
 triplelift.com, 14848, RESELLER, 6c33edb13117fd86
-lijit.com, 568191, RESELLER, fafdf38b16bf6b2b
+lijit.com, 568191, RESELLER, fafdf38b16bf6b2b`;
+
+async function saveAdsTxt() {
+  await client.connect();
+  console.log('✅ Connected\n');
+
+  // Check if ads.txt entry exists in the ads table
+  const { rows: existing } = await client.query(
+    "SELECT id FROM ads WHERE type = 'ad_network_file' AND placement = 'ads.txt' LIMIT 1"
+  );
+
+  const lineCount = ADS_TXT_CONTENT.split('\n').filter(l => l.trim() && !l.startsWith('#')).length;
+
+  if (existing.length > 0) {
+    await client.query(
+      "UPDATE ads SET code = $1, updated_at = NOW() WHERE id = $2",
+      [ADS_TXT_CONTENT, existing[0].id]
+    );
+    console.log(`✅ ads.txt UPDATED in database`);
+  } else {
+    await client.query(
+      `INSERT INTO ads (name, placement, code, type, status, target_devices, target_categories, target_tags, priority, created_at, updated_at)
+       VALUES ('ads.txt', 'ads.txt', $1, 'ad_network_file', 'active', 'all', '{}', '{}', 1, NOW(), NOW())`,
+      [ADS_TXT_CONTENT]
+    );
+    console.log(`✅ ads.txt CREATED in database`);
+  }
+
+  console.log(`📄 Total lines: ${ADS_TXT_CONTENT.split('\n').length}`);
+  console.log(`📊 Seller records: ${lineCount}`);
+  console.log(`\n🌐 Verify at: https://pvstoryviewer.com/ads.txt`);
+  console.log(`🌐 Or locally: http://localhost:3000/ads.txt`);
+
+  await client.end();
+}
+
+saveAdsTxt().catch(e => { console.error('❌', e.message); process.exit(1); });
