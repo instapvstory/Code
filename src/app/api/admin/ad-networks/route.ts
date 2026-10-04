@@ -238,11 +238,13 @@ export async function POST(request: NextRequest) {
     }
   }
 
-  // 2. Also try to write to public directory for static file fallback
-  try {
-    await fs.writeFile(path.join(PUBLIC_DIR, file), cleanContent + "\n", "utf-8");
-  } catch (err) {
-    console.warn(`Filesystem write skipped for ${file} (serverless/read-only):`, err);
+  // 2. Also try to write to public directory for static file fallback (skip ads.txt and app-ads.txt which have dynamic route handlers)
+  if (file !== "ads.txt" && file !== "app-ads.txt") {
+    try {
+      await fs.writeFile(path.join(PUBLIC_DIR, file), cleanContent + "\n", "utf-8");
+    } catch (err) {
+      console.warn(`Filesystem write skipped for ${file} (serverless/read-only):`, err);
+    }
   }
 
   return NextResponse.json({

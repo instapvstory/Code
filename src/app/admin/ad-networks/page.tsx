@@ -36,14 +36,14 @@ const PRESET_NETWORKS: PresetNetwork[] = [
   },
   {
     id: "revcontent",
-    name: "RevContent / RevBid",
-    category: "Native / Banner",
+    name: "RevBid",
+    category: "Header Bidding / Native",
     color: "#0284c7",
-    logo: "R",
-    sampleId: "123456",
-    hint: "Account/Widget ID from RevContent/RevBid dashboard",
-    docsUrl: "https://help.revcontent.com/",
-    format: (id) => `revcontent.com, ${id}, DIRECT, 0254dc44e9312a1e`,
+    logo: "RB",
+    sampleId: "21983",
+    hint: "RevBid Publisher / Account ID (e.g. 21983)",
+    docsUrl: "https://revbid.net/",
+    format: (id) => `revbid.net, ${id}, DIRECT`,
   },
   {
     id: "mgid",
@@ -290,19 +290,20 @@ export default function AdNetworksPage() {
   // Add line to editor and auto-save option
   const appendLines = async (linesToAdd: string[], feedbackName: string) => {
     const existing = editorContent.trim();
-    // Filter duplicates
+    const existingLinesSet = new Set(
+      existing.toLowerCase().split("\n").map((l) => l.trim())
+    );
+
+    // Filter duplicates: skip identical lines, but keep all unique partner/reseller entries
     const cleanLines = linesToAdd
       .map((l) => l.trim())
       .filter((l) => l.length > 0)
-      .filter((l) => {
-        const domain = l.split(",")[0].trim().toLowerCase();
-        return !existing.toLowerCase().includes(domain) || l.startsWith("#");
-      });
+      .filter((l) => !existingLinesSet.has(l.toLowerCase()));
 
     if (cleanLines.length === 0) {
       setMsg({
         type: "info",
-        text: `Network "${feedbackName}" is already added in ${activeFile}.`
+        text: `Network "${feedbackName}" entries are already present in ${activeFile}.`
       });
       return;
     }
@@ -931,8 +932,33 @@ export default function AdNetworksPage() {
             {/* Grid of Preset Cards */}
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: 14 }}>
               {filteredPresets.map((net) => {
-                const domainToCheck = net.format("TEST").split(",")[0].trim().toLowerCase();
-                const isAdded = editorContent.toLowerCase().includes(domainToCheck);
+                // Accurate detection per network:
+                const isAdded = editorContent.split("\n").some((line) => {
+                  const cleanLine = line.split("#")[0].trim().toLowerCase();
+                  if (!cleanLine) return false;
+
+                  // RevBid check: matches revbid.net, DIRECT or managerdomain=revbid.net
+                  if (net.id === "revcontent" || net.id === "revbid") {
+                    if (cleanLine.includes("managerdomain=revbid.net") || cleanLine.startsWith("revbid.net")) {
+                      return cleanLine.includes("direct") || cleanLine.includes("managerdomain=");
+                    }
+                    return false;
+                  }
+
+                  // Media.net check: RevBid syndication contains a sub-partner line "media.net, 8CU3M1HM4, DIRECT".
+                  // Only mark Media.net active if user added their own direct account (not RevBid's 8CU3M1HM4 partner)
+                  if (net.id === "medianet") {
+                    if (!cleanLine.startsWith("media.net")) return false;
+                    const parts = cleanLine.split(",").map((p) => p.trim());
+                    return parts[0] === "media.net" && parts[2] === "direct" && parts[1] !== "8cu3m1hm4";
+                  }
+
+                  // General check for all other networks: must match domain with DIRECT relationship
+                  const domainToCheck = net.format("TEST").split(",")[0].trim().toLowerCase();
+                  if (!cleanLine.includes(",")) return false;
+                  const parts = cleanLine.split(",").map((p) => p.trim());
+                  return parts[0] === domainToCheck && parts[2] === "direct";
+                });
 
                 return (
                   <div
