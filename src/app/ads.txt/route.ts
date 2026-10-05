@@ -30,7 +30,7 @@ export async function GET() {
     try {
       content = await fs.readFile(path.join(process.cwd(), "public", "ads.txt"), "utf-8");
     } catch {
-      content = "adsterra.com, 4629628, DIRECT\nownerdomain=pvstoryviewer.com\nmanagerdomain=revbid.net\nrevbid.net, 21983, DIRECT";
+      content = "google.com, pub-1602093984257648, DIRECT, f08c47fec0942fa0\nadsterra.com, 4629628, DIRECT\nownerdomain=pvstoryviewer.com\nmanagerdomain=revbid.net\nrevbid.net, 21983, DIRECT";
     }
   }
 

@@ -22,7 +22,17 @@ interface PresetNetwork {
 }
 
 const PRESET_NETWORKS: PresetNetwork[] = [
-
+  {
+    id: "adsense",
+    name: "Google AdSense",
+    category: "Display / Banner",
+    color: "#4285F4",
+    logo: "G",
+    sampleId: "pub-1602093984257648",
+    hint: "Your numeric publisher ID (e.g. pub-1602093984257648)",
+    docsUrl: "https://support.google.com/adsense/answer/7532444",
+    format: (id) => `google.com, ${id.startsWith("pub-") ? id : `pub-${id}`}, DIRECT, f08c47fec0942fa0`,
+  },
   {
     id: "adsterra",
     name: "Adsterra",
@@ -943,6 +953,13 @@ export default function AdNetworksPage() {
                       return cleanLine.includes("direct") || cleanLine.includes("managerdomain=");
                     }
                     return false;
+                  }
+
+                  // Google AdSense check: matches google.com, DIRECT with user pub-ID
+                  if (net.id === "adsense") {
+                    if (!cleanLine.startsWith("google.com")) return false;
+                    const parts = cleanLine.split(",").map((p) => p.trim());
+                    return parts[0] === "google.com" && parts[2] === "direct" && parts[1].includes("1602093984257648");
                   }
 
                   // Media.net check: RevBid syndication contains a sub-partner line "media.net, 8CU3M1HM4, DIRECT".
