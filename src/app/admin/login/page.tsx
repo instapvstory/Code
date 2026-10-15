@@ -149,20 +149,17 @@ export default function AdminLoginPage() {
               </button>
             </form>
 
-            {/* Demo credentials */}
-            <div style={{
-              marginTop: 28, padding: 16, background: '#f8fafc',
-              borderRadius: 10, border: '1px solid #e2e8f0',
-            }}>
-              <h3 style={{ fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 8, margin: '0 0 8px', textTransform: 'uppercase', letterSpacing: 0.5 }}>
-                Demo Credentials
-              </h3>
-              <p style={{ fontSize: 13, color: '#64748b', margin: '0 0 4px' }}>
-                <strong>Email:</strong> admin@pvstoryviewer.com
-              </p>
-              <p style={{ fontSize: 13, color: '#64748b', margin: 0 }}>
-                <strong>Password:</strong> admin123
-              </p>
+            {/* Forgot password link */}
+            <div style={{ marginTop: 20, textAlign: 'center' }}>
+              <a
+                href="/admin/reset-password"
+                style={{
+                  fontSize: 13, color: '#6366f1', textDecoration: 'none',
+                  fontWeight: 500,
+                }}
+              >
+                Forgot your password?
+              </a>
             </div>
           </div>
         </div>
