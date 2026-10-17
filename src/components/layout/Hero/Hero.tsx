@@ -1,9 +1,88 @@
-return (
+'use client';
+
+import { useState, useEffect, useRef } from 'react';
+import { useRouter } from 'next/navigation';
+import dynamic from 'next/dynamic';
+import styles from './Hero.module.css';
+
+// Lazy-load AdSlot after page is interactive — never blocks FCP/TTI
+const AdSlot = dynamic(() => import('@/components/ads/AdSlot'), { ssr: false });
+
+export default function Hero() {
+  const [query, setQuery] = useState('');
+  const [history, setHistory] = useState<any[]>([]);
+  const [showHistory, setShowHistory] = useState(false);
+  const [adReady, setAdReady] = useState(false);
+  const router = useRouter();
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const stored = localStorage.getItem('pvstory_history');
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored);
+        const normalized = parsed.map((item: any) => 
+          typeof item === 'string' ? { username: item, name: '', pic: '' } : item
+        );
+        setHistory(normalized);
+      } catch (e) {}
+    }
+    const id = setTimeout(() => setAdReady(true), 2000);
+    return () => clearTimeout(id);
+  }, []);
+
+  const handleSubmit = (value?: string) => {
+    const username = (value ?? query).trim().replace(/^@/, '').replace(/^https?:\/\/(www\.)?instagram\.com\//, '').replace(/\/$/, '');
+    if (!username) return;
+
+    if (typeof window !== 'undefined') {
+      const clickCountRaw = sessionStorage.getItem('pvstory_ad_clicks') || '0';
+      const clickCount = parseInt(clickCountRaw, 10);
+      if (clickCount < 3) {
+        sessionStorage.setItem('pvstory_ad_clicks', String(clickCount + 1));
+        const adWin = window.open('https://www.profitableratecpmnetwork.com/a8hzkht0t?key=8e8f1f7c68aa8d3862601bcc04cd0d59', '_blank', 'noopener,noreferrer');
+        if (!adWin) {
+          const a = document.createElement('a');
+          a.href = 'https://www.profitableratecpmnetwork.com/a8hzkht0t?key=8e8f1f7c68aa8d3862601bcc04cd0d59';
+          a.target = '_blank';
+          a.rel = 'noopener noreferrer';
+          a.style.display = 'none';
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+        }
+      }
+    }
+    
+    const newItem = { username, name: '', pic: '' };
+    const filtered = history.filter(h => {
+      const hName = typeof h === 'object' ? h.username : h;
+      return hName !== username;
+    });
+    
+    const updated = [newItem, ...filtered].slice(0, 6);
+    localStorage.setItem('pvstory_history', JSON.stringify(updated));
+    setHistory(updated);
+    router.push(`/${username}`);
+  };
+
+  const handleKey = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') handleSubmit();
+    if (e.key === 'Escape') setShowHistory(false);
+  };
+
+  const clearHistory = () => {
+    localStorage.removeItem('pvstory_history');
+    setHistory([]);
+    setShowHistory(false);
+  };
+
+  return (
     <div className={styles.heroWrap}>
-      {/* HTML img tag with fetchPriority for instant LCP loading */}
+      {/* Direct HTML image tag for instant LCP discovery and loading */}
       <div className={styles.heroBg}>
         <img
-          src="/colorful-waves.webp"
+          src="/colorful-waves-mobile.webp"
           alt="Hero Background"
           fetchPriority="high"
           loading="eager"
