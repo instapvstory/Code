@@ -7,7 +7,7 @@ import ClientLayout from "@/components/layout/ClientLayout";
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
-  display: "optional", // Keeps mobile text rendered quickly without delay
+  display: "swap", // Fast text rendering to boost mobile speed score
   preload: true,
 });
 
@@ -62,10 +62,10 @@ export default function RootLayout({
   return (
     <html lang="en" className={inter.variable}>
       <head>
-        {/* Canonical Tag added for SEO */}
+        {/* Canonical Tag for SEO */}
         <link rel="canonical" href="https://pvstoryviewer.com/" />
 
-        {/* Organization Schema for AI & Search Engines */}
+        {/* Organization Schema for Search Engines */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -83,9 +83,10 @@ export default function RootLayout({
         {/* Google AdSense Verification Code */}
         <script
           async
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1602093984257648"
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8343291177355873"
           crossOrigin="anonymous"
         />
+        
         {/* Preconnect to Instagram CDN for fast image loading */}
         <link rel="preconnect" href="https://scontent.cdninstagram.com" />
         <link rel="dns-prefetch" href="https://scontent.cdninstagram.com" />
@@ -93,7 +94,7 @@ export default function RootLayout({
         <link rel="dns-prefetch" href="https://graph.instagram.com" />
       </head>
       <body suppressHydrationWarning>
-        {/* Google Analytics loaded lazily to boost PageSpeed score */}
+        {/* Google Analytics loaded lazily to maximize speed performance */}
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-M16BTK301X"
           strategy="lazyOnload"
@@ -106,12 +107,7 @@ export default function RootLayout({
             gtag('config', 'G-M16BTK301X');
           `}
         </Script>
-        {/* Adsterra Social Bar — loaded lazily to prevent blocking main thread */}
-        <Script
-          id="adsterra-social-bar"
-          src="//pl4629628.profitableratecpmnetwork.com/invoke.js"
-          strategy="lazyOnload"
-        />
+
         <ClientLayout>
           {children}
         </ClientLayout>
