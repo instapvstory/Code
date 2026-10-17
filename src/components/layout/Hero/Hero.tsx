@@ -79,22 +79,8 @@ export default function Hero() {
 
   return (
     <div className={styles.heroWrap}>
-      {/* Direct HTML image tag for instant LCP discovery and loading */}
-      <div className={styles.heroBg}>
-        <img
-          src="/colorful-waves-mobile.webp"
-          alt="Hero Background"
-          fetchPriority="high"
-          loading="eager"
-          style={{
-            position: 'absolute',
-            inset: 0,
-            width: '100%',
-            height: '100%',
-            objectFit: 'cover',
-          }}
-        />
-      </div>
+      {/* Pure CSS background for lightning-fast mobile LCP without layout shifts */}
+      <div className={styles.heroBg} />
 
       <div className={styles.heroContainer}>
         {/* Left Sidebar Ad */}
