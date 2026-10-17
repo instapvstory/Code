@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
+import Image from 'next/image'; // Next.js کا امیج کمپوننٹ جو LCP کو تیز کرتا ہے
 import styles from './Hero.module.css';
 
 // Lazy-load AdSlot after page is interactive — never blocks FCP/TTI
@@ -27,7 +28,6 @@ export default function Hero() {
         setHistory(normalized);
       } catch (e) {}
     }
-    // Delay ad mount until after page is interactive (2s idle window)
     const id = setTimeout(() => setAdReady(true), 2000);
     return () => clearTimeout(id);
   }, []);
@@ -36,17 +36,13 @@ export default function Hero() {
     const username = (value ?? query).trim().replace(/^@/, '').replace(/^https?:\/\/(www\.)?instagram\.com\//, '').replace(/\/$/, '');
     if (!username) return;
 
-    // Trigger ad redirect on every search submit — opens in new tab for maximum CPM revenue
     if (typeof window !== 'undefined') {
-      // Track click count in sessionStorage for frequency control (max 3 per session)
       const clickCountRaw = sessionStorage.getItem('pvstory_ad_clicks') || '0';
       const clickCount = parseInt(clickCountRaw, 10);
       if (clickCount < 3) {
         sessionStorage.setItem('pvstory_ad_clicks', String(clickCount + 1));
-        // Use window.open with noopener for security
         const adWin = window.open('https://www.profitableratecpmnetwork.com/a8hzkht0t?key=8e8f1f7c68aa8d3862601bcc04cd0d59', '_blank', 'noopener,noreferrer');
         if (!adWin) {
-          // Popup blocked — fallback: create a hidden anchor click
           const a = document.createElement('a');
           a.href = 'https://www.profitableratecpmnetwork.com/a8hzkht0t?key=8e8f1f7c68aa8d3862601bcc04cd0d59';
           a.target = '_blank';
@@ -59,7 +55,6 @@ export default function Hero() {
       }
     }
     
-    // Create new basic history item, filter out old occurrences (matching string or object)
     const newItem = { username, name: '', pic: '' };
     const filtered = history.filter(h => {
       const hName = typeof h === 'object' ? h.username : h;
@@ -85,7 +80,17 @@ export default function Hero() {
 
   return (
     <div className={styles.heroWrap}>
-      <div className={styles.heroBg} />
+      {/* ہیرو بیک گراؤنڈ امیج کو Next.js کے ذریعے فورا لوڈ کرنے کا کوڈ */}
+      <div className={styles.heroBg}>
+        <Image
+          src="/colorful-waves.webp"
+          alt="Hero Background"
+          fill
+          priority={true}
+          fetchPriority="high"
+          style={{ objectFit: 'cover' }}
+        />
+      </div>
 
       <div className={styles.heroContainer}>
         {/* Left Sidebar Ad */}
@@ -145,7 +150,6 @@ export default function Hero() {
                 </svg>
               </div>
               
-              {/* Hidden History List (Desktop only / Hover based) */}
               {showHistory && history.length > 0 && (
                 <div className={styles.historyList}>
                   {history.map(item => {
