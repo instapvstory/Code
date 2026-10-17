@@ -16,11 +16,10 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://pvstoryviewer.com'
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: 'PvStoryViewer — Anonymous Instagram Story & Profile Viewer',
+    default: 'Instagram Story & Followers Viewer (2026) | PvStoryViewer',
     template: '%s | PvStoryViewer',
   },
-  description: 'View Instagram stories, posts, reels, highlights and profile data anonymously. No login required. Works on Business and Creator accounts.',
-  keywords: ['instagram viewer', 'anonymous instagram', 'instagram story viewer', 'instagram profile viewer', 'view instagram stories without account', 'instagram anonymous viewer'],
+  description: 'Watch IG stories, followers, posts & reels anonymously. No login, zero trace — the poster never knows. The best Insta PV story viewer for private browsing!',
   authors: [{ name: 'PvStoryViewer Editorial Team', url: SITE_URL }],
   creator: 'PvStoryViewer',
   icons: {
@@ -33,8 +32,8 @@ export const metadata: Metadata = {
     other: [{ rel: 'manifest', url: '/site.webmanifest' }],
   },
   openGraph: {
-    title: 'PvStoryViewer — Anonymous Instagram Story & Profile Viewer',
-    description: 'View Instagram stories, posts, reels and highlights anonymously. No login required.',
+    title: 'Instagram Story & Followers Viewer (2026) | PvStoryViewer',
+    description: 'Watch IG stories, followers, posts & reels anonymously. No login, zero trace — the poster never knows. The best Insta PV story viewer for private browsing!',
     type: 'website',
     url: SITE_URL,
     siteName: 'PvStoryViewer',
@@ -49,12 +48,11 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'PvStoryViewer — Anonymous Instagram Story & Profile Viewer',
-    description: 'View Instagram stories, posts, reels and highlights anonymously. No login required.',
+    title: 'Instagram Story & Followers Viewer (2026) | PvStoryViewer',
+    description: 'Watch IG stories, followers, posts & reels anonymously. No login, zero trace — the poster never knows. The best Insta PV story viewer for private browsing!',
     images: ['/android-chrome-512x512.png'],
   },
 };
-
 
 export default function RootLayout({
   children,
@@ -64,7 +62,25 @@ export default function RootLayout({
   return (
     <html lang="en" className={inter.variable}>
       <head>
-        {/* Google AdSense Verification */}
+        {/* Canonical Tag added for SEO */}
+        <link rel="canonical" href="https://pvstoryviewer.com/" />
+
+        {/* Organization Schema for AI & Search Engines */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Organization",
+              "name": "PvStoryViewer",
+              "url": "https://pvstoryviewer.com",
+              "logo": "https://pvstoryviewer.com/favicon.ico",
+              "description": "Anonymous Instagram Story and Profile Viewer"
+            }),
+          }}
+        />
+
+        {/* Google AdSense Verification Code */}
         <script
           async
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1602093984257648"
