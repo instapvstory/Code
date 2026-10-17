@@ -62,6 +62,9 @@ export default function RootLayout({
   return (
     <html lang="en" className={inter.variable}>
       <head>
+        {/* Preload Hero Background Image for Instant LCP Speed Optimization */}
+        <link rel="preload" href="/colorful-waves.webp" as="image" type="image/webp" />
+
         {/* Canonical Tag for SEO */}
         <link rel="canonical" href="https://pvstoryviewer.com/" />
 
