@@ -7,7 +7,7 @@ import ClientLayout from "@/components/layout/ClientLayout";
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
-  display: "optional", // Use cached font only — avoids text-swap CLS on mobile
+  display: "optional", // Keeps mobile text rendered quickly without delay
   preload: true,
 });
 
@@ -91,22 +91,14 @@ export default function RootLayout({
         <link rel="dns-prefetch" href="https://scontent.cdninstagram.com" />
         <link rel="preconnect" href="https://instagram.fkhi3-1.fna.fbcdn.net" />
         <link rel="dns-prefetch" href="https://graph.instagram.com" />
-        {/* Preload hero background WebP so it loads before paint */}
-        <link
-          rel="preload"
-          as="image"
-          href="/colorful-waves.webp"
-          type="image/webp"
-          // @ts-ignore
-          fetchPriority="high"
-        />
       </head>
       <body suppressHydrationWarning>
+        {/* Google Analytics loaded lazily to boost PageSpeed score */}
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-M16BTK301X"
-          strategy="afterInteractive"
+          strategy="lazyOnload"
         />
-        <Script id="google-analytics" strategy="afterInteractive">
+        <Script id="google-analytics" strategy="lazyOnload">
           {`
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
@@ -114,7 +106,7 @@ export default function RootLayout({
             gtag('config', 'G-M16BTK301X');
           `}
         </Script>
-        {/* Adsterra Social Bar — highest CPM format, fires on all pages */}
+        {/* Adsterra Social Bar — loaded lazily to prevent blocking main thread */}
         <Script
           id="adsterra-social-bar"
           src="//pl4629628.profitableratecpmnetwork.com/invoke.js"
