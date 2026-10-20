@@ -20,7 +20,7 @@ const Footer = () => {
               </div>
               <h3 style={{ color: '#ffffff', margin: 0 }}>Pv Story Viewer</h3>
             </div>
-            <p className="text-small">Anonymous Instagram story and highlight viewer.</p>
+            <p className="text-small">Instagram story and highlight viewer.</p>
           </div>
             <div className={styles.links}>
             <div className={styles.group}>
