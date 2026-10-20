@@ -22,7 +22,7 @@ const Footer = () => {
             </div>
             <p className="text-small">Instagram story and highlight viewer. pvstoryviewer.com is not connected with Instagram. All content belongs to the content authors. Download is available for informational purposes only.</p>
           </div>
-            <div className={styles.links}>
+          <div className={styles.links}>
             <div className={styles.group}>
               <h4>Company</h4>
               <Link href="/about" className="text-small">About Us</Link>
