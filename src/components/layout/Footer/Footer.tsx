@@ -15,33 +15,35 @@ const Footer = () => {
         <div className={styles.content}>
           <div className={styles.brand}>
             <div className={styles.brandTitle}>
-              <h3>PV Story</h3>
+              <div className={styles.logoIcon}>
+                <img src="/logo.png" alt="PvStoryViewer Logo" width="28" height="28" />
+              </div>
+              <h3 style={{ color: '#ffffff', margin: 0 }}>Pv Story Viewer</h3>
             </div>
-            <p className="text-small">
-              pvstory.com is not connected with Instagram. All content belongs to the content authors. Download is available for informational purposes only.
-            </p>
+            <p className="text-small">Instagram story and highlight viewer. pvstoryviewer.com is not connected with Instagram. All content belongs to the content authors. Download is available for informational purposes only.</p>
           </div>
-          <div className={styles.links}>
+            <div className={styles.links}>
             <div className={styles.group}>
-              <h4>Quick Links</h4>
+              <h4>Company</h4>
               <Link href="/about" className="text-small">About Us</Link>
-              <Link href="/contact" className="text-small">Contact</Link>
+              <Link href="/features" className="text-small">Features</Link>
               <Link href="/blog" className="text-small">Blog</Link>
-              <Link href="/features" className="text-small">Social Media Story Viewer</Link>
             </div>
             <div className={styles.group}>
               <h4>Legal</h4>
+              <Link href="/terms" className="text-small">Terms of Service</Link>
               <Link href="/privacy" className="text-small">Privacy Policy</Link>
-              <Link href="/terms" className="text-small">Terms of Use</Link>
+              <Link href="/disclaimer" className="text-small">Disclaimer</Link>
             </div>
             <div className={styles.group}>
               <h4>Support</h4>
-              <Link href="mailto:contact@pvstory.com" className="text-small">contact@pvstory.com</Link>
+              <Link href="/contact" className="text-small">Contact Us</Link>
+              <Link href="/#faq" className="text-small">FAQ</Link>
             </div>
           </div>
         </div>
         <div className={styles.bottom}>
-          <p className="text-small">&copy; {year} pvstory.com. All rights reserved.</p>
+          <p className="text-small">&copy; {year} Pv Story Viewer. All rights reserved.</p>
         </div>
       </div>
     </footer>
