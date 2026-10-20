@@ -16,12 +16,12 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://pvstoryviewer.com'
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: 'Instagram Story & Followers Viewer (2026) | PvStoryViewer',
-    template: '%s | PvStoryViewer',
+    default: 'Instagram Story & Followers Viewer (2026) | Pv Story Viewer',
+    template: '%s | Pv Story Viewer',
   },
   description: 'Watch IG stories, followers, posts & reels anonymously. No login, zero trace — the poster never knows. The best Insta PV story viewer for private browsing!',
-  authors: [{ name: 'PvStoryViewer Editorial Team', url: SITE_URL }],
-  creator: 'PvStoryViewer',
+  authors: [{ name: 'Pv Story Viewer Editorial Team', url: SITE_URL }],
+  creator: 'Pv Story Viewer',
   icons: {
     icon: [
       { url: '/favicon.ico' },
@@ -32,23 +32,23 @@ export const metadata: Metadata = {
     other: [{ rel: 'manifest', url: '/site.webmanifest' }],
   },
   openGraph: {
-    title: 'Instagram Story & Followers Viewer (2026) | PvStoryViewer',
+    title: 'Instagram Story & Followers Viewer (2026) | Pv Story Viewer',
     description: 'Watch IG stories, followers, posts & reels anonymously. No login, zero trace — the poster never knows. The best Insta PV story viewer for private browsing!',
     type: 'website',
     url: SITE_URL,
-    siteName: 'PvStoryViewer',
+    siteName: 'Pv Story Viewer',
     images: [
       {
         url: '/android-chrome-512x512.png',
         width: 512,
         height: 512,
-        alt: 'PvStoryViewer — Anonymous Instagram Story Viewer',
+        alt: 'Pv Story Viewer — Anonymous Instagram Story Viewer',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Instagram Story & Followers Viewer (2026) | PvStoryViewer',
+    title: 'Instagram Story & Followers Viewer (2026) | Pv Story Viewer',
     description: 'Watch IG stories, followers, posts & reels anonymously. No login, zero trace — the poster never knows. The best Insta PV story viewer for private browsing!',
     images: ['/android-chrome-512x512.png'],
   },
@@ -75,7 +75,7 @@ export default function RootLayout({
             __html: JSON.stringify({
               "@context": "https://schema.org",
               "@type": "Organization",
-              "name": "PvStoryViewer",
+              "name": "Pv Story Viewer",
               "url": "https://pvstoryviewer.com",
               "logo": "https://pvstoryviewer.com/favicon.ico",
               "description": "Anonymous Instagram Story and Profile Viewer"
