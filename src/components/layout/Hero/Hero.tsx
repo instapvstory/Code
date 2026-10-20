@@ -102,8 +102,8 @@ export default function Hero() {
 
           {/* Welcome Banner */}
           <div className={styles.welcomeBanner}>
-            <p className={styles.welcomeText}>👋 Welcome to PvStoryViewer!</p>
-            <p className={styles.welcomeSub}>View public stories, posts and followers anonymously.</p>
+            <p className={styles.welcomeText}>👋 Welcome to Pv Story Viewer!</p>
+            <p className={styles.welcomeSub}>Search Any Profile to View Stories & Followers for Free.</p>
           </div>
 
           {/* Search & History Section */}
