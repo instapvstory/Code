@@ -43,7 +43,7 @@ const Footer = () => {
           </div>
         </div>
         <div className={styles.bottom}>
-          <p className="text-small">&copy; {year} PvStoryViewer. All rights reserved.</p>
+          <p className="text-small">&copy; {year} Pv Story Viewer. All rights reserved.</p>
         </div>
       </div>
     </footer>
