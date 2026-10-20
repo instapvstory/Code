@@ -20,7 +20,7 @@ export const metadata: Metadata = {
     template: '%s | Pv Story Viewer',
   },
   description: 'Watch IG stories, followers, posts & reels anonymously. No login, zero trace — the poster never knows. The best Insta PV story viewer for private browsing!',
-  authors: [{ name: 'Pv Story Viewer Editorial Team', url: SITE_URL }],
+  authors: [{ name: 'PvStoryViewer Editorial Team', url: SITE_URL }],
   creator: 'Pv Story Viewer',
   icons: {
     icon: [
