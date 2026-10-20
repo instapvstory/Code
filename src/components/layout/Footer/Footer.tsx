@@ -15,14 +15,13 @@ const Footer = () => {
         <div className={styles.content}>
           <div className={styles.brand}>
             <div className={styles.brandTitle}>
-              <div className={styles.logoIcon}>
-                <img src="/logo.png" alt="PvStoryViewer Logo" width="28" height="28" />
-              </div>
               <h3 style={{ color: '#ffffff', margin: 0 }}>Pv Story Viewer</h3>
             </div>
-            <p className="text-small">Instagram story and highlight viewer.</p>
+            <p className="text-small" style={{ marginTop: '10px' }}>
+              Instagram story and highlight viewer. Pv Story Viewer is not connected with Instagram. All content belongs to the content authors. Download is available for informational purposes only.
+            </p>
           </div>
-            <div className={styles.links}>
+          <div className={styles.links}>
             <div className={styles.group}>
               <h4>Company</h4>
               <Link href="/about" className="text-small">About Us</Link>
