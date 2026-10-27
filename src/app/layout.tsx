@@ -62,6 +62,9 @@ export default function RootLayout({
   return (
     <html lang="en" className={inter.variable}>
       <head>
+        {/* Google Search Console Verification */}
+        <meta name="google-site-verification" content="lo3NAlB3AysDgrNpmf55L3ZdgPEUmK280jhTM0kZJfY" />
+
         {/* Preload mobile hero background image for instant LCP optimization */}
         <link rel="preload" href="/colorful-waves-mobile.webp" as="image" type="image/webp" />
 
